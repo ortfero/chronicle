@@ -23,50 +23,24 @@
 #pragma once
 
 
-#include <string_view>
-#include <chrono>
-
-
-#ifdef CHRONICLE_USE_SYSTEM_THEATER
-
-#include <theater/sequence.hpp>
-
-#else
-
-#include "bundled/theater/sequence.hpp"
-
-#endif // CHRONICLE_USE_SYSTEM_THEATER
-
-
-#ifdef CHRONICLE_USE_SYSTEM_DATE
-
-#include <date/date.h>
-
-#else
-
-#include "bundled/date/date.h"
-
-#endif
-
-
+#include "format.hpp"
 #include "severity.hpp"
+#include "utc_time_microseconds.hpp"
+#include "utc_time_milliseconds.hpp"
+#include "thread_id.hpp"
+#include "source.hpp"
 
 
-namespace chronicle {
-
-
-  template<typename D> struct message {
-
-    theater::sequence sequence;
-    enum severity severity;
-    std::chrono::system_clock::time_point time;
-    unsigned thread_id;
-    std::string_view source;
-    std::string_view text;
-    bool has_data{false};
-    D data;
-
-  }; // message
-
-
-} // chronicle
+namespace chronicle { namespace fields {
+  
+  
+  using format_microseconds = format<severity, utc_time_microseconds, thread_id, source>;
+  using format_milliseconds = format<severity, utc_time_milliseconds, thread_id, source>;
+  using format_microseconds_single = format<severity, utc_time_microseconds, source>;
+  using format_milliseconds_single = format<severity, utc_time_milliseconds, source>;
+  
+  using format_default = format_microseconds;
+  using format_default_single = format_microseconds_single;
+  
+  
+} }

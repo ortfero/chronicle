@@ -10,9 +10,10 @@
 #include <ubench/ubench.hpp>
 
 #include <chronicle/text_log.hpp>
+#include <chronicle/sinks/file.hpp>
 
 #include <reckless/file_writer.hpp>
-#include <reckless/policy_log.hpp>
+#include <reckless/severity_log.hpp>
 
 #include <nanolog/NanoLog.hpp>
 
@@ -20,7 +21,6 @@
 #include <spdlog/async.h>
 #include <spdlog/sinks/basic_file_sink.h>
 
-#include <ubench/ubench.hpp>
 
 struct settings {
   static constexpr auto total_messages = 100000;
@@ -31,11 +31,16 @@ struct settings {
 };
 
 
-chronicle::file_text_log<> journal;
+chronicle::text_log journal;
 
 reckless::file_writer reckless_writer("reckless.log");
-using reckless_logger_t = reckless::policy_log<>;
-reckless_logger_t reckless_logger(&reckless_writer);
+using reckless_logger_t =  reckless::severity_log<
+                             reckless::indent<4>,       // 4 spaces of indent
+                             ' ',                       // Field separator
+                             reckless::severity_field,  // Show severity marker (D/I/W/E) first
+                             reckless::timestamp_field  // Then timestamp field
+                            >;
+reckless_logger_t reckless_logger(&reckless_writer, 100000 * 256, 100000 * 256);
 
 std::shared_ptr<spdlog::logger>  spd_logger;
 
@@ -75,14 +80,22 @@ int main() {
 
   using namespace  std;
 
-  if(!journal.open(chronicle::sinks::file::open("test.log"), 1000000)) {
+  std::error_code failed; auto file = chronicle::sinks::file::open("test.log", failed);
+  if(!file) {
+    puts(failed.message().data());
+    return 1;
+  }
+
+  journal.add_sink(std::move(file));
+
+  if(!journal.open(128 * 1024)) {
     puts("Unable to open log");
     return 1;
   }
 
   nanolog::initialize(nanolog::GuaranteedLogger(), "", "nanolog", 1);
 
-  for (auto threads : { 1 })
+  for (auto threads : { 2 })
     run_benchmark("nanolog", threads, [] {
     LOG_INFO << "Logging "
       << settings::string << settings::int_number
@@ -96,14 +109,14 @@ int main() {
   spd_logger->set_pattern("[%l] %v");
 
 
-  for(auto threads: {1})
+  for(auto threads: {2})
    run_benchmark("reckless", threads, []{
-      reckless_logger.write("[benchmark] Logging {} {}{}{}",
+      reckless_logger.info("[benchmark] Logging {} {}{}{}",
                             settings::string, settings::int_number,
                             settings::character, settings::float_number);
     });
 
-  for(auto threads: {1})
+  for(auto threads: {2})
    run_benchmark("spdlog", threads, []{
       spd_logger->info("Logging {} {}{}{}",
                             settings::string, settings::int_number,
@@ -111,11 +124,11 @@ int main() {
     });
 
 
-  for(auto threads: {1})
+  for(auto threads: {2})
     run_benchmark("chronicle", threads, []{
-      journal.notice("benchmark", "Logging ",
-                     settings::string/*, settings::int_number*/,
-                     settings::character/*, settings::float_number*/);
+      journal.info("benchmark", "Logging ",
+                     settings::string, settings::int_number,
+                     settings::character, settings::float_number);
     });
 
   std::cout << "chronicle blocks: " << journal.blocks_count() << std::endl;

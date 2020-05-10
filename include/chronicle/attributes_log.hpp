@@ -1,33 +1,76 @@
+/* This file is part of chronicle library
+ * Copyright 2020 Andrei Ilin <ortfero@gmail.com>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 #pragma once
 
 
-#include "detail/hydra/mpsc_queue.hpp"
-#include "detail/hydra/spsc_queue.hpp"
-#include "detail/chineseroom/texter.hpp"
+#ifdef CHRONICLE_USE_SYSTEM_THEATER
+
+#include <theater/mpsc_queue.hpp>
+#include <theater/spsc_queue.hpp>
+
+#else
+
+#include "bundled/theater/mpsc_queue.hpp"
+#include "bundled/theater/spsc_queue.hpp"
+
+#endif // CHRONICLE_USE_SYSTEM_THEATER
+
+
+#ifdef CHRONICLE_USE_SYSTEM_UFORMAT
+
+#include <uformat/texter.hpp>
+
+#else
+
+#include "bundled/uformat/texter.hpp"
+
+#endif // CHRONICLE_USE_SYSTEM_UFORMAT
+
+
+#include "traits.hpp"
 #include "data_log.hpp"
-#include "sinks/output.hpp"
-#include "sinks/file.hpp"
 
 
 namespace chronicle {
   
   
-template<typename S, typename B, typename Q = hydra::mpsc_queue<message<B>>>
-struct basic_attributes_log : basic_data_log<S, B, Q> {
+template<typename Tr>
+struct basic_attributes_log : basic_data_log<Tr> {
 
-  using base = basic_data_log<S, B, Q>;
-  using buffer_type = B;
+  using base = basic_data_log<Tr>;
   using size_type = typename base::size_type;
+  using message_type = typename base::message_type;
+  using buffer_type = typename base::data_type;
   
-  static constexpr size_type default_buffer_for_message = 512;
+  static constexpr size_type default_message_size = 512;
   
   using base::open;
   using base::close;
-  using base::reserve;
+  using base::severity;
   
   
-  basic_attributes_log(size_type buffer_for_message = default_buffer_for_message) noexcept:
-    base(buffer_for_message)
+  basic_attributes_log(size_type message_size = default_message_size) noexcept:
+    base(message_size)
   { }
   
   
@@ -35,73 +78,199 @@ struct basic_attributes_log : basic_data_log<S, B, Q> {
   basic_attributes_log& operator = (basic_attributes_log const&) = delete;
 
 
-  template<size_t N1, size_t N2> void notice(char const (&tag)[N1], char const (&text)[N2]) {
-    base::print<severity::notice>(std::string_view{tag, N1 - 1},
-                                  std::string_view{text, N2 - 1});
+  template<size_t N1, size_t N2>
+  void failure(char const (&tag)[N1], char const (&text)[N2]) {
+    base::print<severity::failure>(std::string_view{tag, N1 - 1},
+                            std::string_view{text, N2 - 1});
   }
 
 
-  template<size_t N1, size_t N2, size_t N3, typename Arg, typename... Args>
-  void notice(char const (&tag)[N1], char const (&text)[N2],
-              char const (&attr_name)[N3], Arg&& attr_value,
-              Args&&... attrs) {
-    print<severity::notice>(std::string_view{tag, N1 - 1},
+  template<size_t N1, size_t N2, size_t N3, typename Arg, typename... Attrs>
+  void failure(char const (&tag)[N1], char const (&text)[N2],
+               char const (&name)[N3], Arg&& value,
+               Attrs&&... attrs) {
+    print<severity::failure>(std::string_view{tag, N1 - 1},
                             std::string_view{text, N2 - 1},
-                            std::string_view{attr_name, N3 - 1},
-                            std::forward<Arg>(attr_value),
+                            std::string_view{name, N3 - 1},
+                            std::forward<Arg>(value),
                             std::forward<Args>(attrs)...);
   }
 
 
-private:
-
-  template<severity S, typename Arg, typename... Args>
-  void print(std::string_view const& tag, std::string_view const& text,
-             std::string_view const& attr_name, Arg&& attr_value,
-             Args&&... attrs) {
-    auto& m = base::lease<S>(tag, text);
-    m.data.clear();
-    m.data << ' ' << '{';
-    m.data << attr_name << ' ' << '=' << ' ' << attr_value;
-    format_attributes(m.data, std::forward<Args>(attrs)...);
-    m.data << '}';
-    m.has_data = true;
-    base::enqueue(std::move(m));
+  template<size_t N1, size_t N2>
+  void error(char const (&tag)[N1], char const (&text)[N2]) {
+    base::print<severity::error>(std::string_view{tag, N1 - 1},
+                            std::string_view{text, N2 - 1});
   }
 
 
-  static void format_attributes(buffer&)
+  template<size_t N1, size_t N2, size_t N3, typename Arg, typename... Attrs>
+  void error(char const (&tag)[N1], char const (&text)[N2],
+               char const (&name)[N3], Arg&& value,
+               Attrs&&... attrs) {
+    print<severity::error>(std::string_view{tag, N1 - 1},
+                            std::string_view{text, N2 - 1},
+                            std::string_view{name, N3 - 1},
+                            std::forward<Arg>(value),
+                            std::forward<Args>(attrs)...);
+  }
+
+
+  template<size_t N1, size_t N2>
+  void warning(char const (&tag)[N1], char const (&text)[N2]) {
+    base::print<severity::warning>(std::string_view{tag, N1 - 1},
+                            std::string_view{text, N2 - 1});
+  }
+
+
+  template<size_t N1, size_t N2, size_t N3, typename Arg, typename... Attrs>
+  void warning(char const (&tag)[N1], char const (&text)[N2],
+               char const (&name)[N3], Arg&& value,
+               Attrs&&... attrs) {
+    print<severity::warning>(std::string_view{tag, N1 - 1},
+                            std::string_view{text, N2 - 1},
+                            std::string_view{name, N3 - 1},
+                            std::forward<Arg>(value),
+                            std::forward<Args>(attrs)...);
+  }
+
+
+  template<size_t N1, size_t N2>
+  void info(char const (&tag)[N1], char const (&text)[N2]) {
+    base::print<severity::info>(std::string_view{tag, N1 - 1},
+                            std::string_view{text, N2 - 1});
+  }
+
+
+  template<size_t N1, size_t N2, size_t N3, typename Arg, typename... Attrs>
+  void info(char const (&tag)[N1], char const (&text)[N2],
+               char const (&name)[N3], Arg&& value,
+               Attrs&&... attrs) {
+    print<severity::info>(std::string_view{tag, N1 - 1},
+                            std::string_view{text, N2 - 1},
+                            std::string_view{name, N3 - 1},
+                            std::forward<Arg>(value),
+                            std::forward<Args>(attrs)...);
+  }
+
+
+  template<size_t N1, size_t N2>
+  void extra(char const (&tag)[N1], char const (&text)[N2]) {
+    base::print<severity::extra>(std::string_view{tag, N1 - 1},
+                            std::string_view{text, N2 - 1});
+  }
+
+
+  template<size_t N1, size_t N2, size_t N3, typename Arg, typename... Attrs>
+  void extra(char const (&tag)[N1], char const (&text)[N2],
+               char const (&name)[N3], Arg&& value,
+               Attrs&&... attrs) {
+    print<severity::extra>(std::string_view{tag, N1 - 1},
+                            std::string_view{text, N2 - 1},
+                            std::string_view{name, N3 - 1},
+                            std::forward<Arg>(value),
+                            std::forward<Args>(attrs)...);
+  }
+
+
+  template<size_t N1, size_t N2>
+  void trace(char const (&tag)[N1], char const (&text)[N2]) {
+    base::print<severity::trace>(std::string_view{tag, N1 - 1},
+                            std::string_view{text, N2 - 1});
+  }
+
+
+  template<size_t N1, size_t N2, size_t N3, typename Arg, typename... Attrs>
+  void trace(char const (&tag)[N1], char const (&text)[N2],
+               char const (&name)[N3], Arg&& value,
+               Attrs&&... attrs) {
+    print<severity::trace>(std::string_view{tag, N1 - 1},
+                            std::string_view{text, N2 - 1},
+                            std::string_view{name, N3 - 1},
+                            std::forward<Arg>(value),
+                            std::forward<Args>(attrs)...);
+  }
+
+
+#ifdef NDEBUG
+
+
+  template<size_t N1, size_t N2>
+  void debug(char const (&)[N1], char const (&)[N2])
   { }
 
 
-  template<typename S, size_t N, typename T, typename... Args>
-  static void format_attributes(printer<S>& buffer, char const (&attr_name)[N],
-                                T&& attr_value, Args&&... args) {
-    buffer << ',' << ' ' << std::string_view{attr_name, N - 1} << ' ' << '=' << ' ' << attr_value;
-    format_attributes(buffer, std::forward<Args>(args)...);
+  template<size_t N1, size_t N2, size_t N3, typename Arg, typename... Attrs>
+  void debug(char const (&)[N1], char const (&)[N2],
+               char const (&)[N3], Arg&&,
+               Attrs&&...)
+  { }
+
+
+#else
+
+
+  template<size_t N1, size_t N2>
+  void debug(char const (&tag)[N1], char const (&text)[N2]) {
+    base::print<severity::debug>(std::string_view{tag, N1 - 1},
+                            std::string_view{text, N2 - 1});
   }
 
 
-};
+  template<size_t N1, size_t N2, size_t N3, typename Arg, typename... Attrs>
+  void debug(char const (&tag)[N1], char const (&text)[N2],
+               char const (&name)[N3], Arg&& value,
+               Attrs&&... attrs) {
+    print<severity::debug>(std::string_view{tag, N1 - 1},
+                            std::string_view{text, N2 - 1},
+                            std::string_view{name, N3 - 1},
+                            std::forward<Arg>(value),
+                            std::forward<Args>(attrs)...);
+  }
 
 
-template<typename S, typename B = chineseroom::long_texter>
-using attributes_log_mt = basic_attributes_log<S, B>;
+#endif
 
-template<typename S, typename B = chineseroom::long_texter>
-using attributes_log = basic_attributes_log<S, B, hydra::spsc_queue<message<B>>>;
 
-template<typename B = chineseroom::long_texter>
-using output_attributes_log_mt = attributes_log_mt<sinks::output, B>;
+private:
 
-template<typename B = chineseroom::long_texter>
-using output_attributes_log = attributes_log<sinks::output, B>;
+  template<chronicle::severity S, typename Arg, typename... Attrs>
+  void print(std::string_view const& tag, std::string_view const& text,
+             std::string_view const& name, Arg&& value,
+             Attrs&&... attrs) {
+    if(base::severity() < S)
+      return;
+    message_type* m = base::claim<S>(tag, text);
+    if(!m)
+      return;
+    m->data.clear();
+    m->data << ' ' << '{' << name << ' ' << '=' << ' ' << value;
+    format_attrs(m->data, std::forward<Attrs>(attrs)...);
+    m->data << '}';
+    m->has_data = true;
+    base::publish(*m);
+  }
 
-template<typename B = chineseroom::long_texter>
-using file_attributes_log_mt = attributes_log_mt<sinks::file, B>;
 
-template<typename B = chineseroom::long_texter>
-using file_attributes_log = attributes_log<sinks::file, B>;
-  
+  static void format_attrs(buffer_type&)
+  { }
+
+
+  template<typename Arg, typename... Attrs>
+  static void format_attrs(buffer_type& p, std::string_view const& name, Arg&& value, Attrs&&... attrs) {
+    p << ',' << ' ' << name << ' ' << '=' << ' ' value;
+    format_attrs(p, std::forward<Attrs>(attrs)...);
+  }
+
+}; // basic_attributes_log
+
+
+using attributes_log_single_traits = traits_default_single<uformat::long_texter>;
+using attributes_log_traits = traits_default<uformat::long_texter>;
+
+
+using attributes_log_single = basic_attributes_log<attributes_log_single_traits>;
+using attributes_log = basic_attributes_log<attributes_log_traits>;
+
   
 } // chronicle

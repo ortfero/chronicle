@@ -1,91 +1,269 @@
+/* This file is part of chronicle library
+ * Copyright 2020 Andrei Ilin <ortfero@gmail.com>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 #pragma once
 
 
 #include <thread>
 #include <atomic>
-#include "detail/hydra/activity.hpp"
-#include "detail/hydra/queue_batch.hpp"
-#include "detail/hydra/mpsc_queue.hpp"
-#include "detail/hydra/spsc_queue.hpp"
-#include "detail/chineseroom/texter.hpp"
-#include "sinks/file.hpp"
+#include <vector>
+#include <memory>
+
+#ifdef CHRONICLE_USE_SYSTEM_THEATER
+
+#include <theater/activity.hpp>
+#include <theater/queue_batch.hpp>
+#include <theater/mpsc_queue.hpp>
+#include <theater/spsc_queue.hpp>
+
+#else
+
+#include "bundled/theater/activity.hpp"
+#include "bundled/theater/queue_batch.hpp"
+#include "bundled/theater/mpsc_queue.hpp"
+#include "bundled/theater/spsc_queue.hpp"
+
+#endif // CHRONICLE_USE_SYSTEM_THEATER
+
+
+#ifdef CHRONICLE_USE_SYSTEM_UFORMAT
+
+#include <uformat/texter.hpp>
+
+#else
+
+#include "bundled/uformat/texter.hpp"
+
+#endif // CHRONICLE_USE_SYSTEM_UFORMAT
+
+
+#include "traits.hpp"
 #include "severity.hpp"
 #include "message.hpp"
-
-
-#include <functional>
+#include "sink.hpp"
 
 
 namespace chronicle {
 
 
-template<typename S, typename D, typename Q = hydra::mpsc_queue<message<D>>>
+template<typename Tr>
 struct basic_data_log {
 
-  using message_type = message<D>;
-  using sink_type = S;
-  using activity = hydra::activity<message_type, Q>;
-  using batch = typename activity::batch;
-  using size_type = typename activity::size_type;
+  using data_type = typename Tr::data_type;
+  using format_type = typename Tr::format_type;
+  using queue_type = typename Tr::queue_type;
+  using message_type = message<data_type>;
+  using activity_type = theater::activity<message_type, queue_type>;
+  using batch_type = typename activity_type::batch;
+  using size_type = typename activity_type::size_type;
+  using sinks_type = std::vector<std::unique_ptr<sink>>;
 
 
-  static constexpr size_type default_buffer_size = 8192;
+  static constexpr size_type default_queue_size = 8192;
 
 
-  basic_data_log(size_type buffer_for_message) noexcept:
-    buffer_for_message_{buffer_for_message}
+  basic_data_log(size_type message_size) noexcept:
+    message_size_{message_size}
   { }
 
   basic_data_log(basic_data_log const&) = delete;
   basic_data_log& operator = (basic_data_log const&) = delete;
-  ~basic_data_log() { activity_.stop(); }
+  ~basic_data_log() { close(); }
   bool opened() const noexcept { return activity_.active(); }
   size_type blocks_count() const noexcept { return activity_.blocks_count(); }
+  void severity(severity s) noexcept { severity_ = s; }
+  enum severity severity() const noexcept { return severity_; }
+  sinks_type const& sinks() const noexcept { return sinks_; }
+  void prologue(std::string text) noexcept { prologue_ = std::move(text); }
+  void epilogue(std::string text) noexcept { epilogue_ = std::move(text); }
 
 
-  bool open(S&& sink, size_type buffer_size = default_buffer_size) {
-    if(!sink)
+  bool add_sink(std::unique_ptr<sink>&& sink_ptr) {
+    if(!sink_ptr || !sink_ptr->ready())
       return false;
-    sink_ = std::move(sink);
-    activity_.reserve(buffer_size);
+    sinks_.emplace_back(std::move(sink_ptr));
+    return true;
+  }
+
+
+  template<typename Rep, typename Period>
+  void flush_timeout(std::chrono::duration<Rep, Period> const& timeout) noexcept {
+    flush_timeout_ = timeout;
+  }
+
+
+  std::chrono::system_clock::duration flush_timeout() const noexcept {
+    return flush_timeout_;
+  }
+
+
+  bool open(size_type queue_size = default_queue_size) {
+
+    if(sinks_.empty())
+      return false;
+    for(auto const& each_sink: sinks_)
+      if(!each_sink->ready())
+        return false;
+
+    if(!prologue_.empty())
+      for(auto& each_sink: sinks_)
+        each_sink->prologue(prologue_.data(), prologue_.size());
+
+    activity_.reserve(queue_size);
 
     return activity_.run([this](auto& batch) {
+
       buffer_.clear();
-      buffer_.reserve(buffer_for_message_ * batch.size());
+      buffer_.reserve(message_size_ * batch.size());
+
       auto const now = std::chrono::system_clock::now();
       while(auto sequence = batch.try_fetch()) {
         message_type& message = batch[sequence];
         message.time = now;
-        buffer_ << message;
-        buffer_ << '\n';
+        format_.print(message, buffer_);
         batch.fetched();        
       }
-      sink_.write(now, buffer_.data(), buffer_.size());
+
+      bool have_to_flush;
+      if(now - last_flush_time_ > flush_timeout_) {
+        last_flush_time_ = now;
+        have_to_flush = true;
+      } else {
+        have_to_flush = false;
+      }
+
+      for(auto& each_sink: sinks_) {
+        each_sink->write(now, buffer_.data(), buffer_.size());
+        if(have_to_flush)
+          each_sink->flush();
+      }
     });
   }
 
 
   void close() {
     activity_.stop();
-    sink_.close();
+    if(!epilogue_.empty())
+      for(auto& each_sink: sinks_)
+        each_sink->epilogue(epilogue_.data(), epilogue_.size());
+    for(auto& each_sink: sinks_)
+      each_sink->close();
   }
 
 
-  template<size_t N1, size_t N2> void notice(char const (&tag)[N1], char const (&text)[N2]) {
-    print<severity::notice>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1});
+  template<size_t N1, size_t N2> void failure(char const (&tag)[N1], char const (&text)[N2]) {
+    print<severity::failure>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1});
   }
 
 
-  template<size_t N1, size_t N2> void notice(char const (&tag)[N1], char const (&text)[N2], D const& data) {
-    print<severity::notice>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1}, data);
+  template<size_t N1, size_t N2> void failure(char const (&tag)[N1], char const (&text)[N2], data_type const& data) {
+    print<severity::failure>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1}, data);
   }
+
+
+  template<size_t N1, size_t N2> void error(char const (&tag)[N1], char const (&text)[N2]) {
+    print<severity::error>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1});
+  }
+
+
+  template<size_t N1, size_t N2> void error(char const (&tag)[N1], char const (&text)[N2], data_type const& data) {
+    print<severity::error>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1}, data);
+  }
+
+
+  template<size_t N1, size_t N2> void warning(char const (&tag)[N1], char const (&text)[N2]) {
+    print<severity::warning>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1});
+  }
+
+
+  template<size_t N1, size_t N2> void warning(char const (&tag)[N1], char const (&text)[N2], data_type const& data) {
+    print<severity::warning>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1}, data);
+  }
+
+
+  template<size_t N1, size_t N2> void info(char const (&tag)[N1], char const (&text)[N2]) {
+    print<severity::info>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1});
+  }
+
+
+  template<size_t N1, size_t N2> void info(char const (&tag)[N1], char const (&text)[N2], data_type const& data) {
+    print<severity::info>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1}, data);
+  }
+
+
+  template<size_t N1, size_t N2> void extra(char const (&tag)[N1], char const (&text)[N2]) {
+    print<severity::extra>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1});
+  }
+
+
+  template<size_t N1, size_t N2> void extra(char const (&tag)[N1], char const (&text)[N2], data_type const& data) {
+    print<severity::extra>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1}, data);
+  }
+
+
+  template<size_t N1, size_t N2> void trace(char const (&tag)[N1], char const (&text)[N2]) {
+    print<severity::trace>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1});
+  }
+
+
+  template<size_t N1, size_t N2> void trace(char const (&tag)[N1], char const (&text)[N2], data_type const& data) {
+    print<severity::trace>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1}, data);
+  }
+
+
+#ifdef NDEBUG
+
+
+  template<size_t N1, size_t N2> void debug(char const (&)[N1], char const (&)[N2]) {
+  }
+
+
+  template<size_t N1, size_t N2> void debug(char const (&)[N1], char const (&)[N2], data_type const&) {
+  }
+
+
+#else
+
+
+  template<size_t N1, size_t N2> void debug(char const (&tag)[N1], char const (&text)[N2]) {
+    print<severity::debug>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1});
+  }
+
+
+  template<size_t N1, size_t N2> void debug(char const (&tag)[N1], char const (&text)[N2], data_type const& data) {
+    print<severity::debug>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1}, data);
+  }
+
+
+#endif
 
 
 protected:
 
-  template<severity S> void print(std::string_view const& tag,
+  template<chronicle::severity S> void print(std::string_view const& tag,
                                   std::string_view const& text) {
-    message<D>* m = claim<S>(tag, text);
+    if(severity_ < S)
+      return;
+    message_type* m = claim<S>(tag, text);
     if(!m)
       return;
     publish(*m);
@@ -93,10 +271,12 @@ protected:
 
 
 
-  template<severity S> void print(std::string_view const& tag,
+  template<chronicle::severity S> void print(std::string_view const& tag,
                                   std::string_view const& text,
-                                  D const& data) {
-    message<D>* m = claim<S>(tag, text);
+                                  data_type const& data) {
+    if(severity_ < S)
+      return;
+    message_type* m = claim<S>(tag, text);
     if(!m)
       return;
     m->data = data;
@@ -105,22 +285,17 @@ protected:
   }
 
 
-  void publish(message<D> const& m) {
+  void publish(message_type const& m) {
     activity_.publish(m.sequence);
   }
 
 
-  template<severity S> message<D>* claim(std::string_view const& tag,
+  template<chronicle::severity S> message_type* claim(std::string_view const& source,
                                          std::string_view const& text) {
     auto const sequence = activity_.claim();
-    if(!sequence) {
-      //fputs("claim lock", stderr);
-      /*printf("claim failed: producer = %lld, consumer = %lld\n",
-             activity_.messages_.producer_.load(),
-             activity_.messages_.consumer_);*/
+    if(!sequence)
       return nullptr;
-    }
-    message<D>& m = activity_[sequence];
+    message_type& m = activity_[sequence];
     m.sequence = sequence;
     m.severity = S;
 #if defined(_WIN32)
@@ -128,7 +303,7 @@ protected:
 #else
 #error Unsupported system
 #endif
-    m.tag = tag;
+    m.source = source;
     m.text = text;
     m.has_data = false;
     return &m;
@@ -137,25 +312,27 @@ protected:
 
 private:
 
-  S sink_;
-  activity activity_;
-  size_type buffer_for_message_;
-  chineseroom::large_texter buffer_;
-  int value_;
+  sinks_type sinks_;
+  enum severity severity_{chronicle::severity::info};
+  activity_type activity_;
+  size_type message_size_;
+  uformat::dynamic_texter buffer_;
+  std::chrono::system_clock::duration flush_timeout_;
+  std::chrono::system_clock::time_point last_flush_time_;
+  format_type format_;
+  std::string prologue_{"\n LOG OPENED\n\n"};
+  std::string epilogue_{"\n LOG CLOSED\n\n"};
 
-}; // log
+}; // basic_data_log
 
+template<typename D>
+using data_log_single_traits = traits_microseconds_single<D>;
+template<typename D>
+using data_log_traits = traits_microseconds<D>;
 
-template<typename S, typename D> using
-  data_log_mt = basic_data_log<S, D>;
-
-template<typename S, typename D> using
-  data_log = basic_data_log<S, D, hydra::spsc_queue<message<D>>>;
-
-template<typename D> using
-  file_data_log_mt = data_log_mt<sinks::file, D>;
-
-template<typename D> using
-  file_data_log = data_log<sinks::file, D>;
+template<typename D>
+using data_log_single = basic_data_log<data_log_single_traits<D>>;
+template<typename D>
+using data_log = basic_data_log<data_log_traits<D>>;
 
 } // chronicle

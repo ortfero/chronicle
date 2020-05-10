@@ -1,4 +1,4 @@
-/* This file is part of chronicle library
+﻿/* This file is part of chronicle library
  * Copyright 2020 Andrei Ilin <ortfero@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -23,50 +23,31 @@
 #pragma once
 
 
-#include <string_view>
-#include <chrono>
+#ifdef CHRONICLE_USE_SYSTEM_UFORMAT
 
-
-#ifdef CHRONICLE_USE_SYSTEM_THEATER
-
-#include <theater/sequence.hpp>
+#include <uformat/texter.hpp>
 
 #else
 
-#include "bundled/theater/sequence.hpp"
-
-#endif // CHRONICLE_USE_SYSTEM_THEATER
-
-
-#ifdef CHRONICLE_USE_SYSTEM_DATE
-
-#include <date/date.h>
-
-#else
-
-#include "bundled/date/date.h"
+#include "../bundled/uformat/texter.hpp"
 
 #endif
 
 
-#include "severity.hpp"
+#include "../message.hpp"
 
 
-namespace chronicle {
-
-
-  template<typename D> struct message {
-
-    theater::sequence sequence;
-    enum severity severity;
-    std::chrono::system_clock::time_point time;
-    unsigned thread_id;
-    std::string_view source;
-    std::string_view text;
-    bool has_data{false};
-    D data;
-
-  }; // message
-
-
-} // chronicle
+namespace chronicle { namespace fields {
+  
+  
+  class thread_id {
+  public:
+  
+    template<class S, typename D>
+    void print(message<D> const& m, uformat::texter<S>& texter) {
+      texter << '[' << m.thread_id << ']';
+    }
+    
+  }; // thread_id
+  
+} } // fields chronicle

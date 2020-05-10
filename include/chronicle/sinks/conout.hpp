@@ -24,16 +24,13 @@
 
 
 #include <memory>
-#include <filesystem>
-#include <system_error>
 
 
-#if defined(_WIN32)
+#ifdef _WIN32
 
 #include <minwindef.h>
+#include <ProcessEnv.h>
 #include <fileapi.h>
-#include <handleapi.h>
-#include <errhandlingapi.h>
 
 #endif
 
@@ -46,53 +43,24 @@ namespace chronicle { namespace sinks {
 
 #if defined(_WIN32)
 
-  class file: public sink {
+  class conout: public sink {
   public:
 
-    static constexpr auto file_append_data = DWORD(0x0004);
-    static constexpr auto file_share_read = DWORD(0x00000001);
-    static constexpr auto open_always = DWORD(4);
-    static constexpr auto file_attribute_normal = DWORD(0x00000080);
+    static constexpr auto std_output_handle = DWORD(-11);
 
-
-    static std::unique_ptr<file> open(std::filesystem::path const& path,
-                                      std::error_code& error) noexcept {
-      file f{path, error};
-      if(!f.ready())
-        return nullptr;
-      return std::unique_ptr<file>{new file{std::move(f)}};
+    static std::unique_ptr<sink> open() noexcept {
+      return std::unique_ptr<sink>{new conout{GetStdHandle(std_output_handle)}};
     }
 
+    conout() noexcept = default;
+    conout(conout const&) = delete;
+    conout& operator = (conout const&) noexcept = delete;    
 
-    file() noexcept = default;
-    ~file() override { close(); }
-
-    file(file const&) noexcept = delete;
-    file& operator = (file const&) noexcept = delete;
-    
-    
-    file(std::filesystem::path const& path, std::error_code& error) noexcept {
-      auto const directory = path.parent_path();
-      namespace fs = std::filesystem;
-      if(!fs::exists(directory))
-        fs::create_directories(directory, error);
-      if(!!error)
-        return;
-      handle_ = CreateFileW(path.native().data(), file_append_data, file_share_read,
-                            nullptr, open_always, file_attribute_normal, nullptr);
-      if(handle_ == nullptr)
-        error = {int(GetLastError()), std::system_category()};
-    }
-
-
-    file(file&& other) noexcept: handle_{other.handle_} {
+    conout(conout&& other) noexcept: handle_{other.handle_} {
       other.handle_ = nullptr;
     }
 
-
-    file& operator = (file&& other) noexcept {
-      if(handle_ != nullptr)
-        CloseHandle(handle_);
+    conout& operator = (conout&& other) noexcept {
       handle_ = other.handle_; other.handle_ = nullptr;
       return *this;
     }
@@ -102,7 +70,7 @@ namespace chronicle { namespace sinks {
       return handle_ != nullptr;
     }
 
-
+    
     void write(time_point const&, char const* data, size_t size) noexcept override {
       WriteFile(handle_, data, DWORD(size), nullptr, nullptr);
     }
@@ -114,28 +82,26 @@ namespace chronicle { namespace sinks {
 
 
     void close() noexcept override {
-      if(handle_ == nullptr)
-        return;
-      CloseHandle(handle_);
       handle_ = nullptr;
     }
 
 
-    void prologue(const char *data, size_t size) noexcept override {
-      WriteFile(handle_, data, DWORD(size), nullptr, nullptr);
-    }
+    void prologue(const char*, size_t) noexcept override
+    { }
 
 
-    void epilogue(const char *data, size_t size) noexcept override {
-      WriteFile(handle_, data, DWORD(size), nullptr, nullptr);
-    }
+    void epilogue(const char*, size_t) noexcept override
+    { }
 
 
   private:
 
     void* handle_{nullptr};
 
-  }; // file
+    conout(void* handle) noexcept: handle_{handle} { }
+
+  }; // conout
+
 
 #else
 
@@ -144,4 +110,4 @@ namespace chronicle { namespace sinks {
 #endif
 
 
-} }
+} } // sinks chronicle

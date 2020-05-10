@@ -23,50 +23,32 @@
 #pragma once
 
 
-#include <string_view>
 #include <chrono>
 
 
-#ifdef CHRONICLE_USE_SYSTEM_THEATER
-
-#include <theater/sequence.hpp>
-
-#else
-
-#include "bundled/theater/sequence.hpp"
-
-#endif // CHRONICLE_USE_SYSTEM_THEATER
-
-
-#ifdef CHRONICLE_USE_SYSTEM_DATE
-
-#include <date/date.h>
-
-#else
-
-#include "bundled/date/date.h"
-
-#endif
-
-
-#include "severity.hpp"
-
-
 namespace chronicle {
+  
+  
+class sink {
+public:
 
+  using time_point = std::chrono::system_clock::time_point;
 
-  template<typename D> struct message {
+  virtual bool ready() const noexcept = 0;
+  
+  virtual void write(time_point const& tp, char const* data, size_t size) noexcept = 0;
+  
+  virtual void flush() noexcept = 0;
 
-    theater::sequence sequence;
-    enum severity severity;
-    std::chrono::system_clock::time_point time;
-    unsigned thread_id;
-    std::string_view source;
-    std::string_view text;
-    bool has_data{false};
-    D data;
+  virtual void close() noexcept = 0;
 
-  }; // message
+  virtual void prologue(char const* data, size_t size) noexcept = 0;
+
+  virtual void epilogue(char const* data, size_t size) noexcept = 0;
+  
+  virtual ~sink() {}
+  
+}; // sink
 
 
 } // chronicle

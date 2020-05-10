@@ -1,4 +1,4 @@
-/* This file is part of chronicle library
+﻿/* This file is part of chronicle library
  * Copyright 2020 Andrei Ilin <ortfero@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -23,50 +23,63 @@
 #pragma once
 
 
-#include <string_view>
-#include <chrono>
+#include <tuple>
 
 
-#ifdef CHRONICLE_USE_SYSTEM_THEATER
+#ifdef CHRONICLE_USE_SYSTEM_UFORMAT
 
-#include <theater/sequence.hpp>
-
-#else
-
-#include "bundled/theater/sequence.hpp"
-
-#endif // CHRONICLE_USE_SYSTEM_THEATER
-
-
-#ifdef CHRONICLE_USE_SYSTEM_DATE
-
-#include <date/date.h>
+#include <uformat/texter.hpp>
 
 #else
 
-#include "bundled/date/date.h"
+#include "../bundled/uformat/texter.hpp"
 
 #endif
 
 
-#include "severity.hpp"
+#include "../message.hpp"
 
 
-namespace chronicle {
+namespace chronicle { namespace fields {
+  
+  
+  template<class... Fields>
+  class format {
+  public:
+
+    using fields_type = std::tuple<Fields...>;
+
+    
+    template<class S, typename D>
+    void print(message<D> const& m, uformat::texter<S>& texter) {
+
+      print_fields<S, D, 0>(m, texter);
+      texter << ' ';
+      texter << m.text;
+      
+      if(m.has_data)
+        texter << m.data;
+      
+      texter << '\n';
+    }
+    
+    
+  private:
+  
+    fields_type fields_;
+
+    template<class S, typename D, size_t I>
+    void print_fields(message<D> const& message, uformat::texter<S>& texter) {
+
+      texter << ' ';
+      std::get<I>(fields_).print(message, texter);
+
+      if constexpr (I + 1 != std::tuple_size_v<fields_type>)
+        print_fields<S, D, I + 1>(message, texter);
+    }
+    
+  }; // format
 
 
-  template<typename D> struct message {
 
-    theater::sequence sequence;
-    enum severity severity;
-    std::chrono::system_clock::time_point time;
-    unsigned thread_id;
-    std::string_view source;
-    std::string_view text;
-    bool has_data{false};
-    D data;
-
-  }; // message
-
-
-} // chronicle
+} }

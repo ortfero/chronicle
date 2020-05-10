@@ -1,4 +1,4 @@
-/* This file is part of chronicle library
+/* This file is part of theater library
  * Copyright 2020 Andrei Ilin <ortfero@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -23,50 +23,35 @@
 #pragma once
 
 
-#include <string_view>
-#include <chrono>
+#include "sequence.hpp"
 
 
-#ifdef CHRONICLE_USE_SYSTEM_THEATER
+namespace theater {
+  
+  
+  template<typename Q>
+  struct queue_batch {
+    
+    using size_type = typename Q::size_type;
+    using value_type = typename Q::value_type;
+    
+    
+    queue_batch() = delete;    
+    queue_batch(const queue_batch&) = delete;
+    queue_batch& operator = (const queue_batch&) = delete;
+    queue_batch(Q& queue) noexcept: queue_(queue) { }
+    
+    size_type size() const noexcept { return queue_.size(); }
+    sequence try_fetch() { return queue_.try_fetch(); }    
+    void fetched() { queue_.fetched(); }
+    value_type& operator [] (sequence n) { return queue_[n]; }
 
-#include <theater/sequence.hpp>
-
-#else
-
-#include "bundled/theater/sequence.hpp"
-
-#endif // CHRONICLE_USE_SYSTEM_THEATER
-
-
-#ifdef CHRONICLE_USE_SYSTEM_DATE
-
-#include <date/date.h>
-
-#else
-
-#include "bundled/date/date.h"
-
-#endif
-
-
-#include "severity.hpp"
-
-
-namespace chronicle {
-
-
-  template<typename D> struct message {
-
-    theater::sequence sequence;
-    enum severity severity;
-    std::chrono::system_clock::time_point time;
-    unsigned thread_id;
-    std::string_view source;
-    std::string_view text;
-    bool has_data{false};
-    D data;
-
-  }; // message
-
-
-} // chronicle
+    
+  private:
+  
+    Q& queue_;
+    
+  }; // queue_batch
+  
+  
+} // theater
