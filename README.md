@@ -96,5 +96,5 @@ operator << (chineseroom::texter<S>& texter, point const& p) {
 ## Configuration macros
 
 * ```CHRONICLE_USE_SYSTEM_DATE``` - use system date library instead of bundled
-* ```CHRONICLE_USE_SYSTEM_UFORMAT`` - use system uformat library instead of bundled
+* ```CHRONICLE_USE_SYSTEM_UFORMAT``` - use system uformat library instead of bundled
 * ```CHRONICLE_USE_SYSTEM_THEATER``` - use system theater library instead of bundled
