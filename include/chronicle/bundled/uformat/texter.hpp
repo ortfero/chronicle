@@ -155,10 +155,10 @@ namespace uformat {
     }
 
 
-    template<size_t N, typename Arg, typename... Pairs>
-    texter& attributes(char const (&name)[N], Arg&& value, Pairs&&... pairs) {
+    template<typename Arg, typename... Pairs>
+    texter& attributes(std::string_view const& name, Arg&& value, Pairs&&... pairs) {
       string_.push_back('{');
-      string_.append(name, N - 1);
+      string_.append(name.data(), name.size());
       string_.push_back(' ');
       string_.push_back('=');
       string_.push_back(' ');
@@ -275,11 +275,11 @@ namespace uformat {
     { }
 
 
-    template<size_t N, typename Arg, typename... Pairs>
-    void format_other_attributes(char const (&name)[N], Arg&& value, Pairs&&... pairs) {
+    template<typename Arg, typename... Pairs>
+    void format_other_attributes(std::string_view const& name, Arg&& value, Pairs&&... pairs) {
       string_.push_back(',');
       string_.push_back(' ');
-      string_.append(name, N - 1);
+      string_.append(name.data(), name.size());
       string_.push_back(' ');
       string_.push_back('=');
       string_.push_back(' ');
@@ -289,44 +289,60 @@ namespace uformat {
 
 
     void format_value(char c) {
-      string_.push_back('\'');
+      string_.push_back('\"');
       string_.push_back(c);
-      string_.push_back('\'');
+      string_.push_back('\"');
     }
 
 
     template<size_t N> void format_value(char const (&literal)[N]) {
-      string_.push_back('\'');
+      string_.push_back('\"');
       string_.append(literal, N - 1);
-      string_.push_back('\'');
+      string_.push_back('\"');
     }
 
 
     void format_value(char const* data) {
-      string_.push_back('\'');
+      string_.push_back('\"');
       string_.append(data);
-      string_.push_back('\'');
+      string_.push_back('\"');
     }
 
 
     void format_value(std::string const& s) {
-      string_.push_back('\'');
+      string_.push_back('\"');
       string_.append(s.data(), s.size());
-      string_.push_back('\'');
+      string_.push_back('\"');
+    }
+
+
+    void format_value(std::string& s) {
+      format_value(static_cast<std::string const&>(s));
     }
 
 
     template<size_t N> void format_value(fixed_string<N> const& s) {
-      string_.push_back('\'');
+      string_.push_back('\"');
       string_.append(s.data(), s.size());
-      string_.push_back('\'');
+      string_.push_back('\"');
     }
 
 
+    template<size_t N> void format_value(fixed_string<N>& s) {
+      format_value(static_cast<fixed_string<N> const&>(s));
+    }
+
+
+
     void format_value(std::string_view const& sv) {
-      string_.push_back('\'');
+      string_.push_back('\"');
       string_.append(sv.data(), sv.size());
-      string_.push_back('\'');
+      string_.push_back('\"');
+    }
+
+
+    void format_value(std::string_view& sv) {
+      format_value(static_cast<std::string_view const&>(sv));
     }
 
 

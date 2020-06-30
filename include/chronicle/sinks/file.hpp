@@ -30,6 +30,18 @@
 
 #if defined(_WIN32)
 
+#if !defined(_X86_) && !defined(_AMD64_) && !defined(_ARM_) && !defined(_ARM64_)
+#if defined(_M_IX86)
+#define _X86_
+#elif defined(_M_AMD64)
+#define _AMD64_
+#elif defined(_M_ARM)
+#define _ARM_
+#elif defined(_M_ARM64)
+#define _ARM64_
+#endif
+#endif
+
 #include <minwindef.h>
 #include <fileapi.h>
 #include <handleapi.h>

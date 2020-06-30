@@ -65,6 +65,7 @@ struct basic_text_log : basic_data_log<Tr> {
   static constexpr size_type default_message_size = 512;
 
   using base::open;
+  using base::opened;
   using base::close;
   using base::severity;
   

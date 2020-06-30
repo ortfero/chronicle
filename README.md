@@ -47,7 +47,7 @@ int main() {
   std::error_code failed; auto file = cr::sinks::daily_rotated_file::open("test.log", failed);
   if(!file)
     return 1;
-  log.add_sink(file);
+  log.add_sink(std::move(file));
   if(!log.open())
     return 1;
   
@@ -78,14 +78,14 @@ using own_log = cr::basic_attributes_log<own_log_traits>;
 ### Logging custom type
 
 ```cpp
-#include <chronicle/bundled/chineseroom/texter.hpp>
+#include <chronicle/bundled/uformat/texter.hpp>
 
 struct point {
   int x, y;
 };
 
-template<typename S> chineseroom::texter<S>&
-operator << (chineseroom::texter<S>& texter, point const& p) {
+template<typename S> uformat::texter<S>&
+operator << (uformat::texter<S>& texter, point const& p) {
   return texter.print("{x = ", p.x, ", y = ", p.y, '}');
   // or texter.attributes("x", p.x, "y", p.y);
 }

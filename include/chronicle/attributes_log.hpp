@@ -65,8 +65,9 @@ struct basic_attributes_log : basic_data_log<Tr> {
   static constexpr size_type default_message_size = 512;
   
   using base::open;
+  using base::opened;
   using base::close;
-  using base::severity;
+  using base::severity;  
   
   
   basic_attributes_log(size_type message_size = default_message_size) noexcept:
@@ -116,6 +117,28 @@ struct basic_attributes_log : basic_data_log<Tr> {
   }
 
 
+  template<typename R, size_t N1, size_t N2>
+  R error_with(R&& r, char const (&tag)[N1], char const (&text)[N2]) {
+    base::print<severity::error>(std::string_view{tag, N1 - 1},
+                            std::string_view{text, N2 - 1});
+    return std::forward<R>(r);
+  }
+
+
+  template<typename R, size_t N1, size_t N2, size_t N3, typename Arg, typename... Attrs>
+  R error_with(R&& r, char const (&tag)[N1], char const (&text)[N2],
+               char const (&name)[N3], Arg&& value,
+               Attrs&&... attrs) {
+    print<severity::error>(std::string_view{tag, N1 - 1},
+                            std::string_view{text, N2 - 1},
+                            std::string_view{name, N3 - 1},
+                            std::forward<Arg>(value),
+                            std::forward<Attrs>(attrs)...);
+    return std::forward<R>(r);
+  }
+
+
+
   template<size_t N1, size_t N2>
   void warning(char const (&tag)[N1], char const (&text)[N2]) {
     base::print<severity::warning>(std::string_view{tag, N1 - 1},
@@ -150,7 +173,7 @@ struct basic_attributes_log : basic_data_log<Tr> {
                             std::string_view{text, N2 - 1},
                             std::string_view{name, N3 - 1},
                             std::forward<Arg>(value),
-                            std::forward<Args>(attrs)...);
+                            std::forward<Attrs>(attrs)...);
   }
 
 
@@ -244,9 +267,8 @@ private:
     if(!m)
       return;
     m->data.clear();
-    m->data << ' ' << '{' << name << ' ' << '=' << ' ' << value;
-    format_attrs(m->data, std::forward<Attrs>(attrs)...);
-    m->data << '}';
+    m->data << ' ';
+    m->data.attributes(name, std::forward<Arg>(value), std::forward<Attrs>(attrs)...);
     m->has_data = true;
     base::publish(*m);
   }
@@ -258,7 +280,7 @@ private:
 
   template<typename Arg, typename... Attrs>
   static void format_attrs(buffer_type& p, std::string_view const& name, Arg&& value, Attrs&&... attrs) {
-    p << ',' << ' ' << name << ' ' << '=' << ' ' value;
+    p << ',' << ' ' << name << ' ' << '=' << ' ' << value;
     format_attrs(p, std::forward<Attrs>(attrs)...);
   }
 

@@ -190,6 +190,19 @@ struct basic_data_log {
   }
 
 
+  template<typename R, size_t N1, size_t N2> R error_with(R&& r, char const (&tag)[N1], char const (&text)[N2]) {
+    print<severity::error>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1});
+    return std::forward<R>(r);
+  }
+
+
+  template<typename R, size_t N1, size_t N2> R error_with(R&& r, char const (&tag)[N1], char const (&text)[N2], data_type const& data) {
+    print<severity::error>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1}, data);
+    return std::forward<R>(r);
+  }
+
+
+
   template<size_t N1, size_t N2> void warning(char const (&tag)[N1], char const (&text)[N2]) {
     print<severity::warning>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1});
   }
