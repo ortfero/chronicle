@@ -94,7 +94,7 @@ struct basic_attributes_log : basic_data_log<Tr> {
                             std::string_view{text, N2 - 1},
                             std::string_view{name, N3 - 1},
                             std::forward<Arg>(value),
-                            std::forward<Args>(attrs)...);
+                            std::forward<Attrs>(attrs)...);
   }
 
 
@@ -113,7 +113,7 @@ struct basic_attributes_log : basic_data_log<Tr> {
                             std::string_view{text, N2 - 1},
                             std::string_view{name, N3 - 1},
                             std::forward<Arg>(value),
-                            std::forward<Args>(attrs)...);
+                            std::forward<Attrs>(attrs)...);
   }
 
 
@@ -154,7 +154,7 @@ struct basic_attributes_log : basic_data_log<Tr> {
                             std::string_view{text, N2 - 1},
                             std::string_view{name, N3 - 1},
                             std::forward<Arg>(value),
-                            std::forward<Args>(attrs)...);
+                            std::forward<Attrs>(attrs)...);
   }
 
 
@@ -192,7 +192,7 @@ struct basic_attributes_log : basic_data_log<Tr> {
                             std::string_view{text, N2 - 1},
                             std::string_view{name, N3 - 1},
                             std::forward<Arg>(value),
-                            std::forward<Args>(attrs)...);
+                            std::forward<Attrs>(attrs)...);
   }
 
 
@@ -211,7 +211,7 @@ struct basic_attributes_log : basic_data_log<Tr> {
                             std::string_view{text, N2 - 1},
                             std::string_view{name, N3 - 1},
                             std::forward<Arg>(value),
-                            std::forward<Args>(attrs)...);
+                            std::forward<Attrs>(attrs)...);
   }
 
 
@@ -248,7 +248,7 @@ struct basic_attributes_log : basic_data_log<Tr> {
                             std::string_view{text, N2 - 1},
                             std::string_view{name, N3 - 1},
                             std::forward<Arg>(value),
-                            std::forward<Args>(attrs)...);
+                            std::forward<Attrs>(attrs)...);
   }
 
 
