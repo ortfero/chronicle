@@ -96,6 +96,28 @@ struct basic_attributes_log : basic_data_log<Tr> {
                             std::forward<Arg>(value),
                             std::forward<Attrs>(attrs)...);
   }
+  
+  
+  template<typename R, size_t N1, size_t N2>
+  R failure_with(R&& r, char const (&tag)[N1], char const (&text)[N2]) {
+    base::print<severity::failure>(std::string_view{tag, N1 - 1},
+                            std::string_view{text, N2 - 1});
+    return std::forward<R>(r);
+  }
+
+
+  template<typename R, size_t N1, size_t N2, size_t N3, typename Arg, typename... Attrs>
+  R failure_with(R&& r, char const (&tag)[N1], char const (&text)[N2],
+               char const (&name)[N3], Arg&& value,
+               Attrs&&... attrs) {
+    print<severity::failure>(std::string_view{tag, N1 - 1},
+                            std::string_view{text, N2 - 1},
+                            std::string_view{name, N3 - 1},
+                            std::forward<Arg>(value),
+                            std::forward<Attrs>(attrs)...);
+    return std::forward<R>(r);
+  }
+
 
 
   template<size_t N1, size_t N2>
@@ -156,6 +178,28 @@ struct basic_attributes_log : basic_data_log<Tr> {
                             std::forward<Arg>(value),
                             std::forward<Attrs>(attrs)...);
   }
+  
+  
+  template<typename R, size_t N1, size_t N2>
+  R warning_with(R&& r, char const (&tag)[N1], char const (&text)[N2]) {
+    base::print<severity::warning>(std::string_view{tag, N1 - 1},
+                            std::string_view{text, N2 - 1});
+    return std::forward<R>(r);
+  }
+
+
+  template<typename R, size_t N1, size_t N2, size_t N3, typename Arg, typename... Attrs>
+  R warning_with(R&& r, char const (&tag)[N1], char const (&text)[N2],
+               char const (&name)[N3], Arg&& value,
+               Attrs&&... attrs) {
+    print<severity::warning>(std::string_view{tag, N1 - 1},
+                            std::string_view{text, N2 - 1},
+                            std::string_view{name, N3 - 1},
+                            std::forward<Arg>(value),
+                            std::forward<Attrs>(attrs)...);
+    return std::forward<R>(r);
+  }
+
 
 
   template<size_t N1, size_t N2>
@@ -175,6 +219,28 @@ struct basic_attributes_log : basic_data_log<Tr> {
                             std::forward<Arg>(value),
                             std::forward<Attrs>(attrs)...);
   }
+  
+  
+  template<typename R, size_t N1, size_t N2>
+  R info_with(R&& r, char const (&tag)[N1], char const (&text)[N2]) {
+    base::print<severity::info>(std::string_view{tag, N1 - 1},
+                            std::string_view{text, N2 - 1});
+    return std::forward<R>(r);
+  }
+
+
+  template<typename R, size_t N1, size_t N2, size_t N3, typename Arg, typename... Attrs>
+  R info_with(R&& r, char const (&tag)[N1], char const (&text)[N2],
+               char const (&name)[N3], Arg&& value,
+               Attrs&&... attrs) {
+    print<severity::info>(std::string_view{tag, N1 - 1},
+                            std::string_view{text, N2 - 1},
+                            std::string_view{name, N3 - 1},
+                            std::forward<Arg>(value),
+                            std::forward<Attrs>(attrs)...);
+    return std::forward<R>(r);
+  }
+
 
 
   template<size_t N1, size_t N2>
@@ -194,6 +260,28 @@ struct basic_attributes_log : basic_data_log<Tr> {
                             std::forward<Arg>(value),
                             std::forward<Attrs>(attrs)...);
   }
+  
+  
+  template<typename R, size_t N1, size_t N2>
+  R extra_with(R&& r, char const (&tag)[N1], char const (&text)[N2]) {
+    base::print<severity::extra>(std::string_view{tag, N1 - 1},
+                            std::string_view{text, N2 - 1});
+    return std::forward<R>(r);
+  }
+
+
+  template<typename R, size_t N1, size_t N2, size_t N3, typename Arg, typename... Attrs>
+  R extra_with(R&& r, char const (&tag)[N1], char const (&text)[N2],
+               char const (&name)[N3], Arg&& value,
+               Attrs&&... attrs) {
+    print<severity::extra>(std::string_view{tag, N1 - 1},
+                            std::string_view{text, N2 - 1},
+                            std::string_view{name, N3 - 1},
+                            std::forward<Arg>(value),
+                            std::forward<Attrs>(attrs)...);
+    return std::forward<R>(r);
+  }
+
 
 
   template<size_t N1, size_t N2>
@@ -213,6 +301,28 @@ struct basic_attributes_log : basic_data_log<Tr> {
                             std::forward<Arg>(value),
                             std::forward<Attrs>(attrs)...);
   }
+  
+  
+  template<typename R, size_t N1, size_t N2>
+  R trace_with(R&& r, char const (&tag)[N1], char const (&text)[N2]) {
+    base::print<severity::trace>(std::string_view{tag, N1 - 1},
+                            std::string_view{text, N2 - 1});
+    return std::forward<R>(r);
+  }
+
+
+  template<typename R, size_t N1, size_t N2, size_t N3, typename Arg, typename... Attrs>
+  R trace_with(R&& r, char const (&tag)[N1], char const (&text)[N2],
+               char const (&name)[N3], Arg&& value,
+               Attrs&&... attrs) {
+    print<severity::trace>(std::string_view{tag, N1 - 1},
+                            std::string_view{text, N2 - 1},
+                            std::string_view{name, N3 - 1},
+                            std::forward<Arg>(value),
+                            std::forward<Attrs>(attrs)...);
+    return std::forward<R>(r);
+  }
+
 
 
 #ifdef NDEBUG
@@ -228,6 +338,20 @@ struct basic_attributes_log : basic_data_log<Tr> {
                char const (&)[N3], Arg&&,
                Attrs&&...)
   { }
+  
+  
+  template<typename R, size_t N1, size_t N2>
+  R debug_with(R&& r, char const (&)[N1], char const (&)[N2]) {
+    return std::forward<R>(r);
+  }
+
+
+  template<typename R, size_t N1, size_t N2, size_t N3, typename Arg, typename... Attrs>
+  R debug_with(R&& r, char const (&)[N1], char const (&)[N2],
+               char const (&)[N3], Arg&&, Attrs&&...) {
+    return std::forward<R>(r);
+  }
+
 
 
 #else
@@ -250,6 +374,28 @@ struct basic_attributes_log : basic_data_log<Tr> {
                             std::forward<Arg>(value),
                             std::forward<Attrs>(attrs)...);
   }
+  
+  
+  template<typename R, size_t N1, size_t N2>
+  R debug_with(R&& r, char const (&tag)[N1], char const (&text)[N2]) {
+    base::print<severity::error>(std::string_view{tag, N1 - 1},
+                            std::string_view{text, N2 - 1});
+    return std::forward<R>(r);
+  }
+
+
+  template<typename R, size_t N1, size_t N2, size_t N3, typename Arg, typename... Attrs>
+  R debug_with(R&& r, char const (&tag)[N1], char const (&text)[N2],
+               char const (&name)[N3], Arg&& value,
+               Attrs&&... attrs) {
+    print<severity::error>(std::string_view{tag, N1 - 1},
+                            std::string_view{text, N2 - 1},
+                            std::string_view{name, N3 - 1},
+                            std::forward<Arg>(value),
+                            std::forward<Attrs>(attrs)...);
+    return std::forward<R>(r);
+  }
+
 
 
 #endif
