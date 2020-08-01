@@ -114,6 +114,13 @@ struct basic_data_log {
   std::chrono::system_clock::duration flush_timeout() const noexcept {
     return flush_timeout_;
   }
+  
+  
+  bool open(std::unique_ptr<sink>&& sink_ptr, size_type queue_size = default_queue_size) {
+    if(!add_sink(std::move(sink_ptr)))
+      return false;
+    return open(queue_size);
+  }
 
 
   bool open(size_type queue_size = default_queue_size) {
