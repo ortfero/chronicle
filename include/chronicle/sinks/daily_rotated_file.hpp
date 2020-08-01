@@ -90,8 +90,11 @@ namespace chronicle { namespace sinks {
     static constexpr auto file_attribute_normal = DWORD(0x00000080);
 
 
-    static std::unique_ptr<sink> open(std::filesystem::path const& path) {
-      return std::unique_ptr<sink>{new daily_rotated_file{path}};
+    static std::unique_ptr<sink> open(std::filesystem::path const& path, std::size_t limit = 0) {
+      daily_rotated_file f{path, limit};
+      if(!f.ready())
+        return nullptr;
+      return std::unique_ptr<sink>{new daily_rotated_file{std::move(f)}};
     }
 
 
@@ -102,7 +105,7 @@ namespace chronicle { namespace sinks {
     std::filesystem::path const& file_path() const noexcept { return file_path_; }
 
 
-    daily_rotated_file(std::filesystem::path const& path) noexcept {
+    daily_rotated_file(std::filesystem::path const& path, std::size_t limit) noexcept {
       namespace fs = std::filesystem;
       directory_ = path.parent_path();
       std::error_code failed;
@@ -115,6 +118,7 @@ namespace chronicle { namespace sinks {
       using namespace std::chrono;
       auto const now = system_clock::now();
       log_day_ = duration_cast<hours>(now.time_since_epoch()).count() / 24;
+      limit_ = limit;
       rotate_file(now);
     }
 
@@ -142,9 +146,16 @@ namespace chronicle { namespace sinks {
       auto const now_day = duration_cast<hours>(tp.time_since_epoch()).count() / 24;
       if(now_day != log_day_) {
         log_day_ = now_day;
+        part_ = 1;
         rotate_file(tp);
       }
+      if(limit_ != 0 && written_ + size > limit_) {
+        ++part_;
+        rotate_file(tp);
+      }
+      
       WriteFile(handle_, data, DWORD(size), nullptr, nullptr);
+      written_ += size;
     }
     
     
@@ -179,6 +190,9 @@ namespace chronicle { namespace sinks {
     std::filesystem::path extension_;
     std::filesystem::path file_path_;
     uint64_t log_day_{0};
+    unsigned part_{1};
+    std::size_t limit_{0};
+    std::size_t written_{0};
 
 
     void rotate_file(std::chrono::system_clock::time_point tp) {
@@ -192,12 +206,15 @@ namespace chronicle { namespace sinks {
       texter.print('-', int(ymd.year()), '_')
           .fixed(unsigned(ymd.month()), 2).print('_')
           .fixed(unsigned(ymd.day()), 2);
+      if(part_ != 1)
+        texter.print('-').fixed(part_, 2);
       file_path_ = directory_;
       file_path_ /= base_name_;
       file_path_ += texter.string().data();
       file_path_ += extension_;
       handle_ = CreateFileW(file_path_.native().data(), file_append_data, file_share_read, nullptr,
                                     open_always, file_attribute_normal, nullptr);
+      written_ = 0;
     }
 
 

@@ -67,12 +67,12 @@ namespace chronicle { namespace sinks {
     static constexpr auto file_attribute_normal = DWORD(0x00000080);
 
 
-    static std::unique_ptr<file> open(std::filesystem::path const& path,
+    static std::unique_ptr<sink> open(std::filesystem::path const& path,
                                       std::error_code& error) noexcept {
       file f{path, error};
       if(!f.ready())
         return nullptr;
-      return std::unique_ptr<file>{new file{std::move(f)}};
+      return std::unique_ptr<sink>{new file{std::move(f)}};
     }
 
 
