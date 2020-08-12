@@ -45,7 +45,7 @@ namespace chronicle { namespace fields {
   
     template<class S, typename D>
     void print(message<D> const& m, uformat::texter<S>& texter) {
-      texter << '[' << m.thread_id << ']';
+      texter << '#' << m.thread_id;
     }
     
   }; // thread_id

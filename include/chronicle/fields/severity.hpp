@@ -47,23 +47,23 @@ namespace chronicle { namespace fields {
     void print(message<D> const& m, uformat::texter<S>& texter) {
       switch(m.severity) {
         case chronicle::severity::undefined:
-          texter << "[-------]"; break;
+          texter << "-------"; break;
         case chronicle::severity::failure:
-          texter << "[failure]"; break;
+          texter << "failure"; break;
         case chronicle::severity::error:
-          texter << "[error]  "; break;
+          texter << "error  "; break;
         case chronicle::severity::warning:
-          texter << "[warning]"; break;
+          texter << "warning"; break;
         case chronicle::severity::info:
-          texter << "         "; break;
+          texter << "       "; break;
         case chronicle::severity::extra:
-          texter << "         "; break;
+          texter << "       "; break;
         case chronicle::severity::trace:
-          texter << "[trace]  "; break;
+          texter << "trace  "; break;
         case chronicle::severity::debug:
-          texter << "[debug]  "; break;
+          texter << "debug  "; break;
         default:
-          texter << "[unknown]"; break;
+          texter << "unknown"; break;
       }
     }
     
