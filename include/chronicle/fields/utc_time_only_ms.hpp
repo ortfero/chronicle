@@ -23,28 +23,65 @@
 #pragma once
 
 
-#include "format.hpp"
-#include "severity.hpp"
-#include "utc_time_us.hpp"
-#include "utc_time_ms.hpp"
-#include "utc_time_only_us.hpp"
-#include "utc_time_only_ms.hpp"
-#include "thread_id.hpp"
-#include "source.hpp"
+#include <chrono>
+
+
+#ifdef CHRONICLE_USE_SYSTEM_DATE
+
+#include <date/date.h>
+
+#else
+
+#include "../bundled/date/date.h"
+
+#endif // CHRONICLE_USE_SYSTEM_DATE
+
+
+#ifdef CHRONICLE_USE_SYSTEM_UFORMAT
+
+#include <uformat/texter.hpp>
+
+#else
+
+#include "../bundled/uformat/texter.hpp"
+
+#endif // CHRONICLE_USE_SYSTEM_UFORMAT
+
+
+#include "../message.hpp"
 
 
 namespace chronicle { namespace fields {
   
+  class utc_time_only_ms {
+  public:
   
-  using format_us = format<severity, utc_time_us, thread_id, source>;
-  using format_ms = format<severity, utc_time_ms, thread_id, source>;
-  using format_time_only_us = format<severity, utc_time_only_us, thread_id, source>;
-  using format_time_only_ms = format<severity, utc_time_only_ms, thread_id, source>;
-  using format_us_single = format<severity, utc_time_us, source>;
-  using format_ms_single = format<severity, utc_time_ms, source>;
-  
-  using format_default = format_us;
-  using format_default_single = format_us_single;
+    template<class S, typename D>
+    void print(message<D> const& m, uformat::texter<S>& texter) {
+      using namespace std::chrono;
+      auto const dp = floor<date::days>(m.time);
+      date::time_of_day<milliseconds> const tod{duration_cast<milliseconds>(m.time - dp)};
+                    
+      if(tod.hours().count() < 10)
+        texter << '0';
+      texter << tod.hours().count();
+      texter << ':';
+
+      if(tod.minutes().count() < 10)
+        texter << '0';
+      texter << tod.minutes().count();
+      texter << ':';
+
+      if(tod.seconds().count() < 10)
+        texter << '0';
+      texter << tod.seconds().count();
+      texter << '.';
+
+      auto const millis = tod.subseconds().count();
+      texter.fixed(millis, 3);
+    }
+    
+  }; // utc_time_milliseconds
   
   
 } }

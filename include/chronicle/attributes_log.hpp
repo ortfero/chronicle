@@ -419,17 +419,6 @@ private:
     base::publish(*m);
   }
 
-
-  static void format_attrs(buffer_type&)
-  { }
-
-
-  template<typename Arg, typename... Attrs>
-  static void format_attrs(buffer_type& p, std::string_view const& name, Arg&& value, Attrs&&... attrs) {
-    p << ',' << ' ' << name << ' ' << '=' << ' ' << value;
-    format_attrs(p, std::forward<Attrs>(attrs)...);
-  }
-
 }; // basic_attributes_log
 
 

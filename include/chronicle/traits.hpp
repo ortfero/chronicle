@@ -75,16 +75,22 @@ namespace chronicle {
   using traits_default = traits<D, fields::format_default>;
   
   template<typename D>
-  using traits_milliseconds_single = traits_single<D, fields::format_milliseconds_single>;
+  using traits_ms_single = traits_single<D, fields::format_ms_single>;
   
   template<typename D>
-  using traits_milliseconds = traits<D, fields::format_milliseconds>;
+  using traits_ms = traits<D, fields::format_ms>;
 
   template<typename D>
-  using traits_microseconds_single = traits_single<D, fields::format_microseconds_single>;
+  using traits_us_single = traits_single<D, fields::format_us_single>;
   
   template<typename D>
-  using traits_microseconds = traits<D, fields::format_microseconds>;
-
+  using traits_us = traits<D, fields::format_us>;
+  
+  template<typename D>
+  using traits_time_only_ms = traits<D, fields::format_time_only_ms>;
+  
+  template<typename D>
+  using traits_time_only_us = traits<D, fields::format_time_only_us>;
+  
 
 }

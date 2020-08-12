@@ -168,6 +168,8 @@ struct basic_data_log {
 
 
   void close() {
+    if (!activity_.active())
+      return;
     activity_.stop();
     if(!epilogue_.empty())
       for(auto& each_sink: sinks_)
@@ -346,9 +348,9 @@ private:
 }; // basic_data_log
 
 template<typename D>
-using data_log_single_traits = traits_microseconds_single<D>;
+using data_log_single_traits = traits_us_single<D>;
 template<typename D>
-using data_log_traits = traits_microseconds<D>;
+using data_log_traits = traits_us<D>;
 
 template<typename D>
 using data_log_single = basic_data_log<data_log_single_traits<D>>;
