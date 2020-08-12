@@ -119,11 +119,21 @@ namespace chronicle { namespace sinks {
       auto const now = system_clock::now();
       log_day_ = duration_cast<hours>(now.time_since_epoch()).count() / 24;
       limit_ = limit;
+
       rotate_file(now);
     }
 
 
-    daily_rotated_file(daily_rotated_file&& other) noexcept: handle_{other.handle_} {
+    daily_rotated_file(daily_rotated_file&& other) noexcept:
+      handle_{ other.handle_ },
+      directory_{ std::move(other.directory_) },
+      base_name_{ std::move(other.base_name_) },
+      extension_{ std::move(other.extension_) },
+      file_path_{ std::move(other.file_path_) },
+      log_day_{ other.log_day_ },
+      part_{ other.part_ },
+      limit_{ other.limit_ },
+      written_{ other.written_ } {
       other.handle_ = nullptr;
     }
 
@@ -132,6 +142,14 @@ namespace chronicle { namespace sinks {
       if(handle_ != nullptr)
         CloseHandle(handle_);
       handle_ = other.handle_; other.handle_ = nullptr;
+      directory_ = std::move(other.directory_);
+      base_name_ = std::move(other.base_name_);
+      extension_ = std::move(other.extension_);
+      file_path_ = std::move(other.file_path_);
+      log_day_ = other.log_day_;
+      part_ = other.part_;
+      limit_ = other.limit_;
+      written_ = other.written_;
       return *this;
     }
     
@@ -148,8 +166,7 @@ namespace chronicle { namespace sinks {
         log_day_ = now_day;
         part_ = 1;
         rotate_file(tp);
-      }
-      if(limit_ != 0 && written_ + size > limit_) {
+      } else if(limit_ != 0 && written_ + size > limit_) {
         ++part_;
         rotate_file(tp);
       }
