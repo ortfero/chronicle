@@ -64,32 +64,42 @@ namespace chronicle { namespace fields {
       date::time_of_day<milliseconds> const tod{duration_cast<milliseconds>(m.time - dp)};
                     
       texter << int(ymd.year()) << '-';
-      if(unsigned(ymd.month()) < 10)
-        texter << '0';
-      texter << unsigned(ymd.month());
-      texter << '-';
-      if(unsigned(ymd.day()) < 10)
-        texter << '0';
-      texter << unsigned(ymd.day());
-      texter << ' ';
-
-      if(tod.hours().count() < 10)
-        texter << '0';
-      texter << tod.hours().count();
-      texter << ':';
-
-      if(tod.minutes().count() < 10)
-        texter << '0';
-      texter << tod.minutes().count();
-      texter << ':';
-
-      if(tod.seconds().count() < 10)
-        texter << '0';
-      texter << tod.seconds().count();
+      print_fixed_2(stream, unsigned(ymd.month()));
+      stream << '-';
+      print_fixed_2(stream, unsigned(ymd.day()));
+      stream << ' ';
+      print_fixed_2(stream, int(tod.hour()));
+      stream << ':';
+      print_fixed_2(stream, int(tod.minute()));
+      stream << ':';
+      print_fixed_2(stream, int(tod.second()));
       texter << '.';
+      print_fixed_3(stream, tod.subseconds().count());
+    }
+      
+  private:
+    
+      template<class S, typename T>
+      void print_fixed_2(uformat::texter<S>& texter, T const& value) {
+        if (value < 10)
+          stream << '0' << ('0' + value);
+        else
+          stream << ('0' + value / 10) << ('0' + value % 10);
 
-      auto const millis = tod.subseconds().count();
-      texter.fixed(millis, 3);
+      }
+      
+      template<class S, typename T>
+      void print_fixed_3(uformat::texter<S>& texter, T const& value) {
+        if (value < 10)
+          stream << '0' << '0' << ('0' + value);
+        else if(value < 100)
+          stream << '0' << ('0' + value / 10) << ('0' + value % 10);
+        else {
+          T const hundreds = value / 100;
+          T const tens = value % 100;
+          stream << ('0' + hundreds) << ('0' + tens / 10) << ('0' + tens % 10);
+        }
+      }
     }
     
   }; // utc_time_milliseconds
