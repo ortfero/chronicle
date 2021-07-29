@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include <doctest/doctest.h>
+#include "doctest.h"
 #include <chronicle/attributes_log.hpp>
 #include <chronicle/sinks/conout.hpp>
 

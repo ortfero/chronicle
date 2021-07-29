@@ -2,14 +2,15 @@
 
 
 #include <system_error>
-#include <doctest/doctest.h>
+
+#include "doctest.h"
+
 #include <chronicle/data_log.hpp>
 #include <chronicle/bundled/date/date.h>
 #include <chronicle/sinks/conout.hpp>
 #include <chronicle/sinks/conerr.hpp>
 #include <chronicle/sinks/file.hpp>
 #include <chronicle/sinks/daily_rotated_file.hpp>
-#include <ubench/ubench.hpp>
 
 
 TEST_CASE("data_log::data_log") {
@@ -71,14 +72,4 @@ TEST_CASE("conerr") {
   bool const opened = target.open();
   REQUIRE(opened);
   target.info("test", "info", "");
-}
-
-
-TEST_CASE("Time label") {
-
-  auto const sc = ubench::run([]{ std::chrono::system_clock::now(); });
-  auto const ft = ubench::run([]{ FILETIME ft; ::GetSystemTimePreciseAsFileTime(&ft); });
-  printf("std::chrono::system_clock::now = %.2f ns\n"
-         "GetSystemTimePreciseAsFileTime = %.2f ns\n", sc.time.count(), ft.time.count());
-
 }
