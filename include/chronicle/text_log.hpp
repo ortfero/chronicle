@@ -215,7 +215,7 @@ private:
   void print(std::string_view const& tag, std::string_view const& text, Arg&& arg, Args&&... args) {
     if(base::severity() < S)
       return;
-    message_type* m = base::claim<S>(tag, text);
+    message_type* m = base::template claim<S>(tag, text);
     if(!m)
       return;
     m->data.clear();
