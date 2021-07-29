@@ -113,12 +113,12 @@ namespace theater {
       if(!pool_)
         return sequence{};
 
-      sequence const p{producer_.fetch_add(1, std::memory_order_relaxed)};
+      sequence const p{++producer_};
 
       if(p.value() - consumer_ < capacity_)
         return p;
 
-      blocks_count_.fetch_add(1, std::memory_order_relaxed);
+      ++blocks_count_;
 
       auto const started = std::chrono::steady_clock::now();
 
