@@ -1,5 +1,5 @@
 /* This file is part of chronicle library
- * Copyright 2020 Andrei Ilin <ortfero@gmail.com>
+ * Copyright 2021 Andrei Ilin <ortfero@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -90,11 +90,11 @@ namespace chronicle { namespace sinks {
     static constexpr auto file_attribute_normal = DWORD(0x00000080);
 
 
-    static std::unique_ptr<sink> open(std::filesystem::path const& path, std::size_t limit = 0) {
-      daily_rotated_file f{path, limit};
-      if(!f.ready())
+    static std::unique_ptr<daily_rotated_file> open(std::filesystem::path const& path, std::size_t limit = 0) {
+      std::unique_ptr<daily_rotated_file> p{new daily_rotated_file{path, limit}};
+      if(!p->ready())
         return nullptr;
-      return std::unique_ptr<sink>{new daily_rotated_file{std::move(f)}};
+      return p;
     }
 
 
