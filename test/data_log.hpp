@@ -14,20 +14,20 @@
 
 
 TEST_CASE("data_log::data_log") {
-    chronicle::data_log<std::string> target(256);
+    chronicle::shared_data_log<std::string> target(256);
     REQUIRE(!target.opened());
     target.info("test", "info", "ok");   // should be ok
 }
 
 
 TEST_CASE("data_log::close") {
-    chronicle::data_log<std::string> target(256);
+    chronicle::shared_data_log<std::string> target(256);
     target.close();   // should be ok
 }
 
 
 TEST_CASE("data_log::open") {
-    chronicle::data_log<std::string> target(256);
+    chronicle::shared_data_log<std::string> target(256);
     std::error_code failed;
     auto file = chronicle::sinks::file::open("data.log", failed);
     REQUIRE(!!file);
@@ -42,7 +42,7 @@ TEST_CASE("data_log::open") {
 
 
 TEST_CASE("data_log::notice") {
-    chronicle::data_log<std::string> target(256);
+    chronicle::shared_data_log<std::string> target(256);
     std::error_code failed;
     auto file = chronicle::sinks::file::open("data.log", failed);
     REQUIRE(!!file);
@@ -57,7 +57,7 @@ TEST_CASE("data_log::notice") {
 
 
 TEST_CASE("conout") {
-    chronicle::data_log<std::string> target(256);
+    chronicle::shared_data_log<std::string> target(256);
     REQUIRE(target.add_sink(chronicle::sinks::conout::open()));
     bool const opened = target.open();
     REQUIRE(opened);
@@ -66,7 +66,7 @@ TEST_CASE("conout") {
 
 
 TEST_CASE("conerr") {
-    chronicle::data_log<std::string> target(256);
+    chronicle::shared_data_log<std::string> target(256);
     REQUIRE(target.add_sink(chronicle::sinks::conerr::open()));
     bool const opened = target.open();
     REQUIRE(opened);
