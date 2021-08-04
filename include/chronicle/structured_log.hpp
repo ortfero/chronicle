@@ -42,7 +42,7 @@ namespace chronicle {
   
   
 template<typename Tr>
-struct basic_attributes_log : basic_data_log<Tr> {
+struct basic_structured_log : basic_data_log<Tr> {
 
   using base = basic_data_log<Tr>;
   using size_type = typename base::size_type;
@@ -57,13 +57,13 @@ struct basic_attributes_log : basic_data_log<Tr> {
   using base::severity;  
   
   
-  basic_attributes_log(size_type message_size = default_message_size) noexcept:
+  basic_structured_log(size_type message_size = default_message_size) noexcept:
     base(message_size)
   { }
   
   
-  basic_attributes_log(basic_attributes_log const&) = delete;
-  basic_attributes_log& operator = (basic_attributes_log const&) = delete;
+  basic_structured_log(basic_structured_log const&) = delete;
+  basic_structured_log& operator = (basic_structured_log const&) = delete;
 
 
   template<size_t N1, size_t N2>
@@ -409,12 +409,12 @@ private:
 }; // basic_attributes_log
 
 
-using attributes_log_single_traits = traits_default_single<uformat::long_texter>;
-using attributes_log_traits = traits_default<uformat::long_texter>;
+using unique_structured_log_traits = traits_unique_default<uformat::long_texter>;
+using shared_structured_log_traits = traits_shared_default<uformat::long_texter>;
 
 
-using attributes_log_single = basic_attributes_log<attributes_log_single_traits>;
-using attributes_log = basic_attributes_log<attributes_log_traits>;
+using unique_structured_log = basic_structured_log<unique_structured_log_traits>;
+using shared_structured_log = basic_structured_log<shared_structured_log_traits>;
 
   
 } // chronicle
