@@ -348,13 +348,13 @@ private:
 }; // basic_data_log
 
 template<typename D>
-using data_log_single_traits = traits_us_single<D>;
+using unique_data_log_traits = traits_unique_default<D>;
 template<typename D>
-using data_log_traits = traits_us<D>;
+using shared_data_log_traits = traits_shared_default<D>;
 
 template<typename D>
-using data_log_single = basic_data_log<data_log_single_traits<D>>;
+using unique_data_log = basic_data_log<unique_data_log_traits<D>>;
 template<typename D>
-using data_log = basic_data_log<data_log_traits<D>>;
+using shared_data_log = basic_data_log<shared_data_log_traits<D>>;
 
 } // chronicle
