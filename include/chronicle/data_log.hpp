@@ -28,21 +28,21 @@
 #include <vector>
 #include <memory>
 
-#ifdef CHRONICLE_USE_SYSTEM_THEATER
+#ifdef CHRONICLE_USE_SYSTEM_HYDRA
 
-#include <theater/activity.hpp>
-#include <theater/queue_batch.hpp>
-#include <theater/mpsc_queue.hpp>
-#include <theater/spsc_queue.hpp>
+#include <hydra/activity.hpp>
+#include <hydra/queue_batch.hpp>
+#include <hydra/mpsc_queue.hpp>
+#include <hydra/spsc_queue.hpp>
 
 #else
 
-#include "bundled/theater/activity.hpp"
-#include "bundled/theater/queue_batch.hpp"
-#include "bundled/theater/mpsc_queue.hpp"
-#include "bundled/theater/spsc_queue.hpp"
+#include "bundled/hydra/activity.hpp"
+#include "bundled/hydra/queue_batch.hpp"
+#include "bundled/hydra/mpsc_queue.hpp"
+#include "bundled/hydra/spsc_queue.hpp"
 
-#endif // CHRONICLE_USE_SYSTEM_THEATER
+#endif // CHRONICLE_USE_SYSTEM_HYDRA
 
 
 #ifdef CHRONICLE_USE_SYSTEM_UFORMAT
@@ -72,7 +72,7 @@ struct basic_data_log {
   using format_type = typename Tr::format_type;
   using queue_type = typename Tr::queue_type;
   using message_type = message<data_type>;
-  using activity_type = theater::activity<message_type, queue_type>;
+  using activity_type = hydra::activity<message_type, queue_type>;
   using batch_type = typename activity_type::batch;
   using size_type = typename activity_type::size_type;
   using sinks_type = std::vector<std::unique_ptr<sink>>;

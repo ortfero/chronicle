@@ -27,15 +27,15 @@
 #include <chrono>
 
 
-#ifdef CHRONICLE_USE_SYSTEM_THEATER
+#ifdef CHRONICLE_USE_SYSTEM_HYDRA
 
-#include <theater/sequence.hpp>
+#include <hydra/sequence.hpp>
 
 #else
 
-#include "bundled/theater/sequence.hpp"
+#include "bundled/hydra/sequence.hpp"
 
-#endif // CHRONICLE_USE_SYSTEM_THEATER
+#endif // CHRONICLE_USE_SYSTEM_HYDRA
 
 
 #ifdef CHRONICLE_USE_SYSTEM_DATE
@@ -57,7 +57,7 @@ namespace chronicle {
 
   template<typename D> struct message {
 
-    theater::sequence sequence;
+    hydra::sequence sequence;
     enum severity severity;
     std::chrono::system_clock::time_point time;
     unsigned thread_id;

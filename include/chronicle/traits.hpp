@@ -23,17 +23,17 @@
 #pragma once
 
 
-#ifdef CHRONICLE_USE_SYSTEM_THEATER
+#ifdef CHRONICLE_USE_SYSTEM_HYDRA
 
-#include <theater/mpsc_queue.hpp>
-#include <theater/spsc_queue.hpp>
+#include <hydra/mpsc_queue.hpp>
+#include <hydra/spsc_queue.hpp>
 
 #else
 
-#include "bundled/theater/mpsc_queue.hpp"
-#include "bundled/theater/spsc_queue.hpp"
+#include "bundled/hydra/mpsc_queue.hpp"
+#include "bundled/hydra/spsc_queue.hpp"
 
-#endif // CHRONICLE_USE_SYSTEM_THEATER
+#endif // CHRONICLE_USE_SYSTEM_HYDRA
 
 
 #ifdef CHRONICLE_USE_SYSTEM_UFORMAT
@@ -63,10 +63,10 @@ namespace chronicle {
   
 
   template<typename D, class F>
-  using traits_single = basic_traits<D, theater::spsc_queue<message<D>>, F>;
+  using traits_single = basic_traits<D, hydra::spsc_queue<message<D>>, F>;
 
   template<typename D, class F>
-  using traits = basic_traits<D, theater::mpsc_queue<message<D>>, F>;
+  using traits = basic_traits<D, hydra::mpsc_queue<message<D>>, F>;
   
   template<typename D>
   using traits_default_single = traits_single<D, fields::format_default_single>;

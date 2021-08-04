@@ -1,25 +1,3 @@
-/* This file is part of theater library
- * Copyright 2020 Andrei Ilin <ortfero@gmail.com>
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 #pragma once
 
 
@@ -29,11 +7,10 @@
 #include <atomic>
 #include <thread>
 #include <memory>
-
 #include "sequence.hpp"
 
 
-namespace theater {
+namespace hydra {
 
 
   template<typename T>
@@ -182,10 +159,10 @@ namespace theater {
     size_type index_mask_{0};
     std::unique_ptr<T[]> pool_;
     std::unique_ptr<std::atomic<sequence::value_type>[]> published_;
-    std::atomic<size_type> producer_{0};
-    char producer_padding_[cacheline - sizeof(std::atomic<size_type>)];
-    size_type consumer_{0};
-    char consumer_padding_[cacheline - sizeof(size_type)];
+    alignas (cacheline)
+      std::atomic<size_type> producer_{0};
+    alignas (cacheline)
+      size_type consumer_{0};
     std::atomic<size_type> blocks_count_{0};
 
 
@@ -206,4 +183,4 @@ namespace theater {
   }; // mspc_queue
 
 
-} // theater
+} // hydra

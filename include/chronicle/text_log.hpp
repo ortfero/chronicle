@@ -23,19 +23,6 @@
 #pragma once
 
 
-#ifdef CHRONICLE_USE_SYSTEM_THEATER
-
-#include <theater/mpsc_queue.hpp>
-#include <theater/spsc_queue.hpp>
-
-#else
-
-#include "bundled/theater/mpsc_queue.hpp"
-#include "bundled/theater/spsc_queue.hpp"
-
-#endif // CHRONICLE_USE_SYSTEM_THEATER
-
-
 #ifdef CHRONICLE_USE_SYSTEM_UFORMAT
 
 #include <uformat/texter.hpp>
