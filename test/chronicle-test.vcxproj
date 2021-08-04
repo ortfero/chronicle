@@ -150,7 +150,7 @@
     <ClCompile Include="test.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="attributes_log.hpp" />
+    <ClInclude Include="structured_log.hpp" />
     <ClInclude Include="daily_rotated_file.hpp" />
     <ClInclude Include="data_log.hpp" />
     <ClInclude Include="text_log.hpp" />
