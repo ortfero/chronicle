@@ -63,34 +63,40 @@ namespace chronicle {
   
 
   template<typename D, class F>
-  using traits_single = basic_traits<D, hydra::spsc_queue<message<D>>, F>;
+  using traits_unique = basic_traits<D, hydra::spsc_queue<message<D>>, F>;
 
   template<typename D, class F>
-  using traits = basic_traits<D, hydra::mpsc_queue<message<D>>, F>;
+  using traits_shared = basic_traits<D, hydra::mpsc_queue<message<D>>, F>;
   
   template<typename D>
-  using traits_default_single = traits_single<D, fields::format_default_single>;
+  using traits_unique_default = traits_unique<D, fields::format_singlethreaded_default>;
   
   template<typename D>
-  using traits_default = traits<D, fields::format_default>;
+  using traits_shared_default = traits_shared<D, fields::format_multithreaded_default>;
   
   template<typename D>
-  using traits_ms_single = traits_single<D, fields::format_ms_single>;
+  using traits_unique_ms = traits_unique<D, fields::format_singlethreaded_ms>;
   
   template<typename D>
-  using traits_ms = traits<D, fields::format_ms>;
+  using traits_shared_ms = traits_shared<D, fields::format_multithreaded_ms>;
 
   template<typename D>
-  using traits_us_single = traits_single<D, fields::format_us_single>;
+  using traits_unique_us = traits_unique<D, fields::format_singlethreaded_us>;
   
   template<typename D>
-  using traits_us = traits<D, fields::format_us>;
+  using traits_shared_us = traits_shared<D, fields::format_multithreaded_us>;
   
   template<typename D>
-  using traits_time_only_ms = traits<D, fields::format_time_only_ms>;
-  
+  using traits_unique_time_only_ms = traits_unique<D, fields::format_singlethreaded_time_only_ms>;
+
   template<typename D>
-  using traits_time_only_us = traits<D, fields::format_time_only_us>;
+  using traits_shared_time_only_ms = traits_unique<D, fields::format_multithreaded_time_only_ms>;
+ 
+  template<typename D>
+  using traits_unique_time_only_us = traits_unique<D, fields::format_singlethreaded_time_only_us>;
+
+  template<typename D>
+  using traits_shared_time_only_us = traits_shared<D, fields::format_multithreaded_time_only_us>;
   
 
 }
