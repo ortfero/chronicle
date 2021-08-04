@@ -224,12 +224,12 @@ private:
 };  // basic_text_log
 
 
-using text_log_single_traits = traits_default_single<uformat::long_texter>;
-using text_log_traits = traits_default<uformat::long_texter>;
+using unique_text_log_traits = traits_unique_default<uformat::long_texter>;
+using shared_text_log_traits = traits_shared_default<uformat::long_texter>;
 
 
-using text_log_single = basic_text_log<text_log_single_traits>;
-using text_log = basic_text_log<text_log_traits>;
+using unique_text_log = basic_text_log<unique_text_log_traits>;
+using shared_text_log = basic_text_log<shared_text_log_traits>;
 
   
 } // chronicle
