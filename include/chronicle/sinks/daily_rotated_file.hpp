@@ -109,7 +109,7 @@ namespace chronicle { namespace sinks {
       namespace fs = std::filesystem;
       directory_ = path.parent_path();
       std::error_code failed;
-      if(!fs::exists(directory_))
+      if(!directory_.empty() && !fs::exists(directory_))
         fs::create_directories(directory_, failed);
       if(!!failed)
         return;
