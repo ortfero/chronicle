@@ -53,7 +53,7 @@
 #include "../sink.hpp"
 
 
-namespace chronicle { namespace sinks {
+namespace chronicle::sinks {
 
 
 #if defined(_WIN32)
@@ -156,4 +156,4 @@ namespace chronicle { namespace sinks {
 #endif
 
 
-} }
+} // chronicle::sinks
