@@ -37,7 +37,7 @@
 #include "../message.hpp"
 
 
-namespace chronicle { namespace fields {
+namespace chronicle::fields {
   
   class severity_marker {
   public:
@@ -68,4 +68,4 @@ namespace chronicle { namespace fields {
     
   }; // severity_marker
 
-} } // fields chronicle
+} // chronicle::fields

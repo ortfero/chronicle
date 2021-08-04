@@ -37,7 +37,7 @@
 #include "../message.hpp"
 
 
-namespace chronicle { namespace fields {
+namespace chronicle::fields {
 
   class source {
   public:
@@ -49,4 +49,4 @@ namespace chronicle { namespace fields {
     
   }; // source
 
-} } // fields chronicle
+} // chronicle::fields

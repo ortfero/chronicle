@@ -33,18 +33,22 @@
 #include "source.hpp"
 
 
-namespace chronicle { namespace fields {
+namespace chronicle::fields {
   
   
-  using format_us = format<severity, utc_time_us, thread_id, source>;
-  using format_ms = format<severity, utc_time_ms, thread_id, source>;
-  using format_time_only_us = format<severity, utc_time_only_us, thread_id, source>;
-  using format_time_only_ms = format<severity, utc_time_only_ms, thread_id, source>;
-  using format_us_single = format<severity, utc_time_us, source>;
-  using format_ms_single = format<severity, utc_time_ms, source>;
+  using format_multithreaded_us = format<severity, utc_time_us, thread_id, source>;
+  using format_multithreaded_ms = format<severity, utc_time_ms, thread_id, source>;
+  using format_multithreaded_time_only_us = format<severity, utc_time_only_us, thread_id, source>;
+  using format_multithreaded_time_only_ms = format<severity, utc_time_only_ms, thread_id, source>;
   
-  using format_default = format_us;
-  using format_default_single = format_us_single;
+  using format_singlethreaded_us = format<severity, utc_time_us, source>;
+  using format_singlethreaded_ms = format<severity, utc_time_ms, source>;
+
+  using format_singlethreaded_time_only_us = format<severity, utc_time_only_us, source>;
+  using format_singlethreaded_time_only_ms = format<severity, utc_time_only_ms, source>;
+  
+  using format_multithreaded_default = format_multithreaded_us;
+  using format_singlethreaded_default = format_singlethreaded_us;
   
   
-} }
+} // chronicle::fields

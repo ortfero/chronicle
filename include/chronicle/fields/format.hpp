@@ -40,7 +40,7 @@
 #include "../message.hpp"
 
 
-namespace chronicle { namespace fields {
+namespace chronicle::fields {
   
   
   template<class... Fields>
@@ -81,5 +81,4 @@ namespace chronicle { namespace fields {
   }; // format
 
 
-
-} }
+} // chronicle::fields

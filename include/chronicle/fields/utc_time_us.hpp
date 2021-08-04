@@ -48,8 +48,9 @@
 #include "../message.hpp"
 
 
-namespace chronicle { namespace fields {
+namespace chronicle::fields {
   
+    
   class utc_time_us {
   public:
   
@@ -92,4 +93,4 @@ namespace chronicle { namespace fields {
   }; // utc_time_us
   
   
-} }
+} // chronicle::fields

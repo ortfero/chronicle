@@ -37,7 +37,7 @@
 #include "../message.hpp"
 
 
-namespace chronicle { namespace fields {
+namespace chronicle::fields {
   
   
   class thread_id {
@@ -50,4 +50,4 @@ namespace chronicle { namespace fields {
     
   }; // thread_id
   
-} } // fields chronicle
+} // chronicle::fields

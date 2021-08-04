@@ -51,7 +51,7 @@
 #include "../message.hpp"
 
 
-namespace chronicle { namespace fields {
+namespace chronicle::fields {
   
   class utc_time_ms {
   public:
@@ -95,4 +95,4 @@ namespace chronicle { namespace fields {
   }; // utc_time_milliseconds
   
   
-} }
+} // chronicle::fields

@@ -37,7 +37,7 @@
 #include "../message.hpp"
 
 
-namespace chronicle { namespace fields {
+namespace chronicle::fields {
   
   
   class severity {
@@ -70,4 +70,4 @@ namespace chronicle { namespace fields {
   }; // severity
   
   
-} } // fields chronicle
+} // chronicle::fields
