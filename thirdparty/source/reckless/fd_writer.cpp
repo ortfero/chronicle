@@ -26,7 +26,9 @@
 #include <unistd.h>     // write
 
 #elif defined(_WIN32)
+#ifndef NOMINMAX
 #define NOMINMAX
+#endif
 #include <Windows.h>
 #include <cassert>
 #endif
