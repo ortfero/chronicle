@@ -7,7 +7,7 @@
 #include <vector>
 
 
-#include <ubench/ubench.hpp>
+#include "ubench.hpp"
 
 #include <chronicle/text_log.hpp>
 #include <chronicle/sinks/file.hpp>
