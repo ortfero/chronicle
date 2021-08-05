@@ -66,7 +66,7 @@ namespace chronicle {
 
 
 template<typename Tr>
-struct basic_data_log {
+struct data_log {
 
   using data_type = typename Tr::data_type;
   using format_type = typename Tr::format_type;
@@ -81,13 +81,13 @@ struct basic_data_log {
   static constexpr size_type default_queue_size = 8192;
 
 
-  basic_data_log(size_type message_size) noexcept:
+  data_log(size_type message_size) noexcept:
     message_size_{message_size}
   { }
 
-  basic_data_log(basic_data_log const&) = delete;
-  basic_data_log& operator = (basic_data_log const&) = delete;
-  ~basic_data_log() { close(); }
+  data_log(data_log const&) = delete;
+  data_log& operator = (data_log const&) = delete;
+  ~data_log() { close(); }
   bool opened() const noexcept { return activity_.active(); }
   size_type blocks_count() const noexcept { return activity_.blocks_count(); }
   void severity(severity s) noexcept { severity_ = s; }
@@ -345,16 +345,13 @@ private:
   std::string prologue_{"\n LOG OPENED\n\n"};
   std::string epilogue_{"\n LOG CLOSED\n\n"};
 
-}; // basic_data_log
+}; // data_log
+
 
 template<typename D>
-using unique_data_log_traits = traits_unique_default<D>;
+using unique_data_log = data_log<traits_unique_default<D>>;
 template<typename D>
-using shared_data_log_traits = traits_shared_default<D>;
+using shared_data_log = data_log<traits_shared_default<D>>;
 
-template<typename D>
-using unique_data_log = basic_data_log<unique_data_log_traits<D>>;
-template<typename D>
-using shared_data_log = basic_data_log<shared_data_log_traits<D>>;
 
 } // chronicle

@@ -42,9 +42,9 @@ namespace chronicle {
   
   
 template<typename Tr>
-struct basic_structured_log : basic_data_log<Tr> {
+struct basic_structured_log : data_log<Tr> {
 
-  using base = basic_data_log<Tr>;
+  using base = data_log<Tr>;
   using size_type = typename base::size_type;
   using message_type = typename base::message_type;
   using buffer_type = typename base::data_type;
