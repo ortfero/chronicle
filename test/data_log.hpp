@@ -38,6 +38,7 @@ TEST_CASE("data_log::open") {
     target.close();
     REQUIRE(!target.opened());
     target.info("test", "info", "ok");   // should be ok
+    std::filesystem::remove("data.log", failed);
 }
 
 
@@ -53,6 +54,8 @@ TEST_CASE("data_log::notice") {
             target.info("test", "info", "");
     };
     printer();
+    target.close();
+    std::filesystem::remove("data.log", failed);
 }
 
 
