@@ -42,7 +42,7 @@ namespace chronicle {
   
 
 template<typename Tr>
-struct basic_text_log : data_log<Tr> {
+struct text_log : data_log<Tr> {
 
   using base = data_log<Tr>;
   using size_type = typename base::size_type;
@@ -56,13 +56,13 @@ struct basic_text_log : data_log<Tr> {
   using base::close;
   using base::severity;
   
-  basic_text_log(size_type message_size = default_message_size) noexcept:
+  text_log(size_type message_size = default_message_size) noexcept:
     base(message_size)
   { }
   
   
-  basic_text_log(basic_text_log const&) = delete;
-  basic_text_log& operator = (basic_text_log const&) = delete;
+  text_log(text_log const&) = delete;
+  text_log& operator=(text_log const&) = delete;
   
 
   template<size_t N1, size_t N2>
@@ -221,15 +221,11 @@ private:
     p << arg;
     format_args(p, std::forward<Args>(args)...);
   }
-};  // basic_text_log
+};  // text_log
 
 
-using unique_text_log_traits = traits_unique_default<uformat::long_texter>;
-using shared_text_log_traits = traits_shared_default<uformat::long_texter>;
-
-
-using unique_text_log = basic_text_log<unique_text_log_traits>;
-using shared_text_log = basic_text_log<shared_text_log_traits>;
+using unique_text_log = text_log<traits_unique_default<uformat::long_texter>>;
+using shared_text_log = text_log<traits_shared_default<uformat::long_texter>>;
 
   
 } // chronicle
