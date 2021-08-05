@@ -42,7 +42,7 @@ namespace chronicle {
   
   
 template<typename Tr>
-struct basic_structured_log : data_log<Tr> {
+struct structured_log : data_log<Tr> {
 
   using base = data_log<Tr>;
   using size_type = typename base::size_type;
@@ -57,13 +57,13 @@ struct basic_structured_log : data_log<Tr> {
   using base::severity;  
   
   
-  basic_structured_log(size_type message_size = default_message_size) noexcept:
+  structured_log(size_type message_size = default_message_size) noexcept:
     base(message_size)
   { }
   
   
-  basic_structured_log(basic_structured_log const&) = delete;
-  basic_structured_log& operator = (basic_structured_log const&) = delete;
+  structured_log(structured_log const&) = delete;
+  structured_log& operator=(structured_log const&) = delete;
 
 
   template<size_t N1, size_t N2>
@@ -406,15 +406,11 @@ private:
     base::publish(*m);
   }
 
-}; // basic_attributes_log
+}; // structured_log
 
 
-using unique_structured_log_traits = traits_unique_default<uformat::long_texter>;
-using shared_structured_log_traits = traits_shared_default<uformat::long_texter>;
-
-
-using unique_structured_log = basic_structured_log<unique_structured_log_traits>;
-using shared_structured_log = basic_structured_log<shared_structured_log_traits>;
+using unique_structured_log = structured_log<traits_unique_default<uformat::long_texter>>;
+using shared_structured_log = structured_log<traits_shared_default<uformat::long_texter>>;
 
   
 } // chronicle
