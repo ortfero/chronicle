@@ -1,6 +1,4 @@
-﻿#define _CRT_SECURE_NO_WARNINGS
-
-#include <cstdio>
+﻿#include <cstdio>
 #include <charconv>
 #include <iostream>
 #include <chrono>
@@ -15,7 +13,7 @@
 #include <reckless/file_writer.hpp>
 #include <reckless/severity_log.hpp>
 
-#include <nanolog/NanoLog.hpp>
+#include <NanoLog.hpp>
 
 #include <spdlog/spdlog.h>
 #include <spdlog/async.h>
@@ -31,7 +29,7 @@ struct settings {
 };
 
 
-chronicle::text_log journal;
+chronicle::shared_text_log chronicle_logger;
 
 reckless::file_writer reckless_writer("reckless.log");
 using reckless_logger_t =  reckless::severity_log<
@@ -86,9 +84,9 @@ int main() {
     return 1;
   }
 
-  journal.add_sink(std::move(file));
+  chronicle_logger.add_sink(std::move(file));
 
-  if(!journal.open(128 * 1024)) {
+  if(!chronicle_logger.open(128 * 1024)) {
     puts("Unable to open log");
     return 1;
   }
@@ -126,12 +124,12 @@ int main() {
 
   for(auto threads: {2})
     run_benchmark("chronicle", threads, []{
-      journal.info("benchmark", "Logging ",
+      chronicle_logger.info("benchmark", "Logging ",
                      settings::string, settings::int_number,
                      settings::character, settings::float_number);
     });
 
-  std::cout << "chronicle blocks: " << journal.blocks_count() << std::endl;
+  std::cout << "chronicle blocks: " << chronicle_logger.blocks_count() << std::endl;
 
   return 0;
 
