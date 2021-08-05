@@ -9,7 +9,7 @@
 
 //
 // Support for logging binary data as hex
-// format flags:
+// format flags, any combination of the followng:
 // {:X} - print in uppercase.
 // {:s} - don't separate each byte with space.
 // {:p} - don't print the position on each line start.
@@ -89,10 +89,10 @@ struct formatter<spdlog::details::dump_info<T>>
 
     // parse the format string flags
     template<typename ParseContext>
-    auto parse(ParseContext &ctx) -> decltype(ctx.begin())
+    FMT_CONSTEXPR auto parse(ParseContext &ctx) -> decltype(ctx.begin())
     {
         auto it = ctx.begin();
-        while (*it && *it != '}')
+        while (it != ctx.end() && *it != '}')
         {
             switch (*it)
             {
@@ -209,7 +209,7 @@ struct formatter<spdlog::details::dump_info<T>>
 
         if (put_positions)
         {
-            fmt::format_to(inserter, "{:<04X}: ", pos);
+            fmt::format_to(inserter, "{:04X}: ", pos);
         }
     }
 };

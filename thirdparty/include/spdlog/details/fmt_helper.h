@@ -4,6 +4,7 @@
 
 #include <chrono>
 #include <type_traits>
+#include <iterator>
 #include <spdlog/fmt/fmt.h>
 #include <spdlog/common.h>
 
@@ -34,7 +35,15 @@ template<typename T>
 inline unsigned int count_digits(T n)
 {
     using count_type = typename std::conditional<(sizeof(T) > sizeof(uint32_t)), uint64_t, uint32_t>::type;
-    return static_cast<unsigned int>(fmt::internal::count_digits(static_cast<count_type>(n)));
+    return static_cast<unsigned int>(fmt::
+// fmt 7.0.0 renamed the internal namespace to detail.
+// See: https://github.com/fmtlib/fmt/issues/1538
+#if FMT_VERSION < 70000
+            internal
+#else
+            detail
+#endif
+        ::count_digits(static_cast<count_type>(n)));
 }
 
 inline void pad2(int n, memory_buf_t &dest)
@@ -46,7 +55,7 @@ inline void pad2(int n, memory_buf_t &dest)
     }
     else // unlikely, but just in case, let fmt deal with it
     {
-        fmt::format_to(dest, "{:02}", n);
+        fmt::format_to(std::back_inserter(dest), SPDLOG_FMT_RUNTIME("{:02}"), n);
     }
 }
 
