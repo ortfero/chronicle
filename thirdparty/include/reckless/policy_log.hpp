@@ -31,24 +31,17 @@
 #include <cstdlib>  // size_t
 #include <time.h>   // clock_gettime
 
-
-#ifdef _WIN32
-
-#ifndef NOMINMAX
-#define NOMINMAX
-#endif
-
-#ifndef VC_EXTRALEAN
-#define VC_EXTRALEAN
-#endif
-
-#include <Windows.h>
-
-#pragma comment(lib, "Synchronization.lib")
-
-#endif
-
 namespace reckless {
+
+#if defined(_WIN32)
+namespace detail {
+extern "C" {
+    void __stdcall GetSystemTimeAsFileTime(void* lpSystemTimeAsFileTime);
+    int __stdcall FileTimeToLocalFileTime(void const* lpFileTime, void* lpLocalFileTime);
+    int __stdcall FileTimeToSystemTime(void const* lpFileTime, void* lpSystemTime);
+}
+}
+#endif
 
 class timestamp_field {
 public:
@@ -86,15 +79,27 @@ private:
 
     timestamp_field()
     {
-        GetSystemTimeAsFileTime(&ft_);
+        reckless::detail::GetSystemTimeAsFileTime(&ft_);
     }
 
     bool format(output_buffer* pbuffer)
     {
-        FILETIME ft_local;
-        FileTimeToLocalFileTime(&ft_, &ft_local);
+#pragma pack(push, 8)
+        struct SYSTEMTIME {
+            unsigned short wYear;
+            unsigned short wMonth;
+            unsigned short wDayOfWeek;
+            unsigned short wDay;
+            unsigned short wHour;
+            unsigned short wMinute;
+            unsigned short wSecond;
+            unsigned short wMilliseconds;
+        };
+#pragma pack(pop)
+        filetime ft_local;
+        reckless::detail::FileTimeToLocalFileTime(&ft_, &ft_local);
         SYSTEMTIME st;
-        FileTimeToSystemTime(&ft_local, &st);
+        reckless::detail::FileTimeToSystemTime(&ft_local, &st);
         format_timestamp(pbuffer,
             st.wYear,
             st.wMonth,
@@ -107,7 +112,13 @@ private:
     }
 
 private:
-    FILETIME ft_;
+#pragma pack(push, 8)
+    struct filetime {
+        unsigned long dwLowDateTime;
+        unsigned long dwHighDateTime;
+    };
+#pragma pack(pop)
+    filetime ft_;
 #else
     static_assert(false, "timestamp_field is not implemented for this OS")
 #endif
