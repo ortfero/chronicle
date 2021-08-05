@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\reckless">
+      <UniqueIdentifier>{f857f1e7-9a45-4ff1-bf8b-51122c6a1cdf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\nanolog">
+      <UniqueIdentifier>{b54532c7-e5e1-4dfc-895f-6e4426a371e2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="benchmark.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\source\reckless\basic_log.cpp">
+      <Filter>Source Files\reckless</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\source\reckless\crash_handler_win32.cpp">
+      <Filter>Source Files\reckless</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\source\reckless\fd_writer.cpp">
+      <Filter>Source Files\reckless</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\source\reckless\file_writer.cpp">
+      <Filter>Source Files\reckless</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\source\reckless\lockless_cv.cpp">
+      <Filter>Source Files\reckless</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\source\reckless\mpsc_ring_buffer.cpp">
+      <Filter>Source Files\reckless</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\source\reckless\ntoa.cpp">
+      <Filter>Source Files\reckless</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\source\reckless\output_buffer.cpp">
+      <Filter>Source Files\reckless</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\source\reckless\platform.cpp">
+      <Filter>Source Files\reckless</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\source\reckless\policy_log.cpp">
+      <Filter>Source Files\reckless</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\source\reckless\spsc_event_win32.cpp">
+      <Filter>Source Files\reckless</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\source\reckless\template_formatter.cpp">
+      <Filter>Source Files\reckless</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\source\reckless\trace_log.cpp">
+      <Filter>Source Files\reckless</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\source\nanolog\NanoLog.cpp">
+      <Filter>Source Files\nanolog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\source\reckless\writer.cpp">
+      <Filter>Source Files\reckless</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\thirdparty\source\reckless\unit_test.hpp">
+      <Filter>Source Files\reckless</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
