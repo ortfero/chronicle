@@ -95,10 +95,11 @@ int main() {
 ```cpp
 #include <chronicle/structured_log.hpp>
 #include <chronicle/traits.hpp>
+#include <chronicle/bundled/uformat/texter.hpp>
 
 namespace cr = chronicle;
 
-using unique_log = cr::basic_structured_log<cr::traits_unique_ms>;
+using unique_log = cr::structured_log<cr::traits_unique_ms<uformat::long_texter>>;
 ```
 
 
@@ -107,10 +108,11 @@ using unique_log = cr::basic_structured_log<cr::traits_unique_ms>;
 ```cpp
 #include <chronicle/structured_log.hpp>
 #include <chronicle/traits.hpp>
+#include <chronicle/bundled/uformat/texter.hpp>
 
 namespace cr = chronicle;
 
-using shared_log = cr::basic_structured_log<cr::traits_shared_time_only_us>;
+using shared_log = cr::structured_log<cr::traits_shared_time_only_us<uformat::long_texter>>;
 ```
 
 
