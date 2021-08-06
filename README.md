@@ -123,7 +123,7 @@ struct point {
 
 template<typename S> S&
 operator << (S& stream, point const& p) {
-  return s << "{x:" << p.x << ", y:" << p.y << '}';
+  return s << "{ x: " << p.x << ", y: " << p.y << " }";
 }
 ```
 
