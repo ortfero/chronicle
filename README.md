@@ -52,10 +52,10 @@ int main() {
     return 1;
   
   // Should be: "source", "message", {parameter} 
-  log.info("main", "Some message", "{name1: ", 127, ", name2: ", "'value2'}");
+  log.info("main", "Some message", "{ name1: ", 127, ", name2: ", "\"value2\" }");
   
   // Possible output:
-  //         2020-05-09 16:57:02.343402 [main] Some message {name1: 127, name2: 'value2'}
+  //         2020-05-09 16:57:02.343402 [main] Some message { name1: 127, name2: "value2" }
   
   return 0;
 }
@@ -84,7 +84,7 @@ int main() {
   log.info("main", "Some message", "name1", 127, "name2", "value2");
   
   // Possible output:
-  //         2020-05-09 16:57:02.343402 [14648] [main] Some message {name1: 127, name2: "value2"}
+  //         2020-05-09 16:57:02.343402 [14648] [main] Some message { name1: 127, name2: "value2" }
   
   return 0;
 }

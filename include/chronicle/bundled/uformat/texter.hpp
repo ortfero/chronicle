@@ -213,11 +213,13 @@ namespace uformat {
                            Arg&& value,
                            Pairs&&... pairs) {
             string_.push_back('{');
+            string_.push_back(' ');
             string_.append(name.data(), name.size());
             string_.push_back(':');
             string_.push_back(' ');
             format_value(value);
             format_other_attributes(std::forward<Pairs>(pairs)...);
+            string_.push_back(' ');
             string_.push_back('}');
             return *this;
         }
