@@ -1,5 +1,5 @@
 /* This file is part of uformat library
- * Copyright 2020 Andrei Ilin <ortfero@gmail.com>
+ * Copyright 2020-2021 Andrei Ilin <ortfero@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -36,8 +36,7 @@
 namespace uformat {
 
 
-    enum class alignment { left, right };
-
+    enum struct alignment { left, right };
 
 
     template<typename S>
@@ -215,8 +214,7 @@ namespace uformat {
                            Pairs&&... pairs) {
             string_.push_back('{');
             string_.append(name.data(), name.size());
-            string_.push_back(' ');
-            string_.push_back('=');
+            string_.push_back(':');
             string_.push_back(' ');
             format_value(value);
             format_other_attributes(std::forward<Pairs>(pairs)...);
@@ -351,8 +349,7 @@ namespace uformat {
             string_.push_back(',');
             string_.push_back(' ');
             string_.append(name.data(), name.size());
-            string_.push_back(' ');
-            string_.push_back('=');
+            string_.push_back(':');
             string_.push_back(' ');
             format_value(value);
             format_other_attributes(std::forward<Pairs>(pairs)...);
