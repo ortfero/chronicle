@@ -90,8 +90,10 @@ namespace chronicle::sinks {
     static constexpr auto file_attribute_normal = DWORD(0x00000080);
 
 
-    static std::unique_ptr<daily_rotated_file> open(std::filesystem::path const& path, std::size_t limit = 0) {
-      std::unique_ptr<daily_rotated_file> p{new daily_rotated_file{path, limit}};
+    static std::unique_ptr<daily_rotated_file> open(std::filesystem::path const& path,
+                                                    std::error_code& ec,
+                                                    std::size_t limit = 0) {
+      std::unique_ptr<daily_rotated_file> p{new daily_rotated_file{path, limit, ec}};
       if(!p->ready())
         return nullptr;
       return p;
@@ -105,13 +107,14 @@ namespace chronicle::sinks {
     std::filesystem::path const& file_path() const noexcept { return file_path_; }
 
 
-    daily_rotated_file(std::filesystem::path const& path, std::size_t limit) noexcept {
+    daily_rotated_file(std::filesystem::path const& path,
+                       std::size_t limit,
+                       std::error_code& ec) noexcept {
       namespace fs = std::filesystem;
       directory_ = path.parent_path();
-      std::error_code failed;
       if(!directory_.empty() && !fs::exists(directory_))
-        fs::create_directories(directory_, failed);
-      if(!!failed)
+        fs::create_directories(directory_, ec);
+      if(!!ec)
         return;
       base_name_ = path.stem();
       extension_ = path.extension();
@@ -161,7 +164,7 @@ namespace chronicle::sinks {
 
     void write(time_point const& tp, char const* data, size_t size) noexcept override {
       using namespace std::chrono;
-      auto const now_day = duration_cast<hours>(tp.time_since_epoch()).count() / 24;
+      auto const now_day = uint64_t(duration_cast<hours>(tp.time_since_epoch()).count() / 24);
       if(now_day != log_day_) {
         log_day_ = now_day;
         part_ = 1;
