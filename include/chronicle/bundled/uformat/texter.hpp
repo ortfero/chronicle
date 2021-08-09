@@ -30,6 +30,7 @@
 #include <cstdio>
 #include <mutex>
 #include <string_view>
+#include <vector>
 #include <utility>
 
 
@@ -318,6 +319,21 @@ namespace uformat {
         template<size_t N>
         friend texter& operator<<(texter& p, fixed_string<N> const& fs) {
             p.append(fs.data(), fs.size());
+            return p;
+        }
+        
+        
+        template<typename T> friend texter&
+        operator <<(texter& p, std::vector<T> const& v) {
+            p << '[';
+            if(!v.empty()) {
+                auto it = v.begin();
+                p << ' ' << *it;
+                ++it;
+                for(; it != v.end(); ++it)
+                    p << ',' << ' ' << *it;
+            }
+            p << ' ' << ']';
             return p;
         }
 
