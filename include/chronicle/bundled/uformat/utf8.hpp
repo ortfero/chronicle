@@ -30,13 +30,16 @@
 namespace uformat::utf8 {
 
 
+#if defined(_WIN32)
+    inline static constexpr auto octets_per_wchar = 3;
+#else
+    inline static constexpr auto octets_per_wchar = 4;
+#endif
+
+
     inline constexpr std::size_t
         octets_buffer_size(std::size_t code_point_count) noexcept {
-#if defined(_WIN32)
-        return 3 * code_point_count;
-#else
-        return 4 * code_point_count;
-#endif
+            return octets_per_wchar * code_point_count;
     }
 
 
