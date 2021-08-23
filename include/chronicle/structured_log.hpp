@@ -68,7 +68,7 @@ struct structured_log : data_log<Tr> {
 
   template<size_t N1, size_t N2>
   void failure(char const (&tag)[N1], char const (&text)[N2]) {
-    base::print<severity::failure>(std::string_view{tag, N1 - 1},
+    base::template print<severity::failure>(std::string_view{tag, N1 - 1},
                             std::string_view{text, N2 - 1});
   }
 
@@ -77,7 +77,7 @@ struct structured_log : data_log<Tr> {
   void failure(char const (&tag)[N1], char const (&text)[N2],
                char const (&name)[N3], Arg&& value,
                Attrs&&... attrs) {
-    print<severity::failure>(std::string_view{tag, N1 - 1},
+    this->template print<severity::failure>(std::string_view{tag, N1 - 1},
                             std::string_view{text, N2 - 1},
                             std::string_view{name, N3 - 1},
                             std::forward<Arg>(value),
@@ -87,7 +87,7 @@ struct structured_log : data_log<Tr> {
   
   template<typename R, size_t N1, size_t N2>
   R failure_with(R&& r, char const (&tag)[N1], char const (&text)[N2]) {
-    base::print<severity::failure>(std::string_view{tag, N1 - 1},
+    base::template print<severity::failure>(std::string_view{tag, N1 - 1},
                             std::string_view{text, N2 - 1});
     return std::forward<R>(r);
   }
@@ -97,7 +97,7 @@ struct structured_log : data_log<Tr> {
   R failure_with(R&& r, char const (&tag)[N1], char const (&text)[N2],
                char const (&name)[N3], Arg&& value,
                Attrs&&... attrs) {
-    print<severity::failure>(std::string_view{tag, N1 - 1},
+    this->template print<severity::failure>(std::string_view{tag, N1 - 1},
                             std::string_view{text, N2 - 1},
                             std::string_view{name, N3 - 1},
                             std::forward<Arg>(value),
@@ -109,7 +109,7 @@ struct structured_log : data_log<Tr> {
 
   template<size_t N1, size_t N2>
   void error(char const (&tag)[N1], char const (&text)[N2]) {
-    base::print<severity::error>(std::string_view{tag, N1 - 1},
+    base::template print<severity::error>(std::string_view{tag, N1 - 1},
                             std::string_view{text, N2 - 1});
   }
 
@@ -118,7 +118,7 @@ struct structured_log : data_log<Tr> {
   void error(char const (&tag)[N1], char const (&text)[N2],
                char const (&name)[N3], Arg&& value,
                Attrs&&... attrs) {
-    print<severity::error>(std::string_view{tag, N1 - 1},
+    this->template print<severity::error>(std::string_view{tag, N1 - 1},
                             std::string_view{text, N2 - 1},
                             std::string_view{name, N3 - 1},
                             std::forward<Arg>(value),
@@ -128,7 +128,7 @@ struct structured_log : data_log<Tr> {
 
   template<typename R, size_t N1, size_t N2>
   R error_with(R&& r, char const (&tag)[N1], char const (&text)[N2]) {
-    base::print<severity::error>(std::string_view{tag, N1 - 1},
+    base::template print<severity::error>(std::string_view{tag, N1 - 1},
                             std::string_view{text, N2 - 1});
     return std::forward<R>(r);
   }
@@ -138,7 +138,7 @@ struct structured_log : data_log<Tr> {
   R error_with(R&& r, char const (&tag)[N1], char const (&text)[N2],
                char const (&name)[N3], Arg&& value,
                Attrs&&... attrs) {
-    print<severity::error>(std::string_view{tag, N1 - 1},
+    this->template print<severity::error>(std::string_view{tag, N1 - 1},
                             std::string_view{text, N2 - 1},
                             std::string_view{name, N3 - 1},
                             std::forward<Arg>(value),
@@ -150,7 +150,7 @@ struct structured_log : data_log<Tr> {
 
   template<size_t N1, size_t N2>
   void warning(char const (&tag)[N1], char const (&text)[N2]) {
-    base::print<severity::warning>(std::string_view{tag, N1 - 1},
+    base::template print<severity::warning>(std::string_view{tag, N1 - 1},
                             std::string_view{text, N2 - 1});
   }
 
@@ -159,7 +159,7 @@ struct structured_log : data_log<Tr> {
   void warning(char const (&tag)[N1], char const (&text)[N2],
                char const (&name)[N3], Arg&& value,
                Attrs&&... attrs) {
-    print<severity::warning>(std::string_view{tag, N1 - 1},
+    this->template print<severity::warning>(std::string_view{tag, N1 - 1},
                             std::string_view{text, N2 - 1},
                             std::string_view{name, N3 - 1},
                             std::forward<Arg>(value),
@@ -169,7 +169,7 @@ struct structured_log : data_log<Tr> {
   
   template<typename R, size_t N1, size_t N2>
   R warning_with(R&& r, char const (&tag)[N1], char const (&text)[N2]) {
-    base::print<severity::warning>(std::string_view{tag, N1 - 1},
+    base::template print<severity::warning>(std::string_view{tag, N1 - 1},
                             std::string_view{text, N2 - 1});
     return std::forward<R>(r);
   }
@@ -179,7 +179,7 @@ struct structured_log : data_log<Tr> {
   R warning_with(R&& r, char const (&tag)[N1], char const (&text)[N2],
                char const (&name)[N3], Arg&& value,
                Attrs&&... attrs) {
-    print<severity::warning>(std::string_view{tag, N1 - 1},
+    this->template print<severity::warning>(std::string_view{tag, N1 - 1},
                             std::string_view{text, N2 - 1},
                             std::string_view{name, N3 - 1},
                             std::forward<Arg>(value),
@@ -191,7 +191,7 @@ struct structured_log : data_log<Tr> {
 
   template<size_t N1, size_t N2>
   void info(char const (&tag)[N1], char const (&text)[N2]) {
-    base::print<severity::info>(std::string_view{tag, N1 - 1},
+    base::template print<severity::info>(std::string_view{tag, N1 - 1},
                             std::string_view{text, N2 - 1});
   }
 
@@ -200,7 +200,7 @@ struct structured_log : data_log<Tr> {
   void info(char const (&tag)[N1], char const (&text)[N2],
                char const (&name)[N3], Arg&& value,
                Attrs&&... attrs) {
-    print<severity::info>(std::string_view{tag, N1 - 1},
+    this->template print<severity::info>(std::string_view{tag, N1 - 1},
                             std::string_view{text, N2 - 1},
                             std::string_view{name, N3 - 1},
                             std::forward<Arg>(value),
@@ -210,7 +210,7 @@ struct structured_log : data_log<Tr> {
   
   template<typename R, size_t N1, size_t N2>
   R info_with(R&& r, char const (&tag)[N1], char const (&text)[N2]) {
-    base::print<severity::info>(std::string_view{tag, N1 - 1},
+    base::template print<severity::info>(std::string_view{tag, N1 - 1},
                             std::string_view{text, N2 - 1});
     return std::forward<R>(r);
   }
@@ -220,7 +220,7 @@ struct structured_log : data_log<Tr> {
   R info_with(R&& r, char const (&tag)[N1], char const (&text)[N2],
                char const (&name)[N3], Arg&& value,
                Attrs&&... attrs) {
-    print<severity::info>(std::string_view{tag, N1 - 1},
+    this->template print<severity::info>(std::string_view{tag, N1 - 1},
                             std::string_view{text, N2 - 1},
                             std::string_view{name, N3 - 1},
                             std::forward<Arg>(value),
@@ -232,7 +232,7 @@ struct structured_log : data_log<Tr> {
 
   template<size_t N1, size_t N2>
   void extra(char const (&tag)[N1], char const (&text)[N2]) {
-    base::print<severity::extra>(std::string_view{tag, N1 - 1},
+    base::template print<severity::extra>(std::string_view{tag, N1 - 1},
                             std::string_view{text, N2 - 1});
   }
 
@@ -241,7 +241,7 @@ struct structured_log : data_log<Tr> {
   void extra(char const (&tag)[N1], char const (&text)[N2],
                char const (&name)[N3], Arg&& value,
                Attrs&&... attrs) {
-    print<severity::extra>(std::string_view{tag, N1 - 1},
+    this->template print<severity::extra>(std::string_view{tag, N1 - 1},
                             std::string_view{text, N2 - 1},
                             std::string_view{name, N3 - 1},
                             std::forward<Arg>(value),
@@ -251,7 +251,7 @@ struct structured_log : data_log<Tr> {
   
   template<typename R, size_t N1, size_t N2>
   R extra_with(R&& r, char const (&tag)[N1], char const (&text)[N2]) {
-    base::print<severity::extra>(std::string_view{tag, N1 - 1},
+    base::template print<severity::extra>(std::string_view{tag, N1 - 1},
                             std::string_view{text, N2 - 1});
     return std::forward<R>(r);
   }
@@ -261,7 +261,7 @@ struct structured_log : data_log<Tr> {
   R extra_with(R&& r, char const (&tag)[N1], char const (&text)[N2],
                char const (&name)[N3], Arg&& value,
                Attrs&&... attrs) {
-    print<severity::extra>(std::string_view{tag, N1 - 1},
+    this->template print<severity::extra>(std::string_view{tag, N1 - 1},
                             std::string_view{text, N2 - 1},
                             std::string_view{name, N3 - 1},
                             std::forward<Arg>(value),
@@ -273,7 +273,7 @@ struct structured_log : data_log<Tr> {
 
   template<size_t N1, size_t N2>
   void trace(char const (&tag)[N1], char const (&text)[N2]) {
-    base::print<severity::trace>(std::string_view{tag, N1 - 1},
+    base::template print<severity::trace>(std::string_view{tag, N1 - 1},
                             std::string_view{text, N2 - 1});
   }
 
@@ -282,7 +282,7 @@ struct structured_log : data_log<Tr> {
   void trace(char const (&tag)[N1], char const (&text)[N2],
                char const (&name)[N3], Arg&& value,
                Attrs&&... attrs) {
-    print<severity::trace>(std::string_view{tag, N1 - 1},
+    this->template print<severity::trace>(std::string_view{tag, N1 - 1},
                             std::string_view{text, N2 - 1},
                             std::string_view{name, N3 - 1},
                             std::forward<Arg>(value),
@@ -292,7 +292,7 @@ struct structured_log : data_log<Tr> {
   
   template<typename R, size_t N1, size_t N2>
   R trace_with(R&& r, char const (&tag)[N1], char const (&text)[N2]) {
-    base::print<severity::trace>(std::string_view{tag, N1 - 1},
+    base::template print<severity::trace>(std::string_view{tag, N1 - 1},
                             std::string_view{text, N2 - 1});
     return std::forward<R>(r);
   }
@@ -302,7 +302,7 @@ struct structured_log : data_log<Tr> {
   R trace_with(R&& r, char const (&tag)[N1], char const (&text)[N2],
                char const (&name)[N3], Arg&& value,
                Attrs&&... attrs) {
-    print<severity::trace>(std::string_view{tag, N1 - 1},
+    this->template print<severity::trace>(std::string_view{tag, N1 - 1},
                             std::string_view{text, N2 - 1},
                             std::string_view{name, N3 - 1},
                             std::forward<Arg>(value),
@@ -346,7 +346,7 @@ struct structured_log : data_log<Tr> {
 
   template<size_t N1, size_t N2>
   void debug(char const (&tag)[N1], char const (&text)[N2]) {
-    base::print<severity::debug>(std::string_view{tag, N1 - 1},
+    base::template print<severity::debug>(std::string_view{tag, N1 - 1},
                             std::string_view{text, N2 - 1});
   }
 
@@ -355,7 +355,7 @@ struct structured_log : data_log<Tr> {
   void debug(char const (&tag)[N1], char const (&text)[N2],
                char const (&name)[N3], Arg&& value,
                Attrs&&... attrs) {
-    print<severity::debug>(std::string_view{tag, N1 - 1},
+    this->template print<severity::debug>(std::string_view{tag, N1 - 1},
                             std::string_view{text, N2 - 1},
                             std::string_view{name, N3 - 1},
                             std::forward<Arg>(value),
@@ -365,7 +365,7 @@ struct structured_log : data_log<Tr> {
   
   template<typename R, size_t N1, size_t N2>
   R debug_with(R&& r, char const (&tag)[N1], char const (&text)[N2]) {
-    base::print<severity::error>(std::string_view{tag, N1 - 1},
+    base::template print<severity::error>(std::string_view{tag, N1 - 1},
                             std::string_view{text, N2 - 1});
     return std::forward<R>(r);
   }
@@ -375,7 +375,7 @@ struct structured_log : data_log<Tr> {
   R debug_with(R&& r, char const (&tag)[N1], char const (&text)[N2],
                char const (&name)[N3], Arg&& value,
                Attrs&&... attrs) {
-    print<severity::error>(std::string_view{tag, N1 - 1},
+    this->template print<severity::error>(std::string_view{tag, N1 - 1},
                             std::string_view{text, N2 - 1},
                             std::string_view{name, N3 - 1},
                             std::forward<Arg>(value),

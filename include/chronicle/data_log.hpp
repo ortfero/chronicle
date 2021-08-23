@@ -180,75 +180,75 @@ struct data_log {
 
 
   template<size_t N1, size_t N2> void failure(char const (&tag)[N1], char const (&text)[N2]) {
-    print<severity::failure>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1});
+    this->template print<severity::failure>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1});
   }
 
 
   template<size_t N1, size_t N2> void failure(char const (&tag)[N1], char const (&text)[N2], data_type const& data) {
-    print<severity::failure>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1}, data);
+    this->template print<severity::failure>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1}, data);
   }
 
 
   template<size_t N1, size_t N2> void error(char const (&tag)[N1], char const (&text)[N2]) {
-    print<severity::error>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1});
+    this->template print<severity::error>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1});
   }
 
 
   template<size_t N1, size_t N2> void error(char const (&tag)[N1], char const (&text)[N2], data_type const& data) {
-    print<severity::error>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1}, data);
+    this->template print<severity::error>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1}, data);
   }
 
 
   template<typename R, size_t N1, size_t N2> R error_with(R&& r, char const (&tag)[N1], char const (&text)[N2]) {
-    print<severity::error>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1});
+    this->template print<severity::error>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1});
     return std::forward<R>(r);
   }
 
 
   template<typename R, size_t N1, size_t N2> R error_with(R&& r, char const (&tag)[N1], char const (&text)[N2], data_type const& data) {
-    print<severity::error>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1}, data);
+    this->template print<severity::error>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1}, data);
     return std::forward<R>(r);
   }
 
 
 
   template<size_t N1, size_t N2> void warning(char const (&tag)[N1], char const (&text)[N2]) {
-    print<severity::warning>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1});
+    this->template print<severity::warning>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1});
   }
 
 
   template<size_t N1, size_t N2> void warning(char const (&tag)[N1], char const (&text)[N2], data_type const& data) {
-    print<severity::warning>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1}, data);
+    this->template print<severity::warning>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1}, data);
   }
 
 
   template<size_t N1, size_t N2> void info(char const (&tag)[N1], char const (&text)[N2]) {
-    print<severity::info>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1});
+    this->template print<severity::info>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1});
   }
 
 
   template<size_t N1, size_t N2> void info(char const (&tag)[N1], char const (&text)[N2], data_type const& data) {
-    print<severity::info>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1}, data);
+    this->template print<severity::info>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1}, data);
   }
 
 
   template<size_t N1, size_t N2> void extra(char const (&tag)[N1], char const (&text)[N2]) {
-    print<severity::extra>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1});
+    this->template print<severity::extra>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1});
   }
 
 
   template<size_t N1, size_t N2> void extra(char const (&tag)[N1], char const (&text)[N2], data_type const& data) {
-    print<severity::extra>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1}, data);
+    this->template print<severity::extra>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1}, data);
   }
 
 
   template<size_t N1, size_t N2> void trace(char const (&tag)[N1], char const (&text)[N2]) {
-    print<severity::trace>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1});
+    this->template print<severity::trace>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1});
   }
 
 
   template<size_t N1, size_t N2> void trace(char const (&tag)[N1], char const (&text)[N2], data_type const& data) {
-    print<severity::trace>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1}, data);
+    this->template print<severity::trace>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1}, data);
   }
 
 
@@ -267,12 +267,12 @@ struct data_log {
 
 
   template<size_t N1, size_t N2> void debug(char const (&tag)[N1], char const (&text)[N2]) {
-    print<severity::debug>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1});
+    this->template print<severity::debug>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1});
   }
 
 
   template<size_t N1, size_t N2> void debug(char const (&tag)[N1], char const (&text)[N2], data_type const& data) {
-    print<severity::debug>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1}, data);
+    this->template print<severity::debug>(std::string_view{tag, N1 - 1}, std::string_view{text, N2 - 1}, data);
   }
 
 

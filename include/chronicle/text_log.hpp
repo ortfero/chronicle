@@ -67,14 +67,14 @@ struct text_log : data_log<Tr> {
 
   template<size_t N1, size_t N2>
   void failure(char const (&tag)[N1], char const (&text)[N2]) {
-    base::print<severity::failure>(std::string_view{tag, N1 - 1},
+    base::template print<severity::failure>(std::string_view{tag, N1 - 1},
                                   std::string_view{text, N2 - 1});
   }
 
 
   template<size_t N1, size_t N2, typename Arg, typename... Args>
   void failure(char const (&tag)[N1], char const (&text)[N2], Arg&& arg, Args&&... args) {
-    print<severity::failure>(std::string_view{tag, N1 - 1},
+    this->template print<severity::failure>(std::string_view{tag, N1 - 1},
                             std::string_view{text, N2 - 1},
                             std::forward<Arg>(arg),
                             std::forward<Args>(args)...);
@@ -83,14 +83,14 @@ struct text_log : data_log<Tr> {
 
   template<size_t N1, size_t N2>
   void error(char const (&tag)[N1], char const (&text)[N2]) {
-    base::print<severity::error>(std::string_view{tag, N1 - 1},
+    base::template print<severity::error>(std::string_view{tag, N1 - 1},
                                   std::string_view{text, N2 - 1});
   }
 
 
   template<size_t N1, size_t N2, typename Arg, typename... Args>
   void error(char const (&tag)[N1], char const (&text)[N2], Arg&& arg, Args&&... args) {
-    print<severity::error>(std::string_view{tag, N1 - 1},
+    this->template print<severity::error>(std::string_view{tag, N1 - 1},
                             std::string_view{text, N2 - 1},
                             std::forward<Arg>(arg),
                             std::forward<Args>(args)...);
@@ -99,14 +99,14 @@ struct text_log : data_log<Tr> {
 
   template<size_t N1, size_t N2>
   void warning(char const (&tag)[N1], char const (&text)[N2]) {
-    base::print<severity::warning>(std::string_view{tag, N1 - 1},
+    base::template print<severity::warning>(std::string_view{tag, N1 - 1},
                                   std::string_view{text, N2 - 1});
   }
 
 
   template<size_t N1, size_t N2, typename Arg, typename... Args>
   void warning(char const (&tag)[N1], char const (&text)[N2], Arg&& arg, Args&&... args) {
-    print<severity::warning>(std::string_view{tag, N1 - 1},
+    this->template print<severity::warning>(std::string_view{tag, N1 - 1},
                             std::string_view{text, N2 - 1},
                             std::forward<Arg>(arg),
                             std::forward<Args>(args)...);
@@ -115,14 +115,14 @@ struct text_log : data_log<Tr> {
 
   template<size_t N1, size_t N2>
   void info(char const (&tag)[N1], char const (&text)[N2]) {
-    base::print<severity::info>(std::string_view{tag, N1 - 1},
+    base::template print<severity::info>(std::string_view{tag, N1 - 1},
                                   std::string_view{text, N2 - 1});
   }
 
 
   template<size_t N1, size_t N2, typename Arg, typename... Args>
   void info(char const (&tag)[N1], char const (&text)[N2], Arg&& arg, Args&&... args) {
-    print<severity::info>(std::string_view{tag, N1 - 1},
+    this->template print<severity::info>(std::string_view{tag, N1 - 1},
                             std::string_view{text, N2 - 1},
                             std::forward<Arg>(arg),
                             std::forward<Args>(args)...);
@@ -131,14 +131,14 @@ struct text_log : data_log<Tr> {
 
   template<size_t N1, size_t N2>
   void extra(char const (&tag)[N1], char const (&text)[N2]) {
-    base::print<severity::extra>(std::string_view{tag, N1 - 1},
+    base::template print<severity::extra>(std::string_view{tag, N1 - 1},
                                   std::string_view{text, N2 - 1});
   }
 
 
   template<size_t N1, size_t N2, typename Arg, typename... Args>
   void extra(char const (&tag)[N1], char const (&text)[N2], Arg&& arg, Args&&... args) {
-    print<severity::extra>(std::string_view{tag, N1 - 1},
+    this->template print<severity::extra>(std::string_view{tag, N1 - 1},
                             std::string_view{text, N2 - 1},
                             std::forward<Arg>(arg),
                             std::forward<Args>(args)...);
@@ -147,14 +147,14 @@ struct text_log : data_log<Tr> {
 
   template<size_t N1, size_t N2>
   void trace(char const (&tag)[N1], char const (&text)[N2]) {
-    base::print<severity::trace>(std::string_view{tag, N1 - 1},
+    base::template print<severity::trace>(std::string_view{tag, N1 - 1},
                                   std::string_view{text, N2 - 1});
   }
 
 
   template<size_t N1, size_t N2, typename Arg, typename... Args>
   void trace(char const (&tag)[N1], char const (&text)[N2], Arg&& arg, Args&&... args) {
-    print<severity::trace>(std::string_view{tag, N1 - 1},
+    this->template print<severity::trace>(std::string_view{tag, N1 - 1},
                             std::string_view{text, N2 - 1},
                             std::forward<Arg>(arg),
                             std::forward<Args>(args)...);
@@ -177,14 +177,14 @@ struct text_log : data_log<Tr> {
 
   template<size_t N1, size_t N2>
   void debug(char const (&tag)[N1], char const (&text)[N2]) {
-    base::print<severity::debug>(std::string_view{tag, N1 - 1},
+    base::template print<severity::debug>(std::string_view{tag, N1 - 1},
                                   std::string_view{text, N2 - 1});
   }
 
 
   template<size_t N1, size_t N2, typename Arg, typename... Args>
   void debug(char const (&tag)[N1], char const (&text)[N2], Arg&& arg, Args&&... args) {
-    print<severity::debug>(std::string_view{tag, N1 - 1},
+    this->template print<severity::debug>(std::string_view{tag, N1 - 1},
                             std::string_view{text, N2 - 1},
                             std::forward<Arg>(arg),
                             std::forward<Args>(args)...);
