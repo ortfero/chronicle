@@ -33,6 +33,13 @@ namespace chronicle {
   enum class severity {
     undefined, failure, error, warning, info, extra, trace, debug
   }; // severity
+  
+  
+  inline bool filter_by_severity(severity of_logger, severity of_message) noexcept {
+      if(of_message > of_logger)
+          return true;
+      return false;
+  }
 
 
   inline severity parse_severity(std::string_view const& text) {
