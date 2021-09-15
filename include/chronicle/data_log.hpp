@@ -180,6 +180,7 @@ struct data_log {
 
       for(auto& each_sink: sinks_) {
         each_sink->write(now, buffer_.data(), buffer_.size());
+        
         if(have_to_flush)
           each_sink->flush();
       }

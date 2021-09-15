@@ -44,7 +44,7 @@ namespace chronicle::fields {
   
     template<class S, typename D>
     void print(message<D> const& m, uformat::texter<S>& texter) {
-      texter << m.source << ':';
+        texter << '[' << m.source << ']';
     }
     
   }; // source

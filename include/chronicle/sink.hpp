@@ -25,11 +25,13 @@
 
 #include <chrono>
 
+#include <chronicle/severity.hpp>
+
 
 namespace chronicle {
   
   
-class sink {
+class sink {    
 public:
 
   using time_point = std::chrono::system_clock::time_point;
