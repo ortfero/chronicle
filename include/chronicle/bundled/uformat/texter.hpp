@@ -529,13 +529,10 @@ namespace uformat {
             if(actual_width >= width)
                 return shrink(digits - actual_width);
             unsigned const leadings_count = width - actual_width;
-            for(p = buffer + actual_width - 1; p != buffer + leadings_count - 1;
-                --p)
+            for(p = buffer + actual_width - 1; p != buffer - 1; --p)
                 p[leadings_count] = p[0];
-            for(; p != buffer - 1; --p) {
-                p[leadings_count] = p[0];
-                p[0] = '0';
-            }
+            for(p = buffer; p != buffer + leadings_count; ++p)
+                *p = '0';
             shrink(digits - width);
             return *this;
         }
