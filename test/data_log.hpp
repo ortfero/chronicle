@@ -5,7 +5,7 @@
 
 #include "doctest.h"
 
-#include <chronicle/bundled/date/date.h>
+#include <date/date.h>
 #include <chronicle/data_log.hpp>
 #include <chronicle/sinks/conerr.hpp>
 #include <chronicle/sinks/conout.hpp>

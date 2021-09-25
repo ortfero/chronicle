@@ -139,9 +139,12 @@ using unique_log = cr::structured_log<cr::traits_unique_ms<uformat::long_texter>
                                       some_custom_clock>;
 ```
 
+## Dependencies
+
+* [date.h](https://github.com/HowardHinnant/date) (expected as `date/date.h`)
+
 
 ## Configuration macros
 
-* ```CHRONICLE_USE_SYSTEM_DATE``` - use system date library instead of bundled
 * ```CHRONICLE_USE_SYSTEM_UFORMAT``` - use system uformat library instead of bundled
 * ```CHRONICLE_USE_SYSTEM_HYDRA``` - use system hydra library instead of bundled

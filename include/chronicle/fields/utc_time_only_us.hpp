@@ -23,15 +23,7 @@
 #pragma once
 
 
-#ifdef CHRONICLE_USE_SYSTEM_DATE
-
 #include <date/date.h>
-
-#else
-
-#include "../bundled/date/date.h"
-
-#endif // CHRONICLE_USE_SYSTEM_DATE
 
 
 #ifdef CHRONICLE_USE_SYSTEM_UFORMAT

@@ -5,7 +5,7 @@
 
 #include "doctest.h"
 
-#include <chronicle/bundled/date/date.h>
+#include <date/date.h>
 #include <chronicle/sinks/daily_rotated_file.hpp>
 
 

@@ -38,17 +38,6 @@
 #endif // CHRONICLE_USE_SYSTEM_HYDRA
 
 
-#ifdef CHRONICLE_USE_SYSTEM_DATE
-
-#include <date/date.h>
-
-#else
-
-#include "bundled/date/date.h"
-
-#endif
-
-
 #include "severity.hpp"
 
 
