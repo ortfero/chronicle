@@ -91,7 +91,10 @@ struct data_log {
   using data_type = typename Tr::data_type;
   using format_type = typename Tr::format_type;
   using queue_type = typename Tr::queue_type;
-  using message_type = message<data_type>;
+  using clock_type = typename Tr::clock_type;
+  using duration = typename clock_type::duration;
+  using time_point = typename clock_type::time_point;
+  using message_type = message<data_type, time_point>;
   using activity_type = hydra::activity<message_type, queue_type>;
   using batch_type = typename activity_type::batch;
   using size_type = typename activity_type::size_type;
@@ -131,7 +134,7 @@ struct data_log {
   }
 
 
-  std::chrono::system_clock::duration flush_timeout() const noexcept {
+  duration flush_timeout() const noexcept {
     return flush_timeout_;
   }
   
@@ -162,7 +165,7 @@ struct data_log {
       buffer_.clear();
       buffer_.reserve(message_size_ * batch.size());
 
-      auto const now = std::chrono::system_clock::now();
+      auto const now = clock_type::now();
       while(auto sequence = batch.try_fetch()) {
         message_type& message = batch[sequence];
         message.time = now;
@@ -360,8 +363,8 @@ private:
   activity_type activity_;
   size_type message_size_;
   uformat::dynamic_texter buffer_;
-  std::chrono::system_clock::duration flush_timeout_;
-  std::chrono::system_clock::time_point last_flush_time_;
+  duration flush_timeout_;
+  time_point last_flush_time_;
   format_type format_;
   std::string prologue_{"\n LOG OPENED\n\n"};
   std::string epilogue_{"\n LOG CLOSED\n\n"};

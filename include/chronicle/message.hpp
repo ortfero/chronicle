@@ -55,11 +55,11 @@
 namespace chronicle {
 
 
-  template<typename D> struct message {
+  template<typename D, class TimePoint> struct message {
 
     hydra::sequence sequence;
     enum severity severity;
-    std::chrono::system_clock::time_point time;
+    TimePoint time;
     unsigned thread_id;
     std::string_view source;
     std::string_view text;

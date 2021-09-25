@@ -57,8 +57,8 @@ namespace chronicle::fields {
   class utc_time_only_ms {
   public:
   
-    template<class S, typename D>
-    void print(message<D> const& m, uformat::texter<S>& texter) {
+    template<class S, typename D, class TimePoint>
+    void print(message<D, TimePoint> const& m, uformat::texter<S>& texter) {
       using namespace std::chrono;
       auto const dp = floor<date::days>(m.time);
       date::time_of_day<milliseconds> const tod{duration_cast<milliseconds>(m.time - dp)};

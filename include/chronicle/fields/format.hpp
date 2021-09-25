@@ -50,10 +50,10 @@ namespace chronicle::fields {
     using fields_type = std::tuple<Fields...>;
 
     
-    template<class S, typename D>
-    void print(message<D> const& m, uformat::texter<S>& texter) {
+    template<class S, typename D, class TimePoint>
+    void print(message<D, TimePoint> const& m, uformat::texter<S>& texter) {
 
-      print_fields<S, D, 0>(m, texter);
+      print_fields<S, D, TimePoint, 0>(m, texter);
       texter << ' ';
       texter << m.text;
       
@@ -68,14 +68,14 @@ namespace chronicle::fields {
   
     fields_type fields_;
 
-    template<class S, typename D, size_t I>
-    void print_fields(message<D> const& message, uformat::texter<S>& texter) {
+    template<class S, typename D, class TimePoint, size_t I>
+    void print_fields(message<D, TimePoint> const& message, uformat::texter<S>& texter) {
 
       texter << ' ';
       std::get<I>(fields_).print(message, texter);
 
       if constexpr (I + 1 != std::tuple_size_v<fields_type>)
-        print_fields<S, D, I + 1>(message, texter);
+        print_fields<S, D, TimePoint, I + 1>(message, texter);
     }
     
   }; // format

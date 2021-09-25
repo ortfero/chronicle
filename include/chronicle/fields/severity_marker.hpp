@@ -42,8 +42,8 @@ namespace chronicle::fields {
   class severity_marker {
   public:
     
-    template<typename S, typename D>
-    void format(message<D> const& m, chineseroom::texter<S>& texter) {
+    template<typename S, typename D, class TimePoint>
+    void format(message<D, TimePoint> const& m, chineseroom::texter<S>& texter) {
       switch(m.severity) {
         case severity::undefined:
           texter << '[' << '?' << ']'; return;

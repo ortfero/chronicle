@@ -54,8 +54,8 @@ namespace chronicle::fields {
   class utc_time_us {
   public:
   
-    template<class S, typename D>
-    void print(message<D> const& m, uformat::texter<S>& texter) {
+    template<class S, typename D, class TimePoint>
+    void print(message<D, TimePoint> const& m, uformat::texter<S>& texter) {
       using namespace std::chrono;
       auto const dp = floor<date::days>(m.time);
       date::year_month_day const ymd = dp;

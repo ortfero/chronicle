@@ -43,8 +43,8 @@ namespace chronicle::fields {
   class thread_id {
   public:
   
-    template<class S, typename D>
-    void print(message<D> const& m, uformat::texter<S>& texter) {
+    template<class S, typename D, class TimePoint>
+    void print(message<D, TimePoint> const& m, uformat::texter<S>& texter) {
       texter << '#' << m.thread_id;
     }
     
