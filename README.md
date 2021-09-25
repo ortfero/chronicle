@@ -130,6 +130,16 @@ operator << (S& stream, point const& p) {
 ```
 
 
+### Using custom clock
+
+```cpp
+namespace cr = chronicle;
+
+using unique_log = cr::structured_log<cr::traits_unique_ms<uformat::long_texter>,
+                                      some_custom_clock>;
+```
+
+
 ## Configuration macros
 
 * ```CHRONICLE_USE_SYSTEM_DATE``` - use system date library instead of bundled
