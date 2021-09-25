@@ -16,13 +16,15 @@ TEST_CASE("daily_rotated_file::daily_rotated_file()") {
 
 
 TEST_CASE("daily_rotated_file::open") {
-    auto target = chronicle::sinks::daily_rotated_file::open("test.log");
+    std::error_code ec;
+    auto target = chronicle::sinks::daily_rotated_file::open("test.log", ec);
     REQUIRE(target->ready());
 }
 
 
 TEST_CASE("daily_rotated_file::file_path") {
-    auto target = chronicle::sinks::daily_rotated_file::open("test.log");
+    std::error_code ec;
+    auto target = chronicle::sinks::daily_rotated_file::open("test.log", ec);
     using namespace std::chrono;
     auto const now = system_clock::now();
     auto const dp = floor<date::days>(now);
@@ -39,7 +41,8 @@ TEST_CASE("daily_rotated_file::file_path") {
 
 
 TEST_CASE("daily_rotated_file::rotate_file") {
-    auto target = chronicle::sinks::daily_rotated_file::open("test.log");
+    std::error_code ec;
+    auto target = chronicle::sinks::daily_rotated_file::open("test.log", ec);
     using namespace std::chrono;
     auto const tomorrow = system_clock::now() + hours {24};
     target->write(tomorrow, "test", sizeof("test") - 1);

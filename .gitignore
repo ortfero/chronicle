@@ -37,3 +37,4 @@ benchmark/out/
 build/debug/build.ninja
 build/
 test/.vs/
+test/x64/
