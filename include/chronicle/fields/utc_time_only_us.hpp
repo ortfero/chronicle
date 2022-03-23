@@ -6,20 +6,9 @@
 
 
 #include <date/date.h>
+#include <ufmt/text.hpp>
 
-
-#ifdef CHRONICLE_USE_SYSTEM_UFORMAT
-
-#include <uformat/texter.hpp>
-
-#else
-
-#include "../bundled/uformat/texter.hpp"
-
-#endif // CHRONICLE_USE_SYSTEM_UFORMAT
-
-
-#include "../message.hpp"
+#include <chronicle/message.hpp>
 
 
 namespace chronicle::fields {
@@ -28,31 +17,31 @@ namespace chronicle::fields {
   public:
   
     template<class S, typename D, class TimePoint>
-    void print(message<D, TimePoint> const& m, uformat::texter<S>& texter) {
+    void print(message<D, TimePoint> const& m, ufmt::text<S>& text) {
       using namespace std::chrono;
       auto const dp = floor<date::days>(m.time);
-      date::time_of_day<microseconds> const tod{duration_cast<microseconds>(m.time - dp)};
+      auto const tod = date::time_of_day{duration_cast<microseconds>(m.time - dp)};
                     
       if(tod.hours().count() < 10)
-        texter << '0';
-      texter << tod.hours().count();
-      texter << ':';
+        text << '0';
+      text << tod.hours().count();
+      text << ':';
 
       if(tod.minutes().count() < 10)
-        texter << '0';
-      texter << tod.minutes().count();
-      texter << ':';
+        text << '0';
+      text << tod.minutes().count();
+      text << ':';
 
       if(tod.seconds().count() < 10)
-        texter << '0';
-      texter << tod.seconds().count();
-      texter << '.';
+        text << '0';
+      text << tod.seconds().count();
+      text << '.';
 
       auto const micros = tod.subseconds().count();
-      texter.fixed(micros, 6);
+      text << ufmt::integer_fixed{micros, 6};
     }
     
-  }; // utc_time_us
+  }; // utc_time_only_us
   
   
-} // chronicle::fields
+} // namespace chronicle::fields

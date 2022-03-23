@@ -1,24 +1,6 @@
-/* This file is part of chronicle library
- * Copyright 2020-2021 Andrei Ilin <ortfero@gmail.com>
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
+// This file is part of chronicle library
+// Copyright 2020-2022 Andrei Ilin <ortfero@gmail.com>
+// SPDX-License-Identifier: MIT
 
 #pragma once
 
@@ -45,41 +27,27 @@
 
 #include <processthreadsapi.h>
 
+#elif defined(__linux__)
+
+#include <unistd.h>
+
+#else
+
+#error Unsupported system
+
 #endif
 
 
-#ifdef CHRONICLE_USE_SYSTEM_HYDRA
-
 #include <hydra/activity.hpp>
-#include <hydra/queue_batch.hpp>
+#include <hydra/batch.hpp>
 #include <hydra/mpsc_queue.hpp>
 #include <hydra/spsc_queue.hpp>
+#include <ufmt/text.hpp>
 
-#else
-
-#include "bundled/hydra/activity.hpp"
-#include "bundled/hydra/queue_batch.hpp"
-#include "bundled/hydra/mpsc_queue.hpp"
-#include "bundled/hydra/spsc_queue.hpp"
-
-#endif // CHRONICLE_USE_SYSTEM_HYDRA
-
-
-#ifdef CHRONICLE_USE_SYSTEM_UFORMAT
-
-#include <uformat/texter.hpp>
-
-#else
-
-#include "bundled/uformat/texter.hpp"
-
-#endif // CHRONICLE_USE_SYSTEM_UFORMAT
-
-
-#include "traits.hpp"
-#include "severity.hpp"
-#include "message.hpp"
-#include "sink.hpp"
+#include <chronicle/traits.hpp>
+#include <chronicle/severity.hpp>
+#include <chronicle/message.hpp>
+#include <chronicle/sink.hpp>
 
 
 namespace chronicle {
@@ -346,8 +314,8 @@ protected:
     m.severity = S;
 #if defined(_WIN32)
     m.thread_id = unsigned(GetCurrentThreadId());
-#else
-#error Unsupported system
+#elif defined(__linux__)
+    m.thread_id = unsigned(gettid());
 #endif
     m.source = source;
     m.text = text;
@@ -362,12 +330,12 @@ private:
   enum severity severity_{chronicle::severity::info};
   activity_type activity_;
   size_type message_size_;
-  uformat::dynamic_texter buffer_;
+  ufmt::text buffer_;
   duration flush_timeout_;
   time_point last_flush_time_;
   format_type format_;
-  std::string prologue_{"\n LOG OPENED\n\n"};
-  std::string epilogue_{"\n LOG CLOSED\n\n"};
+  std::string prologue_{"\n +++ log opened +++\n\n"};
+  std::string epilogue_{"\n +++ log closed +++\n\n"};
 
 }; // data_log
 
@@ -378,4 +346,4 @@ template<typename D>
 using shared_data_log = data_log<traits_shared_default<D>>;
 
 
-} // chronicle
+} // namespace chronicle

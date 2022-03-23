@@ -5,18 +5,9 @@
 #pragma once
 
 
-#ifdef CHRONICLE_USE_SYSTEM_CHINESEROOM
+#include <ufmt/text.hpp>
 
-#include <chineseroom/texter.hpp>
-
-#else
-
-#include "../bundled/chineseroom/texter.hpp"
-
-#endif
-
-
-#include "../message.hpp"
+#include <chronicle/message.hpp>
 
 
 namespace chronicle::fields {
@@ -25,7 +16,7 @@ namespace chronicle::fields {
   public:
     
     template<typename S, typename D, class TimePoint>
-    void format(message<D, TimePoint> const& m, chineseroom::texter<S>& texter) {
+    void format(message<D, TimePoint> const& m, ufmt::basic_text<S>& texter) {
       switch(m.severity) {
         case severity::undefined:
           texter << '[' << '?' << ']'; return;
@@ -50,4 +41,4 @@ namespace chronicle::fields {
     
   }; // severity_marker
 
-} // chronicle::fields
+} // namespace chronicle::fields

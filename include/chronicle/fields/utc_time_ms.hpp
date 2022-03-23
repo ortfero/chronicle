@@ -9,18 +9,9 @@
 
 #include <date/date.h>
 
-#ifdef CHRONICLE_USE_SYSTEM_UFORMAT
+#include <ufmt/texter.hpp>
 
-#include <uformat/texter.hpp>
-
-#else
-
-#include "../bundled/uformat/texter.hpp"
-
-#endif // CHRONICLE_USE_SYSTEM_UFORMAT
-
-
-#include "../message.hpp"
+#include <chronicle/message.hpp>
 
 
 namespace chronicle::fields {
@@ -29,42 +20,48 @@ namespace chronicle::fields {
   public:
   
     template<class S, typename D, class TimePoint>
-    void print(message<D, TimePoint> const& m, uformat::texter<S>& texter) {
+    void print(message<D, TimePoint> const& m, ufmt::text<S>& text) {
       using namespace std::chrono;
       auto const dp = floor<date::days>(m.time);
-      date::year_month_day const ymd = dp;
-      date::time_of_day<milliseconds> const tod{duration_cast<milliseconds>(m.time - dp)};
+      auto const ymd = date::year_month_day{dp};
+      auto const tod = date::time_of_day<milliseconds>{duration_cast<milliseconds>(m.time - dp)};
                     
-      texter << int(ymd.year()) << '-';
+      text << int(ymd.year()) << '-';
       if(unsigned(ymd.month()) < 10)
-        texter << '0';
-      texter << unsigned(ymd.month());
-      texter << '-';
+        text << '0';
+      text << unsigned(ymd.month());
+      text << '-';
       if(unsigned(ymd.day()) < 10)
-        texter << '0';
-      texter << unsigned(ymd.day());
-      texter << ' ';
+        text << '0';
+      text << unsigned(ymd.day());
+      text << ' ';
 
       if(tod.hours().count() < 10)
-        texter << '0';
-      texter << tod.hours().count();
-      texter << ':';
+        text << '0';
+      text << tod.hours().count();
+      text << ':';
 
       if(tod.minutes().count() < 10)
-        texter << '0';
-      texter << tod.minutes().count();
-      texter << ':';
+        text << '0';
+      text << tod.minutes().count();
+      text << ':';
 
       if(tod.seconds().count() < 10)
-        texter << '0';
-      texter << tod.seconds().count();
-      texter << '.';
+        text << '0';
+      text << tod.seconds().count();
+      text << '.';
 
       auto const millis = tod.subseconds().count();
-      texter.fixed(millis, 3);
+      if(millis < 100)
+        if(millis < 10)
+            text << '0' << '0';
+        else
+            text << '0';
+
+      text << millis;
     }
     
   }; // utc_time_ms
   
   
-} // chronicle::fields
+} // namespace chronicle::fields

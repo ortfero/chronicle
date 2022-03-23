@@ -8,19 +8,9 @@
 #include <string_view>
 #include <chrono>
 
-
-#ifdef CHRONICLE_USE_SYSTEM_HYDRA
-
 #include <hydra/sequence.hpp>
 
-#else
-
-#include "bundled/hydra/sequence.hpp"
-
-#endif // CHRONICLE_USE_SYSTEM_HYDRA
-
-
-#include "severity.hpp"
+#include <chronicle/severity.hpp>
 
 
 namespace chronicle {
@@ -40,4 +30,4 @@ namespace chronicle {
   }; // message
 
 
-} // chronicle
+} // namespace chronicle

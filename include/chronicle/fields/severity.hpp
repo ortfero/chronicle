@@ -7,14 +7,7 @@
 
 #include <ufmt/text.hpp>
 
-#else
-
-#include "../bundled/uformat/texter.hpp"
-
-#endif
-
-
-#include "../message.hpp"
+#include <chronicle/message.hpp>
 
 
 namespace chronicle::fields {
@@ -24,30 +17,30 @@ namespace chronicle::fields {
   public:
     
     template<class S, typename D, class TimePoint>
-    void print(message<D, TimePoint> const& m, uformat::texter<S>& texter) {
+    void print(message<D, TimePoint> const& m, ufmt::basic_text<S>& text) {
       switch(m.severity) {
         case chronicle::severity::undefined:
-          texter << "-------"; break;
+          text << "-------"; break;
         case chronicle::severity::failure:
-          texter << "failure"; break;
+          text << "failure"; break;
         case chronicle::severity::error:
-          texter << "error  "; break;
+          text << "error  "; break;
         case chronicle::severity::warning:
-          texter << "warning"; break;
+          text << "warning"; break;
         case chronicle::severity::info:
-          texter << "       "; break;
+          text << "       "; break;
         case chronicle::severity::extra:
-          texter << "       "; break;
+          text << "       "; break;
         case chronicle::severity::trace:
-          texter << "trace  "; break;
+          text << "trace  "; break;
         case chronicle::severity::debug:
-          texter << "debug  "; break;
+          text << "debug  "; break;
         default:
-          texter << "unknown"; break;
+          text << "unknown"; break;
       }
     }
     
   }; // severity
   
   
-} // chronicle::fields
+} // namespace chronicle::fields

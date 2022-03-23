@@ -5,19 +5,10 @@
 #pragma once
 
 
-#ifdef CHRONICLE_USE_SYSTEM_UFORMAT
+#include <ufmt/text.hpp>
 
-#include <uformat/texter.hpp>
-
-#else
-
-#include "bundled/uformat/texter.hpp"
-
-#endif // CHRONICLE_USE_SYSTEM_UFORMAT
-
-
-#include "traits.hpp"
-#include "data_log.hpp"
+#include <chronicle/traits.hpp>
+#include <chronicle/data_log.hpp>
 
 
 namespace chronicle {
@@ -206,8 +197,8 @@ private:
 };  // text_log
 
 
-using unique_text_log = text_log<traits_unique_default<uformat::long_texter>>;
-using shared_text_log = text_log<traits_shared_default<uformat::long_texter>>;
+using unique_text_log = text_log<traits_unique_default<ufmt::text>>;
+using shared_text_log = text_log<traits_shared_default<ufmt::text>>;
 
   
-} // chronicle
+} // namespace chronicle

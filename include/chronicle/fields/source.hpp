@@ -5,18 +5,9 @@
 #pragma once
 
 
-#ifdef CHRONICLE_USE_SYSTEM_UFORMAT
+#include <ufmt/text.hpp>
 
-#include <uformat/texter.hpp>
-
-#else
-
-#include "../bundled/uformat/texter.hpp"
-
-#endif
-
-
-#include "../message.hpp"
+#include <chronicle/message.hpp>
 
 
 namespace chronicle::fields {
@@ -25,10 +16,10 @@ namespace chronicle::fields {
   public:
   
     template<class S, typename D, class TimePoint>
-    void print(message<D, TimePoint> const& m, uformat::texter<S>& texter) {
-        texter << '[' << m.source << ']';
+    void print(message<D, TimePoint> const& m, ufmt::basic_text<S>& text) {
+        text << '[' << m.source << ']';
     }
     
   }; // source
 
-} // chronicle::fields
+} // namespace chronicle::fields

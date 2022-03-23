@@ -9,7 +9,7 @@
 
 #include <ufmt/text.hpp>
 
-#include "../message.hpp"
+#include <chronicle/message.hpp>
 
 
 namespace chronicle::fields {
@@ -41,16 +41,16 @@ namespace chronicle::fields {
     fields_type fields_;
 
     template<class S, typename D, class TimePoint, size_t I>
-    void print_fields(message<D, TimePoint> const& message, ufmt::basic_text<S>& texter) {
+    void print_fields(message<D, TimePoint> const& message, ufmt::basic_text<S>& text) {
 
-      texter << ' ';
-      std::get<I>(fields_).print(message, texter);
+      text << ' ';
+      std::get<I>(fields_).print(message, text);
 
       if constexpr (I + 1 != std::tuple_size_v<fields_type>)
-        print_fields<S, D, TimePoint, I + 1>(message, texter);
+        print_fields<S, D, TimePoint, I + 1>(message, text);
     }
     
   }; // format
 
 
-} // chronicle::fields
+} // namespace chronicle::fields

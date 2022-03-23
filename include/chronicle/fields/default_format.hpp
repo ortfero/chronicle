@@ -5,14 +5,14 @@
 #pragma once
 
 
-#include "format.hpp"
-#include "severity.hpp"
-#include "utc_time_us.hpp"
-#include "utc_time_ms.hpp"
-#include "utc_time_only_us.hpp"
-#include "utc_time_only_ms.hpp"
-#include "thread_id.hpp"
-#include "source.hpp"
+#include <chronicle/fields/format.hpp>
+#include <chronicle/fields/severity.hpp>
+#include <chronicle/fields/utc_time_us.hpp>
+#include <chronicle/fields/utc_time_ms.hpp>
+#include <chronicle/fields/utc_time_only_us.hpp>
+#include <chronicle/fields/utc_time_only_ms.hpp>
+#include <chronicle/fields/thread_id.hpp>
+#include <chronicle/fields/source.hpp>
 
 
 namespace chronicle::fields {

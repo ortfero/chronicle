@@ -7,33 +7,11 @@
 
 #include <chrono>
 
-
-#ifdef CHRONICLE_USE_SYSTEM_HYDRA
-
 #include <hydra/mpsc_queue.hpp>
 #include <hydra/spsc_queue.hpp>
 
-#else
-
-#include "bundled/hydra/mpsc_queue.hpp"
-#include "bundled/hydra/spsc_queue.hpp"
-
-#endif // CHRONICLE_USE_SYSTEM_HYDRA
-
-
-#ifdef CHRONICLE_USE_SYSTEM_UFORMAT
-
-#include <uformat/texter.hpp>
-
-#else
-
-#include "bundled/uformat/texter.hpp"
-
-#endif // CHRONICLE_USE_SYSTEM_UFORMAT
-
-
-#include "fields/default_format.hpp"
-#include "message.hpp"
+#include <chronicle/fields/default_format.hpp>
+#include <chronicle/message.hpp>
 
 
 namespace chronicle {
