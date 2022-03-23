@@ -1,11 +1,6 @@
-project('chronicle-test', 'cpp',
-  default_options: ['cpp_std=c++17'])
-
-incdirs = include_directories('../include')
-
-deps = []
-
 system = host_machine.system()
+
+deps = [chronicle]
 
 if system == 'windows'
   cpp = meson.get_compiler('cpp')
@@ -13,6 +8,7 @@ if system == 'windows'
   deps += [synchapi]
 endif
 
-executable('chronicle-test', 'test.cpp',
-	include_directories: incdirs,
+chronicle_test = executable('chronicle-test', 'test.cpp',
 	dependencies: deps)
+test('all', chronicle_test)
+
