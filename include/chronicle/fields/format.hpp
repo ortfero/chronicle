@@ -1,41 +1,13 @@
-﻿/* This file is part of chronicle library
- * Copyright 2020-2021 Andrei Ilin <ortfero@gmail.com>
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
+﻿// This file is part of chronicle library
+// Copyright 2020-2022 Andrei Ilin <ortfero@gmail.com>
+// SPDX-License-Identifier: MIT
 
 #pragma once
 
 
 #include <tuple>
 
-
-#ifdef CHRONICLE_USE_SYSTEM_UFORMAT
-
-#include <uformat/texter.hpp>
-
-#else
-
-#include "../bundled/uformat/texter.hpp"
-
-#endif
-
+#include <ufmt/text.hpp>
 
 #include "../message.hpp"
 
@@ -51,16 +23,16 @@ namespace chronicle::fields {
 
     
     template<class S, typename D, class TimePoint>
-    void print(message<D, TimePoint> const& m, uformat::texter<S>& texter) {
+    void print(message<D, TimePoint> const& m, ufmt::basic_text<S>& text) {
 
-      print_fields<S, D, TimePoint, 0>(m, texter);
-      texter << ' ';
-      texter << m.text;
+      print_fields<S, D, TimePoint, 0>(m, text);
+      text << ' ';
+      text << m.text;
       
       if(m.has_data)
-        texter << m.data;
+        text << m.data;
       
-      texter << '\n';
+      text << '\n';
     }
     
     
@@ -69,7 +41,7 @@ namespace chronicle::fields {
     fields_type fields_;
 
     template<class S, typename D, class TimePoint, size_t I>
-    void print_fields(message<D, TimePoint> const& message, uformat::texter<S>& texter) {
+    void print_fields(message<D, TimePoint> const& message, ufmt::basic_text<S>& texter) {
 
       texter << ' ';
       std::get<I>(fields_).print(message, texter);
