@@ -26,24 +26,38 @@
 #include <ProcessEnv.h>
 #include <fileapi.h>
 
+#elif defined(__linux__)
+
+#include <unistd.h>
+
 #endif
 
-
-#include "../sink.hpp"
+#include <chronical/sink.hpp>
 
 
 namespace chronicle::sinks {
 
 
-#if defined(_WIN32)
-
   class conout: public sink {
+
+#if defined(_WIN32)
+    using handle_type = void*;
+    static constexpr auto invalid_handle = nullptr;
+#elif defined(__linux__)
+    using handle_type = int;
+    static constexpr auto invalid_handle = -1;
+#endif
+    
+    handle_type handle_{invalid_handle};
+
   public:
 
-    static constexpr auto std_output_handle = DWORD(-11);
-
     static std::unique_ptr<sink> open() noexcept {
-      return std::unique_ptr<sink>{new conout{GetStdHandle(std_output_handle)}};
+#if defined(_WIN32)
+      return std::unique_ptr<sink>{new conerr{GetStdHandle(DWORD(-11))}};
+#elif defined(__linux__)
+        return std::unique_ptr<sink>{new conerr{1}};
+#endif
     }
 
     conout() noexcept = default;
@@ -51,32 +65,40 @@ namespace chronicle::sinks {
     conout& operator = (conout const&) noexcept = delete;    
 
     conout(conout&& other) noexcept: handle_{other.handle_} {
-      other.handle_ = nullptr;
+      other.handle_ = invalid_handle;
     }
 
     conout& operator = (conout&& other) noexcept {
-      handle_ = other.handle_; other.handle_ = nullptr;
+      handle_ = other.handle_; other.handle_ = invalid_handle;
       return *this;
     }
     
     
     bool ready() const noexcept override {
-      return handle_ != nullptr;
+      return handle_ != invalid_handle;
     }
 
     
     void write(time_point const&, char const* data, size_t size) noexcept override {
-      WriteFile(handle_, data, DWORD(size), nullptr, nullptr);
+#if defined(_WIN32)
+        WriteFile(handle_, data, DWORD(size), nullptr, nullptr);
+#elif defined(__linux__)
+        ::write(handle_, data, size);
+#endif
     }
     
     
     void flush() noexcept override {
-      FlushFileBuffers(handle_);
+#if defined(_WIN32)
+        FlushFileBuffers(handle_);
+#elif
+        ::fdatasync(handle_);
+#endif
     }
 
 
     void close() noexcept override {
-      handle_ = nullptr;
+        handle_ = invalid_handle;
     }
 
 
@@ -90,18 +112,8 @@ namespace chronicle::sinks {
 
   private:
 
-    void* handle_{nullptr};
-
-    conout(void* handle) noexcept: handle_{handle} { }
-
+    explicit conout(handle_type handle) noexcept: handle_{handle} { }
   }; // conout
 
 
-#else
-
-#error Unsupported system
-
-#endif
-
-
-}// chronicle::sinks
+}// namespace chronicle::sinks
