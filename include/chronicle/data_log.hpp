@@ -334,8 +334,8 @@ private:
   duration flush_timeout_;
   time_point last_flush_time_;
   format_type format_;
-  std::string prologue_{"\n +++ log opened +++\n\n"};
-  std::string epilogue_{"\n +++ log closed +++\n\n"};
+  std::string prologue_{"\n   ++++ log opened ++++\n"};
+  std::string epilogue_{"   ++++ log closed ++++\n\n"};
 
 }; // data_log
 
