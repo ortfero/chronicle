@@ -17,7 +17,7 @@ TEST_CASE("text_log::text_log") {
 TEST_CASE("text_log::text_log") {
     chronicle::shared_text_log target;
     target.add_sink(chronicle::sinks::conout::open());
-    bool const opened = target.open();
+    target.open();
     REQUIRE(target.opened());
     target.info("test", "info", " ok");
 }
