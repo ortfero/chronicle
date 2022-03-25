@@ -5,6 +5,19 @@ project('chronicle', 'cpp',
         'cpp_std=c++17',
         'warning_level=3'])
 
+incdirs = include_directories('./include')
+
+date = declare_dependency(
+    version: '3.0.1',
+    include_directories: incdirs
+)
+
+hydra = declare_dependency(
+    version: '0.0.1',
+    include_directories: incdirs,
+    dependencies: [dependency('threads')]
+)
+
 headers = [
     'include/chronicle/data_log.hpp',
     'include/chronicle/message.hpp',
@@ -22,27 +35,18 @@ headers = [
     'include/chronicle/fields/severity_marker.hpp',
     'include/chronicle/fields/source.hpp',
     'include/chronicle/fields/thread_id.hpp',
-    'include/chronicle/fields/utc_time_microseconds.hpp',
-    'include/chronicle/fields/utc_time_milliseconds.hpp',
     'include/chronicle/fields/utc_time_ms.hpp',
     'include/chronicle/fields/utc_time_only_ms.hpp',
     'include/chronicle/fields/utc_time_only_us.hpp',
     'include/chronicle/fields/utc_time_us.hpp'
 ]
 
-incdirs = include_directories('./include')
-
-date = declare_dependency(
-    version: '3.0.1',
-    include_directories: incdirs,
-    sources: ['include/date/date.h']
-)
 
 chronicle = declare_dependency(
     version: meson.project_version(),
     include_directories: incdirs,
     sources: headers,
-    dependencies: [date]
+    dependencies: [date, hydra]
 )
 
 subdir('benchmark')
