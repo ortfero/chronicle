@@ -32,7 +32,8 @@
 
 #elif defined(__linux__)
 
-#include <unistd.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <errno.h>
 
 #endif
@@ -105,7 +106,7 @@ namespace chronicle::sinks {
 #elif defined(__linux__)
         ::close(handle_);
 #endif
-      handle_ = other.handle_; other.handle_ = nullptr;
+      handle_ = other.handle_; other.handle_ = invalid_handle;
       directory_ = std::move(other.directory_);
       base_name_ = std::move(other.base_name_);
       extension_ = std::move(other.extension_);
@@ -130,7 +131,7 @@ namespace chronicle::sinks {
       if(now_day != log_day_) {
         log_day_ = now_day;
         part_ = 1;
-        rotate_file(tp);
+        rotate_file(tp, ec);
       } else if(limit_ != 0 && written_ + size > limit_) {
         ++part_;
         rotate_file(tp, ec);
@@ -149,7 +150,7 @@ namespace chronicle::sinks {
     void flush() noexcept override {
 #if defined(_WIN32)
         FlushFileBuffers(handle_);
-#elif
+#elif defined(__linux__)
         ::fdatasync(handle_);
 #endif
     }
@@ -207,21 +208,32 @@ namespace chronicle::sinks {
 
 
     void rotate_file(std::chrono::system_clock::time_point tp, std::error_code& ec) {
-      if(handle_ != nullptr) {
+      if(handle_ != invalid_handle) {
+#if defined(_WIN32)
         CloseHandle(handle_);
-        handle_ = nullptr;
+#elif defined(__linux__)
+        ::close(handle_);
+#endif
       }
       auto const dp = std::chrono::floor<date::days>(tp);
       date::year_month_day const ymd = dp;
-      uformat::short_texter texter;
-      texter.print('-', int(ymd.year()), '_')
-          .fixed(unsigned(ymd.month()), 2).print('_')
-          .fixed(unsigned(ymd.day()), 2);
-      if(part_ != 1)
-        texter.print('-').fixed(part_, 2);
+      ufmt::text suffix;
+      suffix << '-' << int(ymd.year()) << '_';
+      if(unsigned(ymd.month()) < 10)
+        suffix << '0';
+      suffix << unsigned(ymd.month()) << '_';
+      if(unsigned(ymd.day()) < 10)
+        suffix << '0';
+      suffix << unsigned(ymd.day());
+      if(part_ != 1) {
+        suffix << '-';
+        if(part_ < 10)
+          suffix << '0';
+        suffix << part_;
+      }
       file_path_ = directory_;
       file_path_ /= base_name_;
-      file_path_ += texter.string().data();
+      file_path_ += suffix.string();
       file_path_ += extension_;
 #if defined(_WIN32)
     static constexpr auto file_append_data = DWORD(0x0004);
@@ -234,7 +246,7 @@ namespace chronicle::sinks {
       if(handle_ == nullptr)
         ec = {int(GetLastError()), std::system_category()};
 #elif defined(__linux__)
-      handle_ = ::open(path.native().data(), O_WRONLY | O_CREAT | O_APPEND | S_IWUSR | S_IROTH);
+      handle_ = ::open(file_path_.native().data(), O_WRONLY | O_CREAT | O_APPEND | S_IWUSR | S_IROTH);
       if(handle_ == -1)
         ec = {errno, std::system_category()};
 #endif
@@ -242,13 +254,6 @@ namespace chronicle::sinks {
     }
 
 
-  }; // file
+  }; // daily_rotated_file
 
-#else
-
-#error Unsupported system
-
-#endif
-
-
-}
+} // namespace chronicle::sinks
