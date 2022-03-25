@@ -20,10 +20,10 @@ namespace chronicle::fields {
   public:
   
     template<class S, typename D, class TimePoint>
-    void print(message<D, TimePoint> const& m, ufmt::basic_text<S>& texter) {
+    void print(message<D, TimePoint> const& m, ufmt::basic_text<S>& text) {
       using namespace std::chrono;
       auto const dp = floor<date::days>(m.time);
-      auto const tod = date::time_of_day{duration_cast<milliseconds>(m.time - dp)};
+      auto const tod = date::hh_mm_ss{duration_cast<milliseconds>(m.time - dp)};
                     
       if(tod.hours().count() < 10)
         text << '0';
@@ -41,10 +41,12 @@ namespace chronicle::fields {
       text << '.';
 
       auto const millis = tod.subseconds().count();
-      if(millis < 10)
-        text << '0' << '0';
-      else if(millis < 100)
-        text << '0';
+      if(millis < 100) {
+        if(millis < 10)
+            text << '0' << '0';
+        else
+            text << '0';
+      }
       text << millis;
     }
     
