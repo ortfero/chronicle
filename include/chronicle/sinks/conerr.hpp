@@ -28,7 +28,8 @@
 
 #elif defined(__linux__)
 
-#include <unistd.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #else
 
@@ -98,7 +99,7 @@ namespace chronicle::sinks {
     void flush() noexcept override {
 #if defined(_WIN32)
         FlushFileBuffers(handle_);
-#elif
+#elif defined(__linux__)
         ::fdatasync(handle_);
 #endif
     }

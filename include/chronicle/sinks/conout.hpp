@@ -28,11 +28,12 @@
 
 #elif defined(__linux__)
 
-#include <unistd.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #endif
 
-#include <chronical/sink.hpp>
+#include <chronicle/sink.hpp>
 
 
 namespace chronicle::sinks {
@@ -54,9 +55,9 @@ namespace chronicle::sinks {
 
     static std::unique_ptr<sink> open() noexcept {
 #if defined(_WIN32)
-      return std::unique_ptr<sink>{new conerr{GetStdHandle(DWORD(-11))}};
+      return std::unique_ptr<sink>{new conout{GetStdHandle(DWORD(-11))}};
 #elif defined(__linux__)
-        return std::unique_ptr<sink>{new conerr{1}};
+        return std::unique_ptr<sink>{new conout{1}};
 #endif
     }
 
@@ -91,7 +92,7 @@ namespace chronicle::sinks {
     void flush() noexcept override {
 #if defined(_WIN32)
         FlushFileBuffers(handle_);
-#elif
+#elif defined(__linux__)
         ::fdatasync(handle_);
 #endif
     }
