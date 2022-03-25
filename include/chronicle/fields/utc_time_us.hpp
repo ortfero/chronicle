@@ -18,7 +18,7 @@ namespace chronicle::fields {
   public:
   
     template<class S, typename D, class TimePoint>
-    void print(message<D, TimePoint> const& m, ufmt::text<S>& text) {
+    void print(message<D, TimePoint> const& m, ufmt::basic_text<S>& text) {
       using namespace std::chrono;
       auto const dp = floor<date::days>(m.time);
       auto const ymd = date::year_month_day{dp};
@@ -50,7 +50,7 @@ namespace chronicle::fields {
       text << '.';
 
       auto const micros = tod.subseconds().count();
-      text << ufmt::integer_fixed{micros, 6};
+      text << ufmt::fixed(micros, 6);
     }
     
   }; // utc_time_us
