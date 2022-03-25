@@ -166,8 +166,6 @@ struct text_log : data_log<Tr> {
 #endif
 
 
-
-
 private:
 
 

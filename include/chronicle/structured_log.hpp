@@ -313,7 +313,6 @@ struct structured_log : data_log<Tr> {
   }
 
 
-
 #else
 
 
@@ -357,7 +356,6 @@ struct structured_log : data_log<Tr> {
   }
 
 
-
 #endif
 
 
@@ -374,9 +372,44 @@ private:
       return;
     m->data.clear();
     m->data << ' ';
-    m->data.attributes(name, std::forward<Arg>(value), std::forward<Attrs>(attrs)...);
+    format_args(*m, name, std::forward<Arg>(value), std::forward<Attrs>(attrs)...);
     m->has_data = true;
     base::publish(*m);
+  }
+
+  
+  template<typename Arg> static
+  void format_arg(message_type& message,
+                  std::string_view name,
+                  Arg&& value) {
+    message.data << name << ':' << ' ' << ufmt::textize(value);
+  }
+
+  
+  template<typename Arg, typename... Attrs> static
+  void format_args(message_type& message,
+                   std::string_view name,
+                   Arg&& value, Attrs&&... attrs) {
+    message.data << '{' << ' ';
+    format_arg(message, name, std::forward<Arg>(value));
+    format_other_args(message, std::forward<Attrs>(attrs)...);
+    message.data << ' ' << '}';
+  }
+
+  
+  static
+  void format_other_args(message_type&) {
+  }
+
+  
+  template<typename Arg, typename... Attrs> static
+  void format_other_args(message_type& message,
+                         std::string_view name,
+                         Arg&& value,
+                         Attrs&&... attrs) {
+    message.data << ' ' << ',';
+    format_arg(message, name, std::forward<Arg>(value));
+    format_other_args(message, std::forward<Attrs>(attrs)...);
   }
 
 }; // structured_log
@@ -385,5 +418,5 @@ private:
 using unique_structured_log = structured_log<traits_unique_default<ufmt::text>>;
 using shared_structured_log = structured_log<traits_shared_default<ufmt::text>>;
 
-  
+
 } // chronicle
