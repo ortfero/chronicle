@@ -23,7 +23,7 @@
 struct settings {
   static constexpr auto total_messages = 100000;
   static constexpr auto int_number = 127562;
-  static constexpr auto string = "benchmark";
+  static constexpr auto string = std::string_view{"benchmark"};
   static constexpr auto float_number = 3.14;
   static constexpr auto character = 'K';
 };
@@ -96,8 +96,8 @@ int main() {
   for (auto threads : { 2 })
     run_benchmark("nanolog", threads, [] {
     LOG_INFO << "Logging "
-      << settings::string << settings::int_number
-      << settings::character << settings::float_number;
+      << settings::string.data() << settings::int_number
+      << settings::character << settings::int_number;
       });
   
 
@@ -110,15 +110,15 @@ int main() {
   for(auto threads: {2})
    run_benchmark("reckless", threads, []{
       reckless_logger.info("[benchmark] Logging {} {}{}{}",
-                            settings::string, settings::int_number,
-                            settings::character, settings::float_number);
+                            settings::string.data(), settings::int_number,
+                            settings::character, settings::int_number);
     });
 
   for(auto threads: {2})
    run_benchmark("spdlog", threads, []{
       spd_logger->info("Logging {} {}{}{}",
                             settings::string, settings::int_number,
-                            settings::character, settings::float_number);
+                            settings::character, settings::int_number);
     });
 
 
@@ -126,7 +126,7 @@ int main() {
     run_benchmark("chronicle", threads, []{
       chronicle_logger.info("benchmark", "Logging ",
                      settings::string, settings::int_number,
-                     settings::character, settings::float_number);
+                     settings::character, settings::int_number);
     });
 
   std::cout << "chronicle blocks: " << chronicle_logger.blocks_count() << std::endl;
