@@ -18,7 +18,7 @@
 namespace chronicle::fields {
   
   
-  using format_multithreaded_us = format<severity, utc_time_us, thread_id, source>;
+  using format_multithreaded_us = format<severity, utc_time_ms, thread_id, source>;
   using format_multithreaded_ms = format<severity, utc_time_ms, thread_id, source>;
   using format_multithreaded_time_only_us = format<severity, utc_time_only_us, thread_id, source>;
   using format_multithreaded_time_only_ms = format<severity, utc_time_only_ms, thread_id, source>;

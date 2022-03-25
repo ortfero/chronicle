@@ -8,8 +8,7 @@
 #include <chrono>
 
 #include <date/date.h>
-
-#include <ufmt/texter.hpp>
+#include <ufmt/text.hpp>
 
 #include <chronicle/message.hpp>
 
@@ -20,7 +19,7 @@ namespace chronicle::fields {
   public:
   
     template<class S, typename D, class TimePoint>
-    void print(message<D, TimePoint> const& m, ufmt::text<S>& text) {
+    void print(message<D, TimePoint> const& m, ufmt::basic_text<S>& text) {
       using namespace std::chrono;
       auto const dp = floor<date::days>(m.time);
       auto const ymd = date::year_month_day{dp};
@@ -52,11 +51,12 @@ namespace chronicle::fields {
       text << '.';
 
       auto const millis = tod.subseconds().count();
-      if(millis < 100)
+      if(millis < 100) {
         if(millis < 10)
             text << '0' << '0';
         else
             text << '0';
+      }
 
       text << millis;
     }

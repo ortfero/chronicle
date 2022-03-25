@@ -17,7 +17,7 @@ namespace chronicle::fields {
   public:
   
     template<class S, typename D, class TimePoint>
-    void print(message<D, TimePoint> const& m, ufmt::text<S>& text) {
+    void print(message<D, TimePoint> const& m, ufmt::basic_text<S>& text) {
       text << '#' << m.thread_id;
     }
     
