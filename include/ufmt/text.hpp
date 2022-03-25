@@ -83,11 +83,9 @@ namespace ufmt {
         value_type* allocate(size_type n) {
             auto const original_size = string_.size();
             auto const next_size = original_size + n;
-            auto const original_capacity = string_.capacity();
             if(next_size > string_.capacity()) {
                 auto const reserve_size = nearest_power_of_2(next_size);
                 string_.reserve(reserve_size);
-                auto const next_capacity = string_.capacity();
                 if(string_.capacity() < reserve_size)
                     return nullptr;
             }
@@ -136,11 +134,11 @@ namespace ufmt {
         }
 
 
-        template<std::size_t N> friend
+        /*template<std::size_t N> friend
         basic_text& operator << (basic_text& self,
                                  value_type const (&literal)[N]) {
             return self.append(literal, N - 1);
-        }
+        }*/
         
         
     private:
@@ -193,12 +191,18 @@ namespace ufmt {
     basic_text<S>& operator << (basic_text<S>& self, std::string const& s) {
         return self.append(s.data(), s.size());
     }
+
+
+    template<class S, std::size_t N>
+    basic_text<S>& operator << (basic_text<S>& self, char const (&cc)[N]) {
+        return self.append(cc, N - 1);
+    }
+
     
-    
-    /*template<class S>
+    template<class S>
     basic_text<S>& operator << (basic_text<S>& self, bool value) {
         return value ? self.append("true", 4) : self.append("false", 5);
-    }*/
+    }
     
     
     namespace detail {
@@ -279,9 +283,9 @@ namespace ufmt {
             self << ' ' << *it;
             ++it;
             for(; it != value.end(); ++it)
-                self << ", " << *it;
+                self << ',' << ' ' << *it;
         }
-        self << " ]";
+        self << ' ' << ']';
         return self;
     }
     
@@ -335,14 +339,14 @@ namespace ufmt {
         
         
         template<typename T>
-        struct float_fixed {
+        struct precised {
             T value;
             int precision;
         };
         
         
         template<class S, typename T>
-        basic_text<S>& operator << (basic_text<S>& self, float_fixed<T> f) {
+        basic_text<S>& operator << (basic_text<S>& self, precised<T> f) {
             constexpr auto float_digits = 64;
             typename S::value_type* p = self.allocate(float_digits);
             if(!p)
@@ -360,14 +364,14 @@ namespace ufmt {
         
         
         template<typename T>
-        struct integer_fixed {
+        struct fixed {
             T value;
             std::size_t width;
         };
         
         
         template<class S, typename T>
-        basic_text<S>& operator << (basic_text<S>& self, integer_fixed<T> f) {
+        basic_text<S>& operator << (basic_text<S>& self, fixed<T> f) {
             auto const original_size = self.size();
             self << f.value;
             auto const next_size = self.size();
@@ -390,10 +394,7 @@ namespace ufmt {
         
         template<class S, typename T>
         basic_text<S>& operator << (basic_text<S>& self, quoted<T> q) {
-            self << '\'';
-            self << q.value;
-            self << '\'';
-            return self;
+            return self << '\'' << q.value << '\'';
         }
         
         
@@ -403,10 +404,30 @@ namespace ufmt {
         
         template<class S, typename T>
         basic_text<S>& operator << (basic_text<S>& self, dquoted<T> q) {
-            self << '\"';
-            self << q.value;
-            self << '\"';
-            return self;
+            return self << '\"' << q.value << '\"';
+        }
+
+        template<typename T>
+        struct textize { T const& value; };
+
+        template<class S>
+        basic_text<S> operator << (basic_text<S>& self, textize<char> arg) {
+            return self << '\"' << arg.value << '\"';
+        }
+
+        template<class S>
+        basic_text<S> operator << (basic_text<S>& self, textize<std::string_view> arg) {
+            return self << '\"' << arg.value << '\"';
+        }
+
+        template<class S>
+        basic_text<S> operator << (basic_text<S>& self, textize<std::string> arg) {
+            return self << '\"' << arg.value << '\"';
+        }
+
+        template<class S, typename T>
+        basic_text<S> operator << (basic_text<S>& self, textize<T> arg) {
+            return self << arg.value;
         }
     } // formatters
     
@@ -423,13 +444,24 @@ namespace ufmt {
     }
     
     
-    formatters::float_fixed<double> precised(double value, int precision) {
-        return formatters::float_fixed<double>{value, precision};
+    formatters::precised<double> precised(double value, int precision) {
+        return formatters::precised<double>{value, precision};
+    }
+
+    formatters::fixed<std::int32_t> fixed(std::int32_t value, int width) {
+        return formatters::fixed<std::int32_t>{value, std::size_t(width)};
+    }
+
+    formatters::fixed<std::uint32_t> fixed(std::uint32_t value, int width) {
+        return formatters::fixed<std::uint32_t>{value, std::size_t(width)};
     }
     
+    formatters::fixed<std::int64_t> fixed(std::int64_t value, int width) {
+        return formatters::fixed<std::int64_t>{value, std::size_t(width)};
+    }
     
-    formatters::integer_fixed<std::uint64_t> fixed(std::uint64_t value, int width) {
-        return formatters::integer_fixed<std::uint64_t>{value, std::size_t(width)};
+    formatters::fixed<std::uint64_t> fixed(std::uint64_t value, int width) {
+        return formatters::fixed<std::uint64_t>{value, std::size_t(width)};
     }
     
     
@@ -442,6 +474,11 @@ namespace ufmt {
     template<typename T>
     formatters::dquoted<T> dquoted(T const& value) {
         return formatters::dquoted<T>{value};
+    }
+
+    template<typename T>
+    formatters::textize<T> textize(T const& value) {
+        return formatters::textize<T>{value};
     }
     
 } // ufmt
