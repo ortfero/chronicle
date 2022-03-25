@@ -31,7 +31,8 @@
 
 #elif defined(__linux__)
 
-#include <unistd.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <errno.h>
 
 #else
@@ -85,7 +86,7 @@ namespace chronicle::sinks {
 #if defined(_WIN32)
         CloseHandle(handle_);
 #elif defined(__linux__)
-        close(handle_);
+        ::close(handle_);
 #endif
       handle_ = other.handle_; other.handle_ = invalid_handle;
       return *this;
@@ -109,7 +110,7 @@ namespace chronicle::sinks {
     void flush() noexcept override {
 #if defined(_WIN32)
         FlushFileBuffers(handle_);
-#elif
+#elif defined(__linux__)
         ::fdatasync(handle_);
 #endif
     }
@@ -172,12 +173,6 @@ namespace chronicle::sinks {
     }
 
   }; // file
-
-#else
-
-#error Unsupported system
-
-#endif
 
 
 } // chronicle::sinks
