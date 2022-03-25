@@ -64,7 +64,7 @@ struct data_log {
   using time_point = typename clock_type::time_point;
   using message_type = message<data_type, time_point>;
   using activity_type = hydra::activity<message_type, queue_type>;
-  using batch_type = typename activity_type::batch;
+  using batch_type = typename activity_type::batch_type;
   using size_type = typename activity_type::size_type;
   using sinks_type = std::vector<std::unique_ptr<sink>>;
 
