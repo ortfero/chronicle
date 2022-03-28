@@ -11,16 +11,15 @@
 
 
 namespace chronicle::fields {
-  
-  
-  class thread_id {
-  public:
-  
-    template<class S, typename D, class TimePoint>
-    void print(message<D, TimePoint> const& m, ufmt::basic_text<S>& text) {
-      text << '#' << m.thread_id;
-    }
-    
-  }; // thread_id
-  
-} // chronicle::fields
+
+
+    class thread_id {
+    public:
+        template<class S, typename D, class TimePoint>
+        void print(message<D, TimePoint> const& m, ufmt::basic_text<S>& text) {
+            text << '#' << m.thread_id;
+        }
+
+    };   // thread_id
+
+}   // namespace chronicle::fields

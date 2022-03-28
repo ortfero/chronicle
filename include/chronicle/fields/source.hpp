@@ -12,14 +12,13 @@
 
 namespace chronicle::fields {
 
-  class source {
-  public:
-  
-    template<class S, typename D, class TimePoint>
-    void print(message<D, TimePoint> const& m, ufmt::basic_text<S>& text) {
-        text << '[' << m.source << ']';
-    }
-    
-  }; // source
+    class source {
+    public:
+        template<class S, typename D, class TimePoint>
+        void print(message<D, TimePoint> const& m, ufmt::basic_text<S>& text) {
+            text << '[' << m.source << ']';
+        }
 
-} // namespace chronicle::fields
+    };   // source
+
+}   // namespace chronicle::fields
