@@ -38,7 +38,7 @@ using reckless_logger_t =  reckless::severity_log<
                              reckless::severity_field,  // Show severity marker (D/I/W/E) first
                              reckless::timestamp_field  // Then timestamp field
                             >;
-reckless_logger_t reckless_logger(&reckless_writer, 100000 * 256, 100000 * 256);
+reckless_logger_t reckless_logger(&reckless_writer, 128 * 1024, 128 * 1024);
 
 std::shared_ptr<spdlog::logger>  spd_logger;
 
@@ -101,7 +101,7 @@ int main() {
       });
   
 
-  spdlog::init_thread_pool(8192, 1);
+  spdlog::init_thread_pool(128 * 1024, 1);
   spd_logger = spdlog::basic_logger_mt<spdlog::async_factory>(
                  "spdlog", "spd.log", true);
   spd_logger->set_pattern("[%l] %v");
