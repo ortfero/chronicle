@@ -246,7 +246,8 @@ namespace chronicle::sinks {
       if(handle_ == nullptr)
         ec = {int(GetLastError()), std::system_category()};
 #elif defined(__linux__)
-      handle_ = ::open(file_path_.native().data(), O_WRONLY | O_CREAT | O_APPEND | S_IWUSR | S_IROTH);
+      handle_ = ::open(file_path_.native().data(), O_WRONLY | O_CREAT | O_APPEND,
+        S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
       if(handle_ == -1)
         ec = {errno, std::system_category()};
 #endif

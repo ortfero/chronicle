@@ -6,15 +6,15 @@ C++17 header-only library for low-latency asynchronous logging
 
 Just put directory `include/chronicle` at your include path
 
-## Tests
+## Tests and benchmark
 
-To build tests:
+To build tests and benchmark:
 
 ```shell
 cd chronicle
 mkdir build
 cd build
-meson ../test
+meson ..
 ninja
 ```
 
@@ -24,10 +24,10 @@ Logging string, integer number and float number `100000` times.
 
 | Logger                                                | Version | Date       | Latency (ns) | Ratio |
 |-------------------------------------------------------|--------:|-----------:|-------------:|------:|
-| chronicle                                             |         | 06.08.2021 | 272          | x2.9  |
-| [NanoLog](https://github.com/Iyengar111/NanoLog)      |         | 08.03.2017 | 283          | x3.0  |
-| [reckless](https://github.com/mattiasflodin/reckless) | 3.0.3   | 10.04.2021 | 95           | x1    |
-| [spdlog](https://github.com/gabime/spdlog)            | 1.9.1   | 27.07.2021 | 2529         | x26.6 |
+| chronicle                                             |         | 28.03.2022 | 649          | x1.3  |
+| [NanoLog](https://github.com/Iyengar111/NanoLog)      |         | 08.03.2017 | 1626         | x3.2  |
+| [reckless](https://github.com/mattiasflodin/reckless) | 3.0.3   | 10.04.2021 | 500          | x1    |
+| [spdlog](https://github.com/gabime/spdlog)            | 1.9.2   | 13.08.2021 | 3942         | x7.9  |
 
 
 ## Snippets

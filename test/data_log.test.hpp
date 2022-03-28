@@ -13,6 +13,8 @@
 #include <chronicle/sinks/file.hpp>
 
 
+TEST_SUITE("data_log") {
+
 TEST_CASE("data_log::data_log") {
     chronicle::shared_data_log<std::string> target(256);
     REQUIRE(!target.opened());
@@ -37,6 +39,7 @@ TEST_CASE("data_log::open") {
     REQUIRE(target.opened());
     target.close();
     REQUIRE(!target.opened());
+    
     target.info("test", "info", "ok");   // should be ok
     std::filesystem::remove("data.log", failed);
 }
@@ -75,3 +78,6 @@ TEST_CASE("conerr") {
     REQUIRE(opened);
     target.info("test", "info", "");
 }
+
+}
+
