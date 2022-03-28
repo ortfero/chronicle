@@ -95,11 +95,11 @@ int main() {
 ```cpp
 #include <chronicle/structured_log.hpp>
 #include <chronicle/traits.hpp>
-#include <chronicle/bundled/uformat/texter.hpp>
+#include <ufmt/text.hpp>
 
 namespace cr = chronicle;
 
-using unique_log = cr::structured_log<cr::traits_unique_ms<uformat::long_texter>>;
+using unique_log = cr::structured_log<cr::traits_unique_ms<ufmt::text>>;
 ```
 
 
@@ -108,11 +108,11 @@ using unique_log = cr::structured_log<cr::traits_unique_ms<uformat::long_texter>
 ```cpp
 #include <chronicle/structured_log.hpp>
 #include <chronicle/traits.hpp>
-#include <chronicle/bundled/uformat/texter.hpp>
+#include <ufmt/text.hpp>
 
 namespace cr = chronicle;
 
-using shared_log = cr::structured_log<cr::traits_shared_time_only_us<uformat::long_texter>>;
+using shared_log = cr::structured_log<cr::traits_shared_time_only_us<ufmt::text>>;
 ```
 
 
@@ -135,16 +135,12 @@ operator << (S& stream, point const& p) {
 ```cpp
 namespace cr = chronicle;
 
-using unique_log = cr::structured_log<cr::traits_unique_ms<uformat::long_texter>,
+using unique_log = cr::structured_log<cr::traits_unique_ms<ufmt::text>,
                                       some_custom_clock>;
 ```
 
 ## Dependencies
 
-* [date.h](https://github.com/HowardHinnant/date) (expected as `date/date.h`)
-
-
-## Configuration macros
-
-* ```CHRONICLE_USE_SYSTEM_UFORMAT``` - use system uformat library instead of bundled
-* ```CHRONICLE_USE_SYSTEM_HYDRA``` - use system hydra library instead of bundled
+* [date](https://github.com/HowardHinnant/date)
+* [hydra](https://github.com/ortfero/hydra)
+* [ufmt](https://github.com/ortfero/ufmt)
