@@ -11,28 +11,29 @@
 
 
 namespace chronicle {
-  
-  
-class sink {    
-public:
-
-  using time_point = std::chrono::system_clock::time_point;
-
-  virtual bool ready() const noexcept = 0;
-  
-  virtual void write(time_point const& tp, char const* data, size_t size) noexcept = 0;
-  
-  virtual void flush() noexcept = 0;
-
-  virtual void close() noexcept = 0;
-
-  virtual void prologue(char const* data, size_t size) noexcept = 0;
-
-  virtual void epilogue(char const* data, size_t size) noexcept = 0;
-  
-  virtual ~sink() {}
-  
-}; // sink
 
 
-} // chronicle
+    class sink {
+    public:
+        using time_point = std::chrono::system_clock::time_point;
+
+        virtual bool ready() const noexcept = 0;
+
+        virtual void write(time_point const& tp,
+                           char const* data,
+                           size_t size) noexcept = 0;
+
+        virtual void flush() noexcept = 0;
+
+        virtual void close() noexcept = 0;
+
+        virtual void prologue(char const* data, size_t size) noexcept = 0;
+
+        virtual void epilogue(char const* data, size_t size) noexcept = 0;
+
+        virtual ~sink() {}
+
+    };   // sink
+
+
+}   // namespace chronicle

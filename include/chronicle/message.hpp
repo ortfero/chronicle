@@ -5,8 +5,8 @@
 #pragma once
 
 
-#include <string_view>
 #include <chrono>
+#include <string_view>
 
 #include <hydra/sequence.hpp>
 
@@ -16,18 +16,18 @@
 namespace chronicle {
 
 
-  template<typename D, class TimePoint> struct message {
+    template<typename D, class TimePoint>
+    struct message {
+        hydra::sequence sequence;
+        enum severity severity;
+        TimePoint time;
+        unsigned thread_id;
+        std::string_view source;
+        std::string_view text;
+        bool has_data {false};
+        D data;
 
-    hydra::sequence sequence;
-    enum severity severity;
-    TimePoint time;
-    unsigned thread_id;
-    std::string_view source;
-    std::string_view text;
-    bool has_data{false};
-    D data;
-
-  }; // message
+    };   // message
 
 
-} // namespace chronicle
+}   // namespace chronicle

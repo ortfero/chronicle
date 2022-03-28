@@ -2,11 +2,10 @@
 
 
 #include "doctest.h"
-#include <chronicle/structured_log.hpp>
 #include <chronicle/sinks/conout.hpp>
+#include <chronicle/structured_log.hpp>
 
 TEST_SUITE("structuted_log") {
-
     TEST_CASE("structured_log::structured_log") {
         chronicle::shared_structured_log target;
         REQUIRE(!target.opened());
@@ -21,5 +20,4 @@ TEST_SUITE("structuted_log") {
         REQUIRE(target.opened());
         target.info("test", "info", "name", "value");
     }
-
 }

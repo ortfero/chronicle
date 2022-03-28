@@ -15,52 +15,70 @@
 
 
 namespace chronicle {
-  
-  
-  template<typename D, class Q, class F, class C>
-  struct basic_traits {
-    using data_type = D;
-    using queue_type = Q;
-    using format_type = F;
-    using clock_type = C;
-  }; // basic_traits
-  
 
-  template<typename D, class F, class C>
-  using traits_unique = basic_traits<D, hydra::spsc_queue<message<D, typename C::time_point>>, F, C>;
 
-  template<typename D, class F, class C>
-  using traits_shared = basic_traits<D, hydra::mpsc_queue<message<D, typename C::time_point>>, F, C>;
-  
-  template<typename D, class C = std::chrono::system_clock>
-  using traits_unique_default = traits_unique<D, fields::format_singlethreaded_default, C>;
-  
-  template<typename D, class C = std::chrono::system_clock>
-  using traits_shared_default = traits_shared<D, fields::format_multithreaded_default, C>;
-  
-  template<typename D, class C = std::chrono::system_clock>
-  using traits_unique_ms = traits_unique<D, fields::format_singlethreaded_ms, C>;
-  
-  template<typename D, class C = std::chrono::system_clock>
-  using traits_shared_ms = traits_shared<D, fields::format_multithreaded_ms, C>;
+    template<typename D, class Q, class F, class C>
+    struct basic_traits {
+        using data_type = D;
+        using queue_type = Q;
+        using format_type = F;
+        using clock_type = C;
+    };   // basic_traits
 
-  template<typename D, class C = std::chrono::system_clock>
-  using traits_unique_us = traits_unique<D, fields::format_singlethreaded_us, C>;
-  
-  template<typename D, class C = std::chrono::system_clock>
-  using traits_shared_us = traits_shared<D, fields::format_multithreaded_us, C>;
-  
-  template<typename D, class C = std::chrono::system_clock>
-  using traits_unique_time_only_ms = traits_unique<D, fields::format_singlethreaded_time_only_ms, C>;
 
-  template<typename D, class C = std::chrono::system_clock>
-  using traits_shared_time_only_ms = traits_unique<D, fields::format_multithreaded_time_only_ms, C>;
- 
-  template<typename D, class C = std::chrono::system_clock>
-  using traits_unique_time_only_us = traits_unique<D, fields::format_singlethreaded_time_only_us, C>;
+    template<typename D, class F, class C>
+    using traits_unique =
+        basic_traits<D,
+                     hydra::spsc_queue<message<D, typename C::time_point>>,
+                     F,
+                     C>;
 
-  template<typename D, class C = std::chrono::system_clock>
-  using traits_shared_time_only_us = traits_shared<D, fields::format_multithreaded_time_only_us, C>;
-  
+    template<typename D, class F, class C>
+    using traits_shared =
+        basic_traits<D,
+                     hydra::mpsc_queue<message<D, typename C::time_point>>,
+                     F,
+                     C>;
 
-}
+    template<typename D, class C = std::chrono::system_clock>
+    using traits_unique_default =
+        traits_unique<D, fields::format_singlethreaded_default, C>;
+
+    template<typename D, class C = std::chrono::system_clock>
+    using traits_shared_default =
+        traits_shared<D, fields::format_multithreaded_default, C>;
+
+    template<typename D, class C = std::chrono::system_clock>
+    using traits_unique_ms =
+        traits_unique<D, fields::format_singlethreaded_ms, C>;
+
+    template<typename D, class C = std::chrono::system_clock>
+    using traits_shared_ms =
+        traits_shared<D, fields::format_multithreaded_ms, C>;
+
+    template<typename D, class C = std::chrono::system_clock>
+    using traits_unique_us =
+        traits_unique<D, fields::format_singlethreaded_us, C>;
+
+    template<typename D, class C = std::chrono::system_clock>
+    using traits_shared_us =
+        traits_shared<D, fields::format_multithreaded_us, C>;
+
+    template<typename D, class C = std::chrono::system_clock>
+    using traits_unique_time_only_ms =
+        traits_unique<D, fields::format_singlethreaded_time_only_ms, C>;
+
+    template<typename D, class C = std::chrono::system_clock>
+    using traits_shared_time_only_ms =
+        traits_unique<D, fields::format_multithreaded_time_only_ms, C>;
+
+    template<typename D, class C = std::chrono::system_clock>
+    using traits_unique_time_only_us =
+        traits_unique<D, fields::format_singlethreaded_time_only_us, C>;
+
+    template<typename D, class C = std::chrono::system_clock>
+    using traits_shared_time_only_us =
+        traits_shared<D, fields::format_multithreaded_time_only_us, C>;
+
+
+}   // namespace chronicle
