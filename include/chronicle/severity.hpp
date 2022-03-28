@@ -5,6 +5,7 @@
 #pragma once
 
 
+#include <optional>
 #include <string>
 #include <string_view>
 
@@ -13,7 +14,6 @@ namespace chronicle {
 
 
     enum class severity {
-        undefined,
         failure,
         error,
         warning,
@@ -24,38 +24,38 @@ namespace chronicle {
     };   // severity
 
 
-    inline severity parse_severity(std::string_view const& text) {
+    inline std::optional<severity> parse_severity(std::string_view const& text) noexcept {
         if(text.empty())
-            return severity::undefined;
+            return std::nullopt;
         switch(text.size()) {
-        case 4: return (text == "info") ? severity::info : severity::undefined;
+	case 4: return (text == "info") ? {severity::info} : std::nullopt;
         case 5:
             switch(text[0]) {
             case 'e':
                 if(text == "error")
-                    return severity::error;
+                    return {severity::error};
                 if(text == "extra")
-                    return severity::extra;
-                return severity::undefined;
+                    return {severity::extra};
+                return std::nullopt;
             case 't':
-                return (text == "trace") ? severity::trace
-                                         : severity::undefined;
+                return (text == "trace") ? {severity::trace}
+                                         : std::nullopt;
             case 'd':
-                return (text == "debug") ? severity::debug
-                                         : severity::undefined;
-            default: return severity::undefined;
+                return (text == "debug") ? {severity::debug}
+                                         : std::nullopt;
+	    default: return std::nullopt;
             }
         case 7:
             switch(text[0]) {
             case 'f':
-                return (text == "failure") ? severity::failure
-                                           : severity::undefined;
+                return (text == "failure") ? {severity::failure}
+                                           : std::nullopt;
             case 'w':
-                return (text == "warning") ? severity::warning
-                                           : severity::undefined;
-            default: return severity::undefined;
+                return (text == "warning") ? {severity::warning}
+                                           : std::nullopt;
+	    default: return std::nullopt;
             }
-        default: return severity::undefined;
+	default: return std::nullopt;
         }
     }
 
@@ -67,7 +67,6 @@ namespace chronicle {
 
     inline std::string format(severity s) {
         switch(s) {
-        case severity::undefined: return std::string("undefined");
         case severity::failure: return std::string("failure");
         case severity::error: return std::string("error");
         case severity::warning: return std::string("warning");
