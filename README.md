@@ -2,9 +2,11 @@
 
 C++17 header-only library for low-latency asynchronous logging
 
+
 ## Usage
 
 Just put directory `include/chronicle` at your include path
+
 
 ## Tests and benchmark
 
@@ -18,16 +20,17 @@ meson ..
 ninja
 ```
 
+
 ## Benchmark
 
 Logging string, integer number and float number `100000` times.
 
 | Logger                                                | Version | Date       | Latency (ns) | Ratio |
 |-------------------------------------------------------|--------:|-----------:|-------------:|------:|
-| chronicle                                             |         | 28.03.2022 | 649          | x1.3  |
-| [NanoLog](https://github.com/Iyengar111/NanoLog)      |         | 08.03.2017 | 1626         | x3.2  |
-| [reckless](https://github.com/mattiasflodin/reckless) | 3.0.3   | 10.04.2021 | 500          | x1    |
-| [spdlog](https://github.com/gabime/spdlog)            | 1.9.2   | 13.08.2021 | 3942         | x7.9  |
+| chronicle                                             |         | 28.03.2022 | 1381         | x1.2  |
+| [NanoLog](https://github.com/Iyengar111/NanoLog)      |         | 08.03.2017 | 2470         | x2.2  |
+| [reckless](https://github.com/mattiasflodin/reckless) | 3.0.3   | 10.04.2021 | 1117         | x1    |
+| [spdlog](https://github.com/gabime/spdlog)            | 1.10.0  | 13.08.2021 | 6324         | x5.7  |
 
 
 ## Snippets
@@ -43,20 +46,20 @@ namespace cr = chronicle;
 cr::unique_text_log log; // 'cr::shared_text_log' for multi-threaded
 
 int main() {
-  
+
   std::error_code failed; auto file = cr::sinks::file::open("test.log", failed);
   if(!file)
     return 1;
   log.add_sink(std::move(file));
   if(!log.open()
     return 1;
-  
-  // Should be: "source", "message", {parameter} 
+
+  // Should be: "source", "message", {parameter}
   log.info("main", "Some message", "{ name1: ", 127, ", name2: ", "\"value2\" }");
-  
+
   // Possible output:
   //         2020-05-09 16:57:02.343402 [main] Some message { name1: 127, name2: "value2" }
-  
+
   return 0;
 }
 ```
@@ -68,10 +71,10 @@ int main() {
 #include <chronicle/sinks/daily_rotated_file.hpp>
 
 namespace cr = chronicle;
-cr::unique_structured_log log;
+cr::shared_structured_log log;
 
 int main() {
-  
+
   // Something like "test-2020_05_09.log" will be opened
   std::error_code failed; auto file = cr::sinks::daily_rotated_file::open("test.log", failed);
   if(!file)
@@ -79,13 +82,13 @@ int main() {
   log.add_sink(std::move(file));
   if(!log.open())
     return 1;
-  
-  // Should be: "source", "message", {"name", value} 
+
+  // Should be: "source", "message", {"name", value}
   log.info("main", "Some message", "name1", 127, "name2", "value2");
-  
+
   // Possible output:
   //         2020-05-09 16:57:02.343402 [14648] [main] Some message { name1: 127, name2: "value2" }
-  
+
   return 0;
 }
 ```
