@@ -6,6 +6,7 @@
 
 
 #include <date/date.h>
+
 #include <ufmt/text.hpp>
 
 #include <chronicle/message.hpp>
@@ -19,7 +20,7 @@ namespace chronicle::fields {
         template<class S, typename D, class TimePoint>
         void print(message<D, TimePoint> const& m, ufmt::basic_text<S>& text) {
             using namespace std::chrono;
-            auto const dp = floor<date::days>(m.time);
+            auto const dp = floor<days>(m.time);
             auto const ymd = date::year_month_day {dp};
             auto const tod = date::time_of_day<microseconds> {
                 duration_cast<microseconds>(m.time - dp)};
