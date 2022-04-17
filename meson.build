@@ -2,7 +2,7 @@ project('chronicle', 'cpp',
     license: 'MIT',
     version: '0.1.1',
     default_options: [
-        'cpp_std=c++17',
+        'cpp_std=c++20',
         'warning_level=3'])
 
 incdirs = include_directories('./include')
@@ -12,10 +12,20 @@ date = declare_dependency(
     include_directories: incdirs
 )
 
+
+hydra_deps = [dependency('threads')]
+
+system = host_machine.system()
+if system == 'windows'
+  cpp = meson.get_compiler('cpp')
+  synch_api = cpp.find_library('synchronization', required: true)
+  hydra_deps += [synch_api]
+endif
+
 hydra = declare_dependency(
     version: '0.0.1',
     include_directories: incdirs,
-    dependencies: [dependency('threads')]
+    dependencies: hydra_deps
 )
 
 headers = [

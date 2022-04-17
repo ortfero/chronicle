@@ -17,7 +17,7 @@ TEST_SUITE("structuted_log") {
         chronicle::shared_structured_log target;
         target.add_sink(chronicle::sinks::conout::open());
         bool const opened = target.open();
-        REQUIRE(target.opened());
+        REQUIRE(opened);
         target.info("test", "info", "name", "value");
     }
 }
