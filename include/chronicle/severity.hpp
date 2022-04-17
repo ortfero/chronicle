@@ -28,7 +28,10 @@ namespace chronicle {
         if(text.empty())
             return std::nullopt;
         switch(text.size()) {
-	case 4: return (text == "info") ? {severity::info} : std::nullopt;
+        case 4:
+            if(text == "info")
+                return {severity::info};
+            return std::nullopt;
         case 5:
             switch(text[0]) {
             case 'e':
@@ -38,29 +41,36 @@ namespace chronicle {
                     return {severity::extra};
                 return std::nullopt;
             case 't':
-                return (text == "trace") ? {severity::trace}
-                                         : std::nullopt;
+                if(text == "trace")
+                    return {severity::trace};
+                return std::nullopt;
             case 'd':
-                return (text == "debug") ? {severity::debug}
-                                         : std::nullopt;
-	    default: return std::nullopt;
+                if(text == "debug")
+                    return {severity::debug};
+                return std::nullopt;
+	        default:
+	            return std::nullopt;
             }
         case 7:
             switch(text[0]) {
             case 'f':
-                return (text == "failure") ? {severity::failure}
-                                           : std::nullopt;
+                if(text == "failure")
+                    return {severity::failure};
+                return std::nullopt;
             case 'w':
-                return (text == "warning") ? {severity::warning}
-                                           : std::nullopt;
-	    default: return std::nullopt;
+                if(text == "warning")
+                    return {severity::warning};
+                return std::nullopt;
+	        default:
+	            return std::nullopt;
             }
-	default: return std::nullopt;
+	    default:
+	        return std::nullopt;
         }
     }
 
 
-    inline severity parse_severity(std::string const& text) {
+    inline std::optional<severity> parse_severity(std::string const& text) {
         return parse_severity(std::string_view {text.data(), text.size()});
     }
 
