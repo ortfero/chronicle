@@ -14,6 +14,8 @@
 
 
 TEST_SUITE("data_log") {
+	
+	
     TEST_CASE("data_log::data_log") {
         chronicle::shared_data_log<std::string> target(256);
         REQUIRE(!target.opened());
