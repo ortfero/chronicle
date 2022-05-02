@@ -14,8 +14,12 @@ namespace chronicle {
 
 
     class sink {
+        severity severity_{severity::info};
     public:
         using time_point = std::chrono::system_clock::time_point;
+
+        sink() noexcept = default;
+        sink(severity s) noexcept: severity_{s} { }
 
         virtual bool ready() const noexcept = 0;
 
