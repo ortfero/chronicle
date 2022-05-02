@@ -1,6 +1,5 @@
 project('chronicle', 'cpp',
     license: 'MIT',
-    version: '0.1.1',
     default_options: [
         'cpp_std=c++20',
         'warning_level=3'])
@@ -23,9 +22,12 @@ if system == 'windows'
 endif
 
 hydra = declare_dependency(
-    version: '0.0.1',
     include_directories: incdirs,
     dependencies: hydra_deps
+)
+
+ufmt = declare_dependency(
+    include_directories: incdirs
 )
 
 headers = [
@@ -61,6 +63,7 @@ chronicle = declare_dependency(
 
 subdir('benchmark')
 subdir('test')
+subdir('stand')
 
 install_headers(headers, subdir: 'chronicle')
 
