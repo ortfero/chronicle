@@ -28,7 +28,7 @@ TEST_SUITE("text_log") {
         chronicle::shared_text_log target;
         target.add_sink(chronicle::sinks::conout::open());
         target.open();
-        auto const n = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
-        target.info("test", n);
+        auto const n = 0xFFFFFFFFFFFFFFFFull;
+        target.info("test", "info", std::uint64_t(n));
     }
 }
