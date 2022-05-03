@@ -27,10 +27,10 @@ Logging string, integer number and float number `100000` times.
 
 | Logger                                                | Version | Date       | Latency (ns) | Ratio |
 |-------------------------------------------------------|--------:|-----------:|-------------:|------:|
-| chronicle                                             |         | 28.03.2022 | 1381         | x1.2  |
-| [NanoLog](https://github.com/Iyengar111/NanoLog)      |         | 08.03.2017 | 2470         | x2.2  |
-| [reckless](https://github.com/mattiasflodin/reckless) | 3.0.3   | 10.04.2021 | 1117         | x1    |
-| [spdlog](https://github.com/gabime/spdlog)            | 1.10.0  | 13.08.2021 | 6324         | x5.7  |
+| chronicle                                             |         | 03.05.2022 | 1467         | x1.26 |
+| [NanoLog](https://github.com/Iyengar111/NanoLog)      |         | 08.03.2017 | 2583         | x2.22 |
+| [reckless](https://github.com/mattiasflodin/reckless) | 3.0.3   | 10.04.2021 | 1164         | x1    |
+| [spdlog](https://github.com/gabime/spdlog)            | 1.10.0  | 04.04.2022 | 8345         | x7.17 |
 
 
 ## Snippets

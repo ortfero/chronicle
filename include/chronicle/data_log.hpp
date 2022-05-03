@@ -71,7 +71,19 @@ namespace chronicle {
 
         static constexpr size_type default_queue_size = 8192;
 
+    private:
+        sinks_type sinks_;
+        enum severity severity_ { chronicle::severity::info };
+        activity_type activity_;
+        size_type message_size_;
+        ufmt::text buffer_;
+        duration flush_timeout_;
+        time_point last_flush_time_;
+        format_type format_;
+        std::string prologue_ {"\n   ++++ log opened ++++\n"};
+        std::string epilogue_ {"   ++++ log closed ++++\n\n"};
 
+    public:
         data_log(size_type message_size) noexcept
             : message_size_ {message_size} {}
 
@@ -135,10 +147,9 @@ namespace chronicle {
             return activity_.run([this](auto& batch) {
                 buffer_.clear();
                 buffer_.reserve(message_size_ * batch.size());
-				
-				ufmt::text t; t << "New messages { count: " << batch.size() << " }\n";
 
                 auto const now = clock_type::now();
+
                 while(auto sequence = batch.try_fetch()) {
                     message_type& message = batch[sequence];
                     message.time = now;
@@ -350,6 +361,7 @@ namespace chronicle {
 
 
     protected:
+
         template<chronicle::severity S>
         void print(std::string_view const& tag, std::string_view const& text) {
             if(severity_ < S)
@@ -357,9 +369,6 @@ namespace chronicle {
             message_type* m = claim<S>(tag, text);
             if(!m)
                 return;
-			for(auto& each_sink: sinks_) {
-                each_sink->write(now, "Publishing...\n", 14);
-            }
             publish(*m);
         }
 
@@ -402,19 +411,6 @@ namespace chronicle {
             m.has_data = false;
             return &m;
         }
-
-
-    private:
-        sinks_type sinks_;
-        enum severity severity_ { chronicle::severity::info };
-        activity_type activity_;
-        size_type message_size_;
-        ufmt::text buffer_;
-        duration flush_timeout_;
-        time_point last_flush_time_;
-        format_type format_;
-        std::string prologue_ {"\n   ++++ log opened ++++\n"};
-        std::string epilogue_ {"   ++++ log closed ++++\n\n"};
 
     };   // data_log
 
