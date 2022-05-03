@@ -47,7 +47,7 @@ namespace hydra {
 
     class futex_event {
     private:
-        std::atomic_flag value_;
+        std::atomic_uint32_t value_;
 
     public:
         futex_event() noexcept = default;
@@ -55,11 +55,8 @@ namespace hydra {
         futex_event& operator=(futex_event const&) = delete;
 
 
-        void clear() noexcept { value_.clear(std::memory_order_relaxed); }
-
-
         void notify_one() noexcept {
-            value_.test_and_set(std::memory_order_relaxed);
+            value_.fetch_add(1, std::memory_order_relaxed);
 #if defined(_WIN32)
             WakeByAddressSingle(&value_);
 #elif defined(__linux__)
@@ -75,13 +72,17 @@ namespace hydra {
 
 
         void wait() noexcept {
-            auto undesired = false;
+            auto wait_until_this = value_.load(std::memory_order_relaxed);
 #if defined(_WIN32)
-            WaitOnAddress(&value_, &undesired, sizeof(value_), DWORD(-1));
+            WaitOnAddress(&value_,
+			              &wait_until_this,
+			              sizeof(wait_until_this),
+						  DWORD(-1));
 #elif defined(__linux__)
             syscall(SYS_futex,
+                    &value_,
                     FUTEX_WAIT_PRIVATE,
-                    undesired,
+                    wait_until_this,
                     nullptr,
                     nullptr,
                     0);
@@ -92,19 +93,25 @@ namespace hydra {
         template<typename Rep, typename Period>
         void wait(std::chrono::duration<Rep, Period> timeout) noexcept {
             using namespace std::chrono;
-            auto undesired = false;
+            auto wait_until_this = value_.load(std::memory_order_relaxed);
 #if defined(_WIN32)
             auto const ms = duration_cast<milliseconds>(timeout);
             WaitOnAddress(&value_,
-                          &undesired,
-                          sizeof(value_),
+                          &wait_until_this,
+                          sizeof(wait_until_this),
                           DWORD(timeout.count()));
 #elif defined(__linux__)
             auto const secs = duration_cast<seconds>(timeout);
             auto const ns = duration_cast<nanoseconds>(timeout - secs);
             auto const ts =
                 timespec {std::time_t(secs.count()), long(ns.count())};
-            syscall(SYS_futex, FUTEX_WAIT_PRIVATE, undesired, &ts, nullptr, 0);
+            syscall(SYS_futex,
+                    &value_,
+                    FUTEX_WAIT_PRIVATE,
+                    wait_until_this,
+                    &ts,
+                    nullptr,
+                    0);
 #endif
         }
 

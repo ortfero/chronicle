@@ -76,9 +76,10 @@ namespace hydra {
                 while(!stopping_.test_and_set(std::memory_order_relaxed)) {
                     stopping_.clear(std::memory_order_relaxed);
                     new_message_.wait();
-                    new_message_.clear();
-                    auto messages = batch<Q> {messages_};
-                    handler(messages);
+                    if(messages_.size() != 0) {
+                        auto messages = batch<Q> {messages_};
+                        handler(messages);
+                    }
                 }
 
                 if(messages_.size() != 0) {
