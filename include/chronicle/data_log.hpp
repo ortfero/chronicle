@@ -135,6 +135,8 @@ namespace chronicle {
             return activity_.run([this](auto& batch) {
                 buffer_.clear();
                 buffer_.reserve(message_size_ * batch.size());
+				
+				ufmt::text t; t << "New messages { count: " << batch.size() << " }\n";
 
                 auto const now = clock_type::now();
                 while(auto sequence = batch.try_fetch()) {
@@ -355,6 +357,9 @@ namespace chronicle {
             message_type* m = claim<S>(tag, text);
             if(!m)
                 return;
+			for(auto& each_sink: sinks_) {
+                each_sink->write(now, "Publishing...\n", 14);
+            }
             publish(*m);
         }
 
