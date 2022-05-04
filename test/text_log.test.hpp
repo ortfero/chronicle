@@ -17,8 +17,7 @@ TEST_SUITE("text_log") {
 
     TEST_CASE("info to terminal") {
         chronicle::shared_text_log target;
-        target.add_sink(chronicle::sinks::conout::open());
-        target.open();
+        target.open(chronicle::sinks::conout::open());
         REQUIRE(target.opened());
         target.info("test", "info", " ok");
     }
@@ -26,8 +25,7 @@ TEST_SUITE("text_log") {
 
     TEST_CASE("uint64_t to terminal") {
         chronicle::shared_text_log target;
-        target.add_sink(chronicle::sinks::conout::open());
-        target.open();
+        target.open(chronicle::sinks::conout::open());
         auto const n = 0xFFFFFFFFFFFFFFFFull;
         target.info("test", "info", std::uint64_t(n));
     }

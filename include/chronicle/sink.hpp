@@ -6,6 +6,10 @@
 
 
 #include <chrono>
+#include <memory>
+#include <system_error>
+
+#include <tl/expected.hpp>
 
 #include <chronicle/severity.hpp>
 
@@ -14,12 +18,16 @@ namespace chronicle {
 
 
     class sink {
-        severity severity_{severity::info};
+        enum severity severity_{severity::info};
+        
     public:
         using time_point = std::chrono::system_clock::time_point;
 
         sink() noexcept = default;
         sink(severity s) noexcept: severity_{s} { }
+        
+        enum severity severity() const noexcept { return severity_; }
+        void severity(enum severity s) noexcept { severity_ = s; }
 
         virtual bool ready() const noexcept = 0;
 
@@ -38,6 +46,9 @@ namespace chronicle {
         virtual ~sink() {}
 
     };   // sink
+    
+    using sink_ptr = std::unique_ptr<sink>;
+    using expected_sink_ptr = tl::expected<sink_ptr, std::error_code>;
 
 
 }   // namespace chronicle

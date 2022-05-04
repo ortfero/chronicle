@@ -78,16 +78,7 @@ void run_benchmark(char const* name, int thread_count, F&& f) {
 int main() {
     using namespace std;
 
-    std::error_code failed;
-    auto file = chronicle::sinks::file::open("test.log", failed);
-    if(!file) {
-        puts(failed.message().data());
-        return 1;
-    }
-
-    chronicle_logger.add_sink(std::move(file));
-
-    if(!chronicle_logger.open(128 * 1024)) {
+    if(!chronicle_logger.open(chronicle::sinks::file::open("test.log"), 128 * 1024)) {
         puts("Unable to open log");
         return 1;
     }

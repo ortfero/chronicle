@@ -69,15 +69,12 @@ namespace chronicle::sinks {
         std::size_t written_ {0};
 
     public:
-        static std::unique_ptr<daily_rotated_file>
-            open(std::filesystem::path const& path,
-                 std::error_code& ec,
-                 std::size_t limit = 0) {
-            std::unique_ptr<daily_rotated_file> p {
-                new daily_rotated_file {path, limit, ec}};
-            if(!p->ready())
-                return nullptr;
-            return p;
+        static expected_sink_ptr open(std::filesystem::path const& path, std::size_t limit = 0) {
+            std::error_code ec;
+            daily_rotated_file drf{path, limit, ec};
+            if(!drf.ready())
+                return tl::make_unexpected(ec);
+            return {sink_ptr{new daily_rotated_file{std::move(drf)}}};
         }
 
 

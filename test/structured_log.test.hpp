@@ -15,8 +15,7 @@ TEST_SUITE("structuted_log") {
 
     TEST_CASE("structured_log::attributes_log") {
         chronicle::shared_structured_log target;
-        target.add_sink(chronicle::sinks::conout::open());
-        bool const opened = target.open();
+        auto const opened = target.open(chronicle::sinks::conout::open());
         REQUIRE(opened);
         target.info("test", "info", "name", "value");
     }

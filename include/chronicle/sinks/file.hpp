@@ -62,12 +62,13 @@ namespace chronicle::sinks {
         handle_type handle_ {invalid_handle};
 
     public:
-        static std::unique_ptr<sink> open(std::filesystem::path const& path,
-                                          std::error_code& error) noexcept {
-            file f {path, error};
+    
+        static expected_sink_ptr open(std::filesystem::path const& path) noexcept {
+            std::error_code ec;
+            file f{path, ec};
             if(!f.ready())
-                return nullptr;
-            return std::unique_ptr<sink> {new file {std::move(f)}};
+                return tl::make_unexpected(ec);
+            return {sink_ptr{new file {std::move(f)}}};
         }
 
 

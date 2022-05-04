@@ -6,9 +6,12 @@
 
 
 #include <atomic>
+#include <initializer_list>
 #include <memory>
 #include <thread>
 #include <vector>
+
+#include <tl/expected.hpp>
 
 
 #if defined(_WIN32)
@@ -73,7 +76,7 @@ namespace chronicle {
 
     private:
         sinks_type sinks_;
-        enum severity severity_ { chronicle::severity::info };
+        enum severity severity_ { chronicle::severity::failure };
         activity_type activity_;
         size_type message_size_;
         ufmt::text buffer_;
@@ -91,25 +94,22 @@ namespace chronicle {
         data_log& operator=(data_log const&) = delete;
         ~data_log() { close(); }
         bool opened() const noexcept { return activity_.active(); }
+        enum severity severity() const noexcept { return severity_; }
+        sinks_type const& sinks() const noexcept { return sinks_; }
+        
+        
         size_type blocks_count() const noexcept {
             return activity_.blocks_count();
         }
-        void severity(severity s) noexcept { severity_ = s; }
-        enum severity severity() const noexcept { return severity_; }
-        sinks_type const& sinks() const noexcept { return sinks_; }
+        
+        
         void prologue(std::string text) noexcept {
             prologue_ = std::move(text);
         }
+        
+        
         void epilogue(std::string text) noexcept {
             epilogue_ = std::move(text);
-        }
-
-
-        bool add_sink(std::unique_ptr<sink>&& sink_ptr) {
-            if(!sink_ptr || !sink_ptr->ready())
-                return false;
-            sinks_.emplace_back(std::move(sink_ptr));
-            return true;
         }
 
 
@@ -123,55 +123,49 @@ namespace chronicle {
         duration flush_timeout() const noexcept { return flush_timeout_; }
 
 
-        bool open(std::unique_ptr<sink>&& sink_ptr,
-                  size_type queue_size = default_queue_size) {
-            if(!add_sink(std::move(sink_ptr)))
-                return false;
-            return open(queue_size);
+        tl::expected<void, std::error_code> open(expected_sink_ptr esp,
+                                                 size_type queue_size = default_queue_size) {
+            if(!esp)
+                return tl::make_unexpected(esp.error());
+            if((*esp)->severity() > severity_)
+                severity_ = (*esp)->severity();
+            if(!add_sink(std::move(*esp)))
+                return tl::make_unexpected(std::make_error_code(std::errc::not_supported));
+            if(!open(queue_size))
+                return tl::make_unexpected(std::make_error_code(std::errc::not_supported));
+            return {};
         }
-
-
-        bool open(size_type queue_size = default_queue_size) {
-            if(sinks_.empty())
+        
+        
+        tl::expected<void, std::error_code> open(std::initializer_list<expected_sink_ptr> esps,
+                                                 size_type queue_size = default_queue_size) {
+            for(auto& each_esp: esps) {
+                if(!each_esp)
+                    return tl::make_unexpected(each_esp.error());
+                if((*each_esp)->severity() > severity_)
+                    severity_ = (*each_esp)->severity();
+                if(!add_sink(std::move(*each_esp)))
+                    return tl::make_unexpected(std::make_error_code(std::errc::not_supported));
+            }
+            if(!open(queue_size))
+                return tl::make_unexpected(std::make_error_code(std::errc::not_supported));
+            return {};
+        }
+        
+        
+        bool change_sink_severity(size_type index, enum severity s) {
+            if(index >= sinks_.size())
                 return false;
-            for(auto const& each_sink: sinks_)
-                if(!each_sink->ready())
-                    return false;
-
-            if(!prologue_.empty())
-                for(auto& each_sink: sinks_)
-                    each_sink->prologue(prologue_.data(), prologue_.size());
-
-            activity_.reserve(queue_size);
-
-            return activity_.run([this](auto& batch) {
-                buffer_.clear();
-                buffer_.reserve(message_size_ * batch.size());
-
-                auto const now = clock_type::now();
-
-                while(auto sequence = batch.try_fetch()) {
-                    message_type& message = batch[sequence];
-                    message.time = now;
-                    format_.print(message, buffer_);
-                    batch.fetched();
-                }
-
-                bool have_to_flush;
-                if(now - last_flush_time_ > flush_timeout_) {
-                    last_flush_time_ = now;
-                    have_to_flush = true;
-                } else {
-                    have_to_flush = false;
-                }
-
-                for(auto& each_sink: sinks_) {
-                    each_sink->write(now, buffer_.data(), buffer_.size());
-
-                    if(have_to_flush)
-                        each_sink->flush();
-                }
-            });
+            sinks[index]->severity(s);
+            if(s >= severity_) {
+                severity_ = s;
+            } else {
+                severity_ = chronicle::severity::failure;
+                for(auto const& each_sink: sinks_)
+                    if(each_sink->severity() > severity_)
+                        severity_ = each_sink->severity();
+            }
+            return true;
         }
 
 
@@ -373,7 +367,6 @@ namespace chronicle {
         }
 
 
-
         template<chronicle::severity S>
         void print(std::string_view const& tag,
                    std::string_view const& text,
@@ -389,7 +382,9 @@ namespace chronicle {
         }
 
 
-        void publish(message_type const& m) { activity_.publish(m.sequence); }
+        void publish(message_type const& m) {
+            activity_.publish(m.sequence);
+        }
 
 
         template<chronicle::severity S>
@@ -411,6 +406,54 @@ namespace chronicle {
             m.has_data = false;
             return &m;
         }
+        
+        
+        bool add_sink(std::unique_ptr<sink>&& sink_ptr) {
+            if(!sink_ptr || !sink_ptr->ready())
+                return false;
+            sinks_.emplace_back(std::move(sink_ptr));
+            return true;
+        }
+        
+        
+        bool open(size_type queue_size) {
+
+            if(!prologue_.empty())
+                for(auto& each_sink: sinks_)
+                    each_sink->prologue(prologue_.data(), prologue_.size());
+
+            activity_.reserve(queue_size);
+
+            return activity_.run([this](auto& batch) {
+                buffer_.clear();
+                buffer_.reserve(message_size_ * batch.size());
+
+                auto const now = clock_type::now();
+
+                while(auto sequence = batch.try_fetch()) {
+                    message_type& message = batch[sequence];
+                    message.time = now;
+                    format_.print(message, buffer_);
+                    batch.fetched();
+                }
+
+                bool have_to_flush;
+                if(now - last_flush_time_ > flush_timeout_) {
+                    last_flush_time_ = now;
+                    have_to_flush = true;
+                } else {
+                    have_to_flush = false;
+                }
+
+                for(auto& each_sink: sinks_) {
+                    each_sink->write(now, buffer_.data(), buffer_.size());
+
+                    if(have_to_flush)
+                        each_sink->flush();
+                }
+            });
+        }
+
 
     };   // data_log
 

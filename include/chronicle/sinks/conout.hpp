@@ -52,13 +52,11 @@ namespace chronicle::sinks {
         handle_type handle_ {invalid_handle};
 
     public:
-        static std::unique_ptr<sink> open() noexcept {
+        static expected_sink_ptr open() noexcept {
 #if defined(_WIN32)
-            return std::unique_ptr<sink> {new conout {
-                GetStdHandle(DWORD(-11))
-            }};
+            return {sink_ptr{new conout {GetStdHandle(DWORD(-11))}}};
 #elif defined(__linux__)
-            return std::unique_ptr<sink> {new conout {1}};
+            return {sink_ptr{new conout {1}}};
 #endif
         }
 

@@ -13,7 +13,7 @@
 namespace chronicle {
 
 
-    enum class severity {
+    enum class severity: char {
         failure,
         error,
         warning,
