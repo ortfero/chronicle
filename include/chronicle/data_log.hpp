@@ -58,7 +58,8 @@ namespace chronicle {
 
 
     template<typename Tr>
-    struct data_log {
+    class data_log {
+    public:
         using data_type = typename Tr::data_type;
         using format_type = typename Tr::format_type;
         using queue_type = typename Tr::queue_type;
@@ -75,8 +76,8 @@ namespace chronicle {
         static constexpr size_type default_queue_size = 8192;
 
     private:
-        sinks_type sinks_;
-        enum severity severity_ { chronicle::severity::failure };
+        sink_ptr sink_ptr_;
+        enum severity severity_ { chronicle::severity::info };
         activity_type activity_;
         size_type message_size_;
         ufmt::text buffer_;
@@ -95,7 +96,7 @@ namespace chronicle {
         ~data_log() { close(); }
         bool opened() const noexcept { return activity_.active(); }
         enum severity severity() const noexcept { return severity_; }
-        sinks_type const& sinks() const noexcept { return sinks_; }
+        void severity(enum severity s) noexcept { severity_ = s; }
         
         
         size_type blocks_count() const noexcept {
@@ -120,52 +121,56 @@ namespace chronicle {
         }
 
 
-        duration flush_timeout() const noexcept { return flush_timeout_; }
+        duration flush_timeout() const noexcept {
+            return flush_timeout_;
+        }
 
 
-        tl::expected<void, std::error_code> open(expected_sink_ptr esp,
+        tl::expected<void, std::error_code> open(expected_sink_ptr&& esp,
                                                  size_type queue_size = default_queue_size) {
             if(!esp)
                 return tl::make_unexpected(esp.error());
-            if((*esp)->severity() > severity_)
-                severity_ = (*esp)->severity();
-            if(!add_sink(std::move(*esp)))
-                return tl::make_unexpected(std::make_error_code(std::errc::not_supported));
-            if(!open(queue_size))
-                return tl::make_unexpected(std::make_error_code(std::errc::not_supported));
+            if(!(*esp)->ready())
+                return tl::make_unexpected(
+                    std::make_error_code(std::errc::bad_file_descriptor));
+            sink_ptr_ = std::move(*esp);
+
+            if(!prologue_.empty())
+                sink_ptr_->prologue(prologue_.data(), prologue_.size());
+
+            activity_.reserve(queue_size);
+
+            auto const started = activity_.run([this](auto& batch) {
+                buffer_.clear();
+                buffer_.reserve(message_size_ * batch.size());
+
+                auto const now = clock_type::now();
+
+                while(auto sequence = batch.try_fetch()) {
+                    message_type& message = batch[sequence];
+                    message.time = now;
+                    format_.print(message, buffer_);
+                    batch.fetched();
+                }
+
+                bool have_to_flush;
+                if(now - last_flush_time_ > flush_timeout_) {
+                    last_flush_time_ = now;
+                    have_to_flush = true;
+                } else {
+                    have_to_flush = false;
+                }
+
+                sink_ptr_->write(now, buffer_.data(), buffer_.size());
+                if(have_to_flush)
+                    sink_ptr_->flush();
+            });
+
+            if(!started)
+                return tl::make_unexpected(
+                    std::make_error_code(std::errc::no_child_process));
+
             return {};
-        }
-        
-        
-        tl::expected<void, std::error_code> open(std::initializer_list<expected_sink_ptr> esps,
-                                                 size_type queue_size = default_queue_size) {
-            for(auto& each_esp: esps) {
-                if(!each_esp)
-                    return tl::make_unexpected(each_esp.error());
-                if((*each_esp)->severity() > severity_)
-                    severity_ = (*each_esp)->severity();
-                if(!add_sink(std::move(*each_esp)))
-                    return tl::make_unexpected(std::make_error_code(std::errc::not_supported));
-            }
-            if(!open(queue_size))
-                return tl::make_unexpected(std::make_error_code(std::errc::not_supported));
-            return {};
-        }
-        
-        
-        bool change_sink_severity(size_type index, enum severity s) {
-            if(index >= sinks_.size())
-                return false;
-            sinks[index]->severity(s);
-            if(s >= severity_) {
-                severity_ = s;
-            } else {
-                severity_ = chronicle::severity::failure;
-                for(auto const& each_sink: sinks_)
-                    if(each_sink->severity() > severity_)
-                        severity_ = each_sink->severity();
-            }
-            return true;
         }
 
 
@@ -174,10 +179,8 @@ namespace chronicle {
                 return;
             activity_.stop();
             if(!epilogue_.empty())
-                for(auto& each_sink: sinks_)
-                    each_sink->epilogue(epilogue_.data(), epilogue_.size());
-            for(auto& each_sink: sinks_)
-                each_sink->close();
+                sink_ptr_->epilogue(epilogue_.data(), epilogue_.size());
+            sink_ptr_->close();
         }
 
 
@@ -406,54 +409,6 @@ namespace chronicle {
             m.has_data = false;
             return &m;
         }
-        
-        
-        bool add_sink(std::unique_ptr<sink>&& sink_ptr) {
-            if(!sink_ptr || !sink_ptr->ready())
-                return false;
-            sinks_.emplace_back(std::move(sink_ptr));
-            return true;
-        }
-        
-        
-        bool open(size_type queue_size) {
-
-            if(!prologue_.empty())
-                for(auto& each_sink: sinks_)
-                    each_sink->prologue(prologue_.data(), prologue_.size());
-
-            activity_.reserve(queue_size);
-
-            return activity_.run([this](auto& batch) {
-                buffer_.clear();
-                buffer_.reserve(message_size_ * batch.size());
-
-                auto const now = clock_type::now();
-
-                while(auto sequence = batch.try_fetch()) {
-                    message_type& message = batch[sequence];
-                    message.time = now;
-                    format_.print(message, buffer_);
-                    batch.fetched();
-                }
-
-                bool have_to_flush;
-                if(now - last_flush_time_ > flush_timeout_) {
-                    last_flush_time_ = now;
-                    have_to_flush = true;
-                } else {
-                    have_to_flush = false;
-                }
-
-                for(auto& each_sink: sinks_) {
-                    each_sink->write(now, buffer_.data(), buffer_.size());
-
-                    if(have_to_flush)
-                        each_sink->flush();
-                }
-            });
-        }
-
 
     };   // data_log
 
