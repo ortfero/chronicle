@@ -547,7 +547,7 @@ namespace chronicle {
                                       std::string_view name,
                                       Arg&& value,
                                       Attrs&&... attrs) {
-            message.data << ' ' << ',';
+            message.data << ',' << ' ';
             format_arg(message, name, std::forward<Arg>(value));
             format_other_args(message, std::forward<Attrs>(attrs)...);
         }
