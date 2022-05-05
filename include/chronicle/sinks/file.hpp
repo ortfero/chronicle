@@ -5,44 +5,10 @@
 #pragma once
 
 
+#include <cstdio>
 #include <filesystem>
 #include <memory>
 #include <system_error>
-
-
-#if defined(_WIN32)
-
-#    if !defined(_X86_) && !defined(_AMD64_) && !defined(_ARM_) \
-        && !defined(_ARM64_)
-#        if defined(_M_IX86)
-#            define _X86_
-#        elif defined(_M_AMD64)
-#            define _AMD64_
-#        elif defined(_M_ARM)
-#            define _ARM_
-#        elif defined(_M_ARM64)
-#            define _ARM64_
-#        endif
-#    endif
-
-#    include <errhandlingapi.h>
-#    include <fileapi.h>
-#    include <handleapi.h>
-#    include <minwindef.h>
-
-#elif defined(__linux__)
-
-#    include <errno.h>
-#    include <fcntl.h>
-#    include <sys/stat.h>
-#    include <unistd.h>
-
-#else
-
-#    error Unsupported system
-
-#endif
-
 
 #include <chronicle/sink.hpp>
 
@@ -51,13 +17,8 @@ namespace chronicle::sinks {
 
 
     class file: public sink {
-#if defined(_WIN32)
-        using handle_type = void*;
+        using handle_type = FILE*;
         static constexpr auto invalid_handle = nullptr;
-#elif defined(__linux__)
-        using handle_type = int;
-        static constexpr auto invalid_handle = -1;
-#endif
 
         handle_type handle_ {invalid_handle};
 
@@ -85,11 +46,7 @@ namespace chronicle::sinks {
 
         file& operator=(file&& other) noexcept {
             if(handle_ != invalid_handle)
-#if defined(_WIN32)
-                CloseHandle(handle_);
-#elif defined(__linux__)
-                ::close(handle_);
-#endif
+                std::fclose(handle_);
             handle_ = other.handle_;
             other.handle_ = invalid_handle;
             return *this;
@@ -104,54 +61,35 @@ namespace chronicle::sinks {
         void write(time_point const&,
                    char const* data,
                    size_t size) noexcept override {
-#if defined(_WIN32)
-            WriteFile(handle_, data, DWORD(size), nullptr, nullptr);
-#elif defined(__linux__)
-            ::write(handle_, data, size);
-#endif
+            std::fwrite(data, sizeof(char), size, handle_);
         }
 
 
         void flush() noexcept override {
-#if defined(_WIN32)
-            FlushFileBuffers(handle_);
-#elif defined(__linux__)
-            ::fdatasync(handle_);
-#endif
+            std::fflush(handle_);
         }
 
 
         void close() noexcept override {
             if(handle_ == invalid_handle)
                 return;
-#if defined(_WIN32)
-            CloseHandle(handle_);
-#elif defined(__linux__)
-            ::close(handle_);
-#endif
+            std::fclose(handle_);
             handle_ = invalid_handle;
         }
 
 
         void prologue(const char* data, size_t size) noexcept override {
-#if defined(_WIN32)
-            WriteFile(handle_, data, DWORD(size), nullptr, nullptr);
-#elif defined(__linux__)
-            ::write(handle_, data, size);
-#endif
+            std::fwrite(data, sizeof(char), size, handle_);
         }
 
 
         void epilogue(const char* data, size_t size) noexcept override {
-#if defined(_WIN32)
-            WriteFile(handle_, data, DWORD(size), nullptr, nullptr);
-#elif defined(__linux__)
-            ::write(handle_, data, size);
-#endif
+            std::fwrite(data, sizeof(char), size, handle_);
         }
 
 
     private:
+
         file(std::filesystem::path const& path,
              std::error_code& error) noexcept {
             auto const directory = path.parent_path();
@@ -160,28 +98,9 @@ namespace chronicle::sinks {
                 fs::create_directories(directory, error);
             if(!!error)
                 return;
-#if defined(_WIN32)
-            static constexpr auto file_append_data = DWORD(0x0004);
-            static constexpr auto file_share_read = DWORD(0x00000001);
-            static constexpr auto open_always = DWORD(4);
-            static constexpr auto file_attribute_normal = DWORD(0x00000080);
-
-            handle_ = CreateFileW(path.native().data(),
-                                  file_append_data,
-                                  file_share_read,
-                                  nullptr,
-                                  open_always,
-                                  file_attribute_normal,
-                                  nullptr);
+            handle_ = std::fopen(path.string().data(), "ab+");
             if(handle_ == nullptr)
-                error = {int(GetLastError()), std::system_category()};
-#elif defined(__linux__)
-            handle_ = ::open(path.native().data(),
-                             O_WRONLY | O_CREAT | O_APPEND,
-                             S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-            if(handle_ == -1)
                 error = {errno, std::system_category()};
-#endif
         }
 
     };   // file

@@ -6,39 +6,9 @@
 
 
 #include <chrono>
+#include <cstdio>
 #include <filesystem>
 #include <memory>
-
-
-#if defined(_WIN32)
-
-#    if !defined(_X86_) && !defined(_AMD64_) && !defined(_ARM_) \
-        && !defined(_ARM64_)
-#        if defined(_M_IX86)
-#            define _X86_
-#        elif defined(_M_AMD64)
-#            define _AMD64_
-#        elif defined(_M_ARM)
-#            define _ARM_
-#        elif defined(_M_ARM64)
-#            define _ARM64_
-#        endif
-#    endif
-
-
-#    include <fileapi.h>
-#    include <handleapi.h>
-#    include <minwindef.h>
-#    include <sysinfoapi.h>
-
-#elif defined(__linux__)
-
-#    include <errno.h>
-#    include <fcntl.h>
-#    include <sys/stat.h>
-#    include <unistd.h>
-
-#endif
 
 #include <date/date.h>
 #include <ufmt/text.hpp>
@@ -50,13 +20,8 @@ namespace chronicle::sinks {
 
 
     class daily_rotated_file: public sink {
-#if defined(_WIN32)
-        using handle_type = void*;
+        using handle_type = FILE*;
         static constexpr auto invalid_handle = nullptr;
-#elif defined(__linux__)
-        using handle_type = int;
-        static constexpr auto invalid_handle = -1;
-#endif
 
         handle_type handle_ {invalid_handle};
         std::filesystem::path directory_;
@@ -69,7 +34,8 @@ namespace chronicle::sinks {
         std::size_t written_ {0};
 
     public:
-        static expected_sink_ptr open(std::filesystem::path const& path, std::size_t limit = 0) {
+        static expected_sink_ptr open(std::filesystem::path const& path,
+                                      std::size_t limit = 0) {
             std::error_code ec;
             daily_rotated_file drf{path, limit, ec};
             if(!drf.ready())
@@ -83,6 +49,7 @@ namespace chronicle::sinks {
         daily_rotated_file(daily_rotated_file const&) noexcept = delete;
         daily_rotated_file&
             operator=(daily_rotated_file const&) noexcept = delete;
+
         std::filesystem::path const& file_path() const noexcept {
             return file_path_;
         }
@@ -104,11 +71,7 @@ namespace chronicle::sinks {
 
         daily_rotated_file& operator=(daily_rotated_file&& other) noexcept {
             if(handle_ != invalid_handle)
-#if defined(_WIN32)
-                CloseHandle(handle_);
-#elif defined(__linux__)
-                ::close(handle_);
-#endif
+                std::fclose(handle_);
             handle_ = other.handle_;
             other.handle_ = invalid_handle;
             directory_ = std::move(other.directory_);
@@ -144,56 +107,37 @@ namespace chronicle::sinks {
                 rotate_file(tp, ec);
             }
 
-#if defined(_WIN32)
-            WriteFile(handle_, data, DWORD(size), nullptr, nullptr);
-#elif defined(__linux__)
-            ::write(handle_, data, size);
-#endif
+            std::fwrite(data, sizeof(char), size, handle_);
 
             written_ += size;
         }
 
 
         void flush() noexcept override {
-#if defined(_WIN32)
-            FlushFileBuffers(handle_);
-#elif defined(__linux__)
-            ::fdatasync(handle_);
-#endif
+            std::fflush(handle_);
         }
 
 
         void close() noexcept override {
             if(handle_ == invalid_handle)
                 return;
-#if defined(_WIN32)
-            CloseHandle(handle_);
-#elif defined(__linux__)
-            ::close(handle_);
-#endif
+            std::fclose(handle_);
             handle_ = invalid_handle;
         }
 
 
         void prologue(const char* data, size_t size) noexcept override {
-#if defined(_WIN32)
-            WriteFile(handle_, data, DWORD(size), nullptr, nullptr);
-#elif defined(__linux__)
-            ::write(handle_, data, size);
-#endif
+            std::fwrite(data, sizeof(char), size, handle_);
         }
 
 
         void epilogue(const char* data, size_t size) noexcept override {
-#if defined(_WIN32)
-            WriteFile(handle_, data, DWORD(size), nullptr, nullptr);
-#elif defined(__linux__)
-            ::write(handle_, data, size);
-#endif
+            std::fwrite(data, sizeof(char), size, handle_);
         }
 
 
     private:
+    
         daily_rotated_file(std::filesystem::path const& path,
                            std::size_t limit,
                            std::error_code& ec) noexcept {
@@ -216,13 +160,8 @@ namespace chronicle::sinks {
 
         void rotate_file(std::chrono::system_clock::time_point tp,
                          std::error_code& ec) {
-            if(handle_ != invalid_handle) {
-#if defined(_WIN32)
-                CloseHandle(handle_);
-#elif defined(__linux__)
-                ::close(handle_);
-#endif
-            }
+            if(handle_ != invalid_handle)
+                fclose(handle_);
             auto const dp = std::chrono::floor<date::days>(tp);
             date::year_month_day const ymd = dp;
             ufmt::text suffix;
@@ -243,28 +182,9 @@ namespace chronicle::sinks {
             file_path_ /= base_name_;
             file_path_ += suffix.string();
             file_path_ += extension_;
-#if defined(_WIN32)
-            static constexpr auto file_append_data = DWORD(0x0004);
-            static constexpr auto file_share_read = DWORD(0x00000001);
-            static constexpr auto open_always = DWORD(4);
-            static constexpr auto file_attribute_normal = DWORD(0x00000080);
-
-            handle_ = CreateFileW(file_path_.native().data(),
-                                  file_append_data,
-                                  file_share_read,
-                                  nullptr,
-                                  open_always,
-                                  file_attribute_normal,
-                                  nullptr);
+            handle_ = std::fopen(file_path_.string().data(), "ab+");
             if(handle_ == nullptr)
-                ec = {int(GetLastError()), std::system_category()};
-#elif defined(__linux__)
-            handle_ = ::open(file_path_.native().data(),
-                             O_WRONLY | O_CREAT | O_APPEND,
-                             S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-            if(handle_ == -1)
                 ec = {errno, std::system_category()};
-#endif
             written_ = 0;
         }
 
