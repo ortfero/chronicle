@@ -10,6 +10,7 @@
 #include <system_error>
 
 #include <tl/expected.hpp>
+#include <ufmt/text.hpp>
 
 #include <chronicle/severity.hpp>
 
@@ -18,22 +19,15 @@ namespace chronicle {
 
 
     class sink {
-        enum severity severity_{severity::info};
-        
     public:
         using time_point = std::chrono::system_clock::time_point;
-
-        sink() noexcept = default;
-        sink(severity s) noexcept: severity_{s} { }
-        
-        enum severity severity() const noexcept { return severity_; }
-        void severity(enum severity s) noexcept { severity_ = s; }
+        using size_type = std::size_t;
 
         virtual bool ready() const noexcept = 0;
 
         virtual void write(time_point const& tp,
                            char const* data,
-                           size_t size) noexcept = 0;
+                           size_type size) noexcept = 0;
 
         virtual void flush() noexcept = 0;
 
