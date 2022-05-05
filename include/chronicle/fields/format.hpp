@@ -40,11 +40,12 @@ namespace chronicle::fields {
         template<class S, typename D, class TimePoint, size_t I>
         void print_fields(message<D, TimePoint> const& message,
                           ufmt::basic_text<S>& text) {
-            text << ' ';
             std::get<I>(fields_).print(message, text);
 
-            if constexpr(I + 1 != std::tuple_size_v<fields_type>)
+            if constexpr(I + 1 != std::tuple_size_v<fields_type>) {
+                text << ' ';
                 print_fields<S, D, TimePoint, I + 1>(message, text);
+            }
         }
 
     };   // format

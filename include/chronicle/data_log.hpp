@@ -84,8 +84,8 @@ namespace chronicle {
         duration flush_timeout_;
         time_point last_flush_time_;
         format_type format_;
-        std::string prologue_ {"\n   ++++ log opened ++++\n"};
-        std::string epilogue_ {"   ++++ log closed ++++\n\n"};
+        std::string prologue_ {"\n    ++++ log opened ++++\n"};
+        std::string epilogue_ {"    ++++ log closed ++++\n\n"};
 
     public:
         data_log(size_type message_size) noexcept
