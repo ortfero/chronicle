@@ -302,7 +302,7 @@ namespace chronicle {
 
 
         template<typename R, size_t N1, size_t N2, typename Arg, typename... Args>
-        R debug_with(char const (&)[N1], char const (&)[N2], Arg&&, Args&&...) {
+        R debug_with(R&& r, char const (&)[N1], char const (&)[N2], Arg&&, Args&&...) {
             return std::forward<R>(r);
         }
 
