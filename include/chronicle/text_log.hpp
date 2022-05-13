@@ -44,6 +44,13 @@ namespace chronicle {
         }
 
 
+        template<typename R, size_t N1, size_t N2>
+        R failure_with(R&& r, char const (&tag)[N1], char const (&text)[N2]) {
+            failure(tag, text);
+            return std::forward<R>(r);
+        }
+
+
         template<size_t N1, size_t N2, typename Arg, typename... Args>
         void failure(char const (&tag)[N1],
                      char const (&text)[N2],
@@ -57,11 +64,29 @@ namespace chronicle {
         }
 
 
+        template<typename R, size_t N1, size_t N2, typename Arg, typename... Args>
+        R failure_with(R&& r,
+                       char const (&tag)[N1],
+                       char const (&text)[N2],
+                       Arg&& arg,
+                       Args&&... args) {
+            failure(tag, text, std::forward<Arg>(arg), std::forward<Args>(args)...);
+            return std::forward<R>(r);
+        }
+
+
         template<size_t N1, size_t N2>
         void error(char const (&tag)[N1], char const (&text)[N2]) {
             base::template print<severity::error>(
                 std::string_view {tag, N1 - 1},
                 std::string_view {text, N2 - 1});
+        }
+
+
+        template<typename R, size_t N1, size_t N2>
+        R error_with(R&& r, char const (&tag)[N1], char const (&text)[N2]) {
+            error(tag, text);
+            return std::forward<R>(r);
         }
 
 
@@ -78,11 +103,32 @@ namespace chronicle {
         }
 
 
+        template<typename R, size_t N1, size_t N2, typename Arg, typename... Args>
+        R error_with(R&& r,
+                     char const (&tag)[N1],
+                     char const (&text)[N2],
+                     Arg&& arg,
+                     Args&&... args) {
+            error(tag,
+                  text,
+                  std::forward<Arg>(arg),
+                  std::forward<Args>(args)...);
+            return std::forward<R>(r);
+        }
+
+
         template<size_t N1, size_t N2>
         void warning(char const (&tag)[N1], char const (&text)[N2]) {
             base::template print<severity::warning>(
                 std::string_view {tag, N1 - 1},
                 std::string_view {text, N2 - 1});
+        }
+
+
+        template<typename R, size_t N1, size_t N2>
+        R warning_with(R&& r, char const (&tag)[N1], char const (&text)[N2]) {
+            warning(tag, text);
+            return std::forward<R>(r);
         }
 
 
@@ -99,11 +145,32 @@ namespace chronicle {
         }
 
 
+        template<typename R, size_t N1, size_t N2, typename Arg, typename... Args>
+        R warning_with(R&& r,
+                       char const (&tag)[N1],
+                       char const (&text)[N2],
+                       Arg&& arg,
+                       Args&&... args) {
+            warning(tag,
+                    text,
+                    std::forward<Arg>(arg),
+                    std::forward<Args>(args)...);
+            return std::forward<R>(r);
+        }
+
+
         template<size_t N1, size_t N2>
         void info(char const (&tag)[N1], char const (&text)[N2]) {
             base::template print<severity::info>(
                 std::string_view {tag, N1 - 1},
                 std::string_view {text, N2 - 1});
+        }
+
+
+        template<typename R, size_t N1, size_t N2>
+        R info_with(R&& r, char const (&tag)[N1], char const (&text)[N2]) {
+            info(tag, text);
+            return std::forward<R>(r);
         }
 
 
@@ -120,11 +187,32 @@ namespace chronicle {
         }
 
 
+        template<typename R, size_t N1, size_t N2, typename Arg, typename... Args>
+        R info_with(R&& r,
+                    char const (&tag)[N1],
+                    char const (&text)[N2],
+                    Arg&& arg,
+                    Args&&... args) {
+            info(tag,
+                 text,
+                 std::forward<Arg>(arg),
+                 std::forward<Args>(args)...);
+            return std::forward<R>(r);
+        }
+
+
         template<size_t N1, size_t N2>
         void extra(char const (&tag)[N1], char const (&text)[N2]) {
             base::template print<severity::extra>(
                 std::string_view {tag, N1 - 1},
                 std::string_view {text, N2 - 1});
+        }
+
+
+        template<typename R, size_t N1, size_t N2>
+        R extra_with(R&& r, char const (&tag)[N1], char const (&text)[N2]) {
+            extra(tag, text);
+            return std::forward<R>(r);
         }
 
 
@@ -141,11 +229,32 @@ namespace chronicle {
         }
 
 
+        template<typename R, size_t N1, size_t N2, typename Arg, typename... Args>
+        R extra_with(R&& r,
+                     char const (&tag)[N1],
+                     char const (&text)[N2],
+                     Arg&& arg,
+                     Args&&... args) {
+            extra(tag,
+                  text,
+                  std::forward<Arg>(arg),
+                  std::forward<Args>(args)...);
+            return std::forward<R>(r);
+        }
+
+
         template<size_t N1, size_t N2>
         void trace(char const (&tag)[N1], char const (&text)[N2]) {
             base::template print<severity::trace>(
                 std::string_view {tag, N1 - 1},
                 std::string_view {text, N2 - 1});
+        }
+
+
+        template<typename R, size_t N1, size_t N2>
+        R trace_with(R&& r, char const (&tag)[N1], char const (&text)[N2]) {
+            trace(tag, text);
+            return std::forward<R>(r);
         }
 
 
@@ -161,6 +270,20 @@ namespace chronicle {
                 std::forward<Args>(args)...);
         }
 
+
+        template<typename R, size_t N1, size_t N2, typename Arg, typename... Args>
+        R trace_with(R&& r,
+                     char const (&tag)[N1],
+                     char const (&text)[N2],
+                     Arg&& arg,
+                     Args&&... args) {
+            trace(tag,
+                  text,
+                  std::forward<Arg>(arg),
+                  std::forward<Args>(args)...);
+            return std::forward<R>(r);
+        }
+
 #ifdef NDEBUG
 
 
@@ -168,8 +291,20 @@ namespace chronicle {
         void debug(char const (&)[N1], char const (&)[N2]) {}
 
 
+        template<typename R, size_t N1, size_t N2>
+        R debug_with(R&& r, char const (&)[N1], char const (&)[N2]) {
+            return std::forward<R>(r);
+        }
+
+
         template<size_t N1, size_t N2, typename Arg, typename... Args>
         void debug(char const (&)[N1], char const (&)[N2], Arg&&, Args&&...) {}
+
+
+        template<typename R, size_t N1, size_t N2, typename Arg, typename... Args>
+        R debug_with(char const (&)[N1], char const (&)[N2], Arg&&, Args&&...) {
+            return std::forward<R>(r);
+        }
 
 
 #else
@@ -179,6 +314,13 @@ namespace chronicle {
             base::template print<severity::debug>(
                 std::string_view {tag, N1 - 1},
                 std::string_view {text, N2 - 1});
+        }
+
+
+        template<typename R, size_t N1, size_t N2>
+        R debug_with(R&& r, char const (&tag)[N1], char const (&text)[N2]) {
+            debug(tag, text);
+            return std::forward<R>(r);
         }
 
 
@@ -192,6 +334,20 @@ namespace chronicle {
                 std::string_view {text, N2 - 1},
                 std::forward<Arg>(arg),
                 std::forward<Args>(args)...);
+        }
+
+
+        template<typename R, size_t N1, size_t N2, typename Arg, typename... Args>
+        void debug(R&& r,
+                   char const (&tag)[N1],
+                   char const (&text)[N2],
+                   Arg&& arg,
+                   Args&&... args) {
+            debug(tag,
+                  text,
+                  std::forward<Arg>(arg),
+                  std::forward<Args>(args)...);
+            return std::forward<R>(r);
         }
 
 #endif
