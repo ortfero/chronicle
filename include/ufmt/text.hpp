@@ -14,6 +14,8 @@
 #include <cstdio>
 #endif
 
+#include <ufmt/fixed_string.hpp>
+
 
 namespace ufmt {
 
@@ -116,13 +118,6 @@ namespace ufmt {
         }
 
 
-        /*template<std::size_t N> friend
-        basic_text& operator << (basic_text& self,
-                                 value_type const (&literal)[N]) {
-            return self.append(literal, N - 1);
-        }*/
-
-
     private:
 
         static uint64_t nearest_power_of_2(uint64_t n) {
@@ -178,12 +173,6 @@ namespace ufmt {
     template<class S, std::size_t N>
     basic_text<S>& operator << (basic_text<S>& self, char const (&cc)[N]) {
         return self.append(cc, N - 1);
-    }
-
-
-    template<class S>
-    basic_text<S>& operator << (basic_text<S>& self, bool value) {
-        return value ? self.append("true", 4) : self.append("false", 5);
     }
 
 
@@ -393,22 +382,35 @@ namespace ufmt {
         struct textize { T const& value; };
 
         template<class S>
-        basic_text<S> operator << (basic_text<S>& self, textize<char> arg) {
+        basic_text<S>& operator << (basic_text<S>& self, textize<char> arg) {
             return self << '\"' << arg.value << '\"';
         }
 
         template<class S>
-        basic_text<S> operator << (basic_text<S>& self, textize<std::string_view> arg) {
+        basic_text<S>& operator << (basic_text<S>& self, textize<std::string_view> arg) {
             return self << '\"' << arg.value << '\"';
         }
 
         template<class S>
-        basic_text<S> operator << (basic_text<S>& self, textize<std::string> arg) {
+        basic_text<S>& operator << (basic_text<S>& self, textize<std::string> arg) {
             return self << '\"' << arg.value << '\"';
         }
+        
+        
+        template<class S, std::size_t N>
+        basic_text<S>& operator << (basic_text<S>& self, textize<fixed_string<N>> arg) {
+            return self << '\"' << arg.value << '\"';
+        }
+        
+        
+        template<class S, class T>
+        basic_text<S>& operator << (basic_text<S>& self, textize<basic_text<T>> arg) {
+            return self << '\"' << arg.value << '\"';
+        }
+        
 
         template<class S, typename T>
-        basic_text<S> operator << (basic_text<S>& self, textize<T> arg) {
+        basic_text<S>& operator << (basic_text<S>& self, textize<T> arg) {
             return self << arg.value;
         }
     } // formatters
