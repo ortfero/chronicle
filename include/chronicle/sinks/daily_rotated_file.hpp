@@ -39,7 +39,7 @@ namespace chronicle::sinks {
             std::error_code ec;
             daily_rotated_file drf{path, limit, ec};
             if(!drf.ready())
-                return tl::make_unexpected(ec);
+                return etceteras::make_unexpected(ec);
             return {sink_ptr{new daily_rotated_file{std::move(drf)}}};
         }
 

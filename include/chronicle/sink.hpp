@@ -9,7 +9,7 @@
 #include <memory>
 #include <system_error>
 
-#include <tl/expected.hpp>
+#include <etceteras/expected.hpp>
 #include <ufmt/text.hpp>
 
 #include <chronicle/severity.hpp>
@@ -42,7 +42,7 @@ namespace chronicle {
     };   // sink
     
     using sink_ptr = std::unique_ptr<sink>;
-    using expected_sink_ptr = tl::expected<sink_ptr, std::error_code>;
+    using expected_sink_ptr = etceteras::expected<sink_ptr, std::error_code>;
 
 
 }   // namespace chronicle

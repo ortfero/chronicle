@@ -11,7 +11,7 @@
 #include <thread>
 #include <vector>
 
-#include <tl/expected.hpp>
+#include <etceteras/expected.hpp>
 
 
 #if defined(_WIN32)
@@ -126,12 +126,12 @@ namespace chronicle {
         }
 
 
-        tl::expected<void, std::error_code> open(expected_sink_ptr&& esp,
-                                                 size_type queue_size = default_queue_size) {
+        etceteras::expected<void, std::error_code>
+        open(expected_sink_ptr&& esp, size_type queue_size = default_queue_size) {
             if(!esp)
-                return tl::make_unexpected(esp.error());
+                return etceteras::make_unexpected(esp.error());
             if(!(*esp)->ready())
-                return tl::make_unexpected(
+                return etceteras::make_unexpected(
                     std::make_error_code(std::errc::bad_file_descriptor));
             sink_ptr_ = std::move(*esp);
 
@@ -167,7 +167,7 @@ namespace chronicle {
             });
 
             if(!started)
-                return tl::make_unexpected(
+                return etceteras::make_unexpected(
                     std::make_error_code(std::errc::no_child_process));
 
             return {};

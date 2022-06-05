@@ -28,7 +28,7 @@ namespace chronicle::sinks {
             std::error_code ec;
             file f{path, ec};
             if(!f.ready())
-                return tl::make_unexpected(ec);
+                return etceteras::make_unexpected(ec);
             return {sink_ptr{new file {std::move(f)}}};
         }
 
