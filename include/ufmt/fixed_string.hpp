@@ -40,7 +40,7 @@ namespace ufmt {
         }
 
         template<std::size_t M>
-        explicit fixed_string(char const (&data)[M]) noexcept {
+        fixed_string(char const (&data)[M]) noexcept {
             assign(data, data + M);
         }
 
@@ -315,6 +315,10 @@ namespace ufmt {
 
         std::string_view substr(size_type pos, size_type n) const noexcept {
             return std::string_view {p_ + pos, p_ + pos + n};
+        }
+        
+        int compare(fixed_string const& rhs) const noexcept {
+            return compare(rhs.begin(), rhs.end());
         }
 
         template<int M>
