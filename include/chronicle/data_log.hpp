@@ -81,8 +81,6 @@ namespace chronicle {
         activity_type activity_;
         size_type message_size_;
         ufmt::text buffer_;
-        duration flush_timeout_;
-        time_point last_flush_time_;
         format_type format_;
         std::string prologue_ {"\n    ++++ log opened ++++\n"};
         std::string epilogue_ {"    ++++ log closed ++++\n\n"};
@@ -114,15 +112,10 @@ namespace chronicle {
         }
 
 
-        template<typename Rep, typename Period>
-        void flush_timeout(
-            std::chrono::duration<Rep, Period> const& timeout) noexcept {
-            flush_timeout_ = timeout;
-        }
-
-
-        duration flush_timeout() const noexcept {
-            return flush_timeout_;
+        void flush() noexcept {
+            if(!sink_ptr_)
+                return;
+            sink_ptr_->flush();
         }
 
 
@@ -153,17 +146,7 @@ namespace chronicle {
                     batch.fetched();
                 }
 
-                bool have_to_flush;
-                if(now - last_flush_time_ > flush_timeout_) {
-                    last_flush_time_ = now;
-                    have_to_flush = true;
-                } else {
-                    have_to_flush = false;
-                }
-
                 sink_ptr_->write(now, buffer_.data(), buffer_.size());
-                if(have_to_flush)
-                    sink_ptr_->flush();
             });
 
             if(!started)
