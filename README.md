@@ -5,7 +5,7 @@ C++20 header-only library for low-latency asynchronous logging
 
 ## Usage
 
-Just put directory `include/chronicle` at your include path
+Just place contents of `include` directory at your include path
 
 
 ## Tests and benchmark
@@ -38,6 +38,7 @@ Logging string, integer number and float number `100000` times.
 ### Opening single-threaded text logger
 
 ```cpp
+#include <iostream>
 #include <system_error>
 #include <chronicle/text_log.hpp>
 #include <chronicle/sinks/file.hpp>
@@ -47,26 +48,26 @@ cr::unique_text_log log; // 'cr::shared_text_log' for multi-threaded
 
 int main() {
 
-  std::error_code failed; auto file = cr::sinks::file::open("test.log", failed);
-  if(!file)
-    return 1;
-  log.add_sink(std::move(file));
-  if(!log.open()
-    return 1;
+    auto const opened = log.open(cr::sinks::file::open("test.log"));
+    if(!opened) {
+        std::cerr << opened.error().message() << '\n';
+        return -1;
+    }
 
-  // Should be: "source", "message", {parameter}
-  log.info("main", "Some message", "{ name1: ", 127, ", name2: ", "\"value2\" }");
+    // Should be: "source", "message", {parameter}
+    log.info("main", "Some message", "{ name1: ", 127, ", name2: ", "\"value2\" }");
 
-  // Possible output:
-  //         2020-05-09 16:57:02.343402 [main] Some message { name1: 127, name2: "value2" }
+    // Possible output:
+    //         2020-05-09 16:57:02.343402 [main] Some message { name1: 127, name2: "value2" }
 
-  return 0;
+    return 0;
 }
 ```
 
 ### Opening multithreaded structured logger with daily rotation
 
 ```cpp
+#include <iostream>
 #include <chronicle/structured_log.hpp>
 #include <chronicle/sinks/daily_rotated_file.hpp>
 
@@ -75,21 +76,20 @@ cr::shared_structured_log log;
 
 int main() {
 
-  // Something like "test-2020_05_09.log" will be opened
-  std::error_code failed; auto file = cr::sinks::daily_rotated_file::open("test.log", failed);
-  if(!file)
-    return 1;
-  log.add_sink(std::move(file));
-  if(!log.open())
-    return 1;
+    // Something like "test-2020_05_09.log" will be opened
+    auto const opened = log.open(cr::sinks::daily_rotated_file::open("test.log", failed));
+    if(!opened) {
+        std::cerr << opened.error().message() << '\n';
+        return -1;
+    }
 
-  // Should be: "source", "message", {"name", value}
-  log.info("main", "Some message", "name1", 127, "name2", "value2");
+    // Should be: "source", "message", {"name", value}
+    log.info("main", "Some message", "name1", 127, "name2", "value2");
 
-  // Possible output:
-  //         2020-05-09 16:57:02.343402 [14648] [main] Some message { name1: 127, name2: "value2" }
+    // Possible output:
+    //         2020-05-09 16:57:02.343402 [14648] [main] Some message { name1: 127, name2: "value2" }
 
-  return 0;
+    return 0;
 }
 ```
 
@@ -128,22 +128,12 @@ struct point {
 
 template<typename S> S&
 operator << (S& stream, point const& p) {
-  return s << "{ x: " << p.x << ", y: " << p.y << " }";
+    return s << "{ x: " << p.x << ", y: " << p.y << " }";
 }
-```
-
-
-### Using custom clock
-
-```cpp
-namespace cr = chronicle;
-
-using unique_log = cr::structured_log<cr::traits_unique_ms<ufmt::text>,
-                                      some_custom_clock>;
 ```
 
 ## Dependencies
 
-* [date](https://github.com/HowardHinnant/date)
+* [etceteras](https://github.com/ortfero/etceteras)
 * [hydra](https://github.com/ortfero/hydra)
 * [ufmt](https://github.com/ortfero/ufmt)
