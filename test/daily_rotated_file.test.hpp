@@ -4,7 +4,6 @@
 #include <chrono>
 
 #include <chronicle/sinks/daily_rotated_file.hpp>
-#include <date/date.h>
 
 #include "doctest.h"
 

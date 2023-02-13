@@ -5,8 +5,6 @@
 #pragma once
 
 
-#include <date/date.h>
-
 #include <ufmt/text.hpp>
 
 #include <chronicle/message.hpp>
@@ -19,11 +17,11 @@ namespace chronicle::fields {
     public:
         template<class S, typename D, class TimePoint>
         void print(message<D, TimePoint> const& m, ufmt::basic_text<S>& text) {
-            using namespace std::chrono;
-            auto const dp = floor<date::days>(m.time);
-            auto const ymd = date::year_month_day {dp};
-            auto const tod = date::time_of_day<microseconds> {
-                duration_cast<microseconds>(m.time - dp)};
+            namespace chr = std::chrono;
+            auto const dp = chr::floor<chr::days>(m.time);
+            auto const ymd = chr::year_month_day {dp};
+            auto const tod = chr::hh_mm_ss<chr::microseconds> {
+                chr::duration_cast<chr::microseconds>(m.time - dp)};
 
             text << int(ymd.year()) << '-';
             if(unsigned(ymd.month()) < 10)

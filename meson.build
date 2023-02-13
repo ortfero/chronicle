@@ -6,12 +6,6 @@ project('chronicle', 'cpp',
 
 incdirs = include_directories('./include')
 
-date = declare_dependency(
-    version: '3.0.1',
-    include_directories: incdirs
-)
-
-
 hydra_deps = [dependency('threads')]
 
 system = host_machine.system()
@@ -58,7 +52,7 @@ chronicle = declare_dependency(
     version: meson.project_version(),
     include_directories: incdirs,
     sources: headers,
-    dependencies: [date, hydra]
+    dependencies: [hydra]
 )
 
 #subdir('benchmark')

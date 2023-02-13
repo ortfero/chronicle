@@ -1,6 +1,6 @@
 # chronicle
 
-C++17 header-only library for low-latency asynchronous logging
+C++20 header-only library for low-latency asynchronous logging
 
 
 ## Usage

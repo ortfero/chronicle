@@ -1,5 +1,5 @@
 // This file is part of chronicle library
-// Copyright 2020-2022 Andrei Ilin <ortfero@gmail.com>
+// Copyright 2020-2023 Andrei Ilin <ortfero@gmail.com>
 // SPDX-License-Identifier: MIT
 
 #pragma once
@@ -10,7 +10,6 @@
 #include <filesystem>
 #include <memory>
 
-#include <date/date.h>
 #include <ufmt/text.hpp>
 
 #include <chronicle/sink.hpp>
@@ -20,10 +19,8 @@ namespace chronicle::sinks {
 
 
     class daily_rotated_file: public sink {
-        using handle_type = FILE*;
-        static constexpr auto invalid_handle = nullptr;
 
-        handle_type handle_ {invalid_handle};
+        FILE* handle_ {nullptr};
         std::filesystem::path directory_;
         std::filesystem::path base_name_;
         std::filesystem::path extension_;
@@ -65,15 +62,15 @@ namespace chronicle::sinks {
               part_ {other.part_},
               limit_ {other.limit_},
               written_ {other.written_} {
-            other.handle_ = invalid_handle;
+            other.handle_ = nullptr;
         }
 
 
         daily_rotated_file& operator=(daily_rotated_file&& other) noexcept {
-            if(handle_ != invalid_handle)
+            if(handle_ != nullptr)
                 std::fclose(handle_);
             handle_ = other.handle_;
-            other.handle_ = invalid_handle;
+            other.handle_ = nullptr;
             directory_ = std::move(other.directory_);
             base_name_ = std::move(other.base_name_);
             extension_ = std::move(other.extension_);
@@ -87,13 +84,15 @@ namespace chronicle::sinks {
 
 
         bool ready() const noexcept override {
-            return handle_ != invalid_handle;
+            return handle_ != nullptr;
         }
 
 
         void write(time_point const& tp,
                    char const* data,
                    size_t size) noexcept override {
+            if(!handle_)
+                return;
             using namespace std::chrono;
             std::error_code ec;
             auto const now_day = uint64_t(
@@ -114,24 +113,30 @@ namespace chronicle::sinks {
 
 
         void flush() noexcept override {
+            if(!handle_)
+                return;
             std::fflush(handle_);
         }
 
 
         void close() noexcept override {
-            if(handle_ == invalid_handle)
+            if(!handle_)
                 return;
             std::fclose(handle_);
-            handle_ = invalid_handle;
+            handle_ = nullptr;
         }
 
 
         void prologue(const char* data, size_t size) noexcept override {
+            if(!handle_)
+                return;
             std::fwrite(data, sizeof(char), size, handle_);
         }
 
 
         void epilogue(const char* data, size_t size) noexcept override {
+            if(!handle_)
+                return;
             std::fwrite(data, sizeof(char), size, handle_);
         }
 
@@ -149,10 +154,10 @@ namespace chronicle::sinks {
                 return;
             base_name_ = path.stem();
             extension_ = path.extension();
-            using namespace std::chrono;
-            auto const now = system_clock::now();
+            namespace chr = std::chrono;
+            auto const now = chr::system_clock::now();
             log_day_ =
-                duration_cast<hours>(now.time_since_epoch()).count() / 24;
+                chr::duration_cast<chr::hours>(now.time_since_epoch()).count() / 24;
             limit_ = limit;
             rotate_file(now, ec);
         }
@@ -160,11 +165,13 @@ namespace chronicle::sinks {
 
         void rotate_file(std::chrono::system_clock::time_point tp,
                          std::error_code& ec) {
-            if(handle_ != invalid_handle)
-                fclose(handle_);
-            auto const dp = std::chrono::floor<date::days>(tp);
-            date::year_month_day const ymd = dp;
-            ufmt::text suffix;
+            if(handle_)
+                std::fclose(handle_);
+            namespace chr = std::chrono;
+            auto const dp = chr::floor<chr::days>(tp);
+            auto const ymd = chr::year_month_day{dp};
+            using ufmt::fixed;
+            auto suffix = ufmt::text{};            
             suffix << '-' << int(ymd.year()) << '_';
             if(unsigned(ymd.month()) < 10)
                 suffix << '0';
@@ -183,7 +190,7 @@ namespace chronicle::sinks {
             file_path_ += suffix.string();
             file_path_ += extension_;
             handle_ = std::fopen(file_path_.string().data(), "ab+");
-            if(handle_ == nullptr)
+            if(!handle_)
                 ec = {errno, std::system_category()};
             written_ = 0;
         }

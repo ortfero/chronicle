@@ -21,14 +21,14 @@ namespace chronicle::fields {
         using fields_type = std::tuple<Fields...>;
 
 
-        template<class S, typename D, class TimePoint>
+        template<class DF, class S, typename D, class TimePoint>
         void print(message<D, TimePoint> const& m, ufmt::basic_text<S>& text) {
             print_fields<S, D, TimePoint, 0>(m, text);
             text << ' ';
             text << m.text;
 
             if(m.has_data)
-                text << m.data;
+                DF::format(text, m.data);
 
             text << '\n';
         }

@@ -1,5 +1,5 @@
 // This file is part of chronicle library
-// Copyright 2020-2022 Andrei Ilin <ortfero@gmail.com>
+// Copyright 2020-2023 Andrei Ilin <ortfero@gmail.com>
 // SPDX-License-Identifier: MIT
 
 #pragma once
@@ -17,10 +17,8 @@ namespace chronicle::sinks {
 
 
     class file: public sink {
-        using handle_type = FILE*;
-        static constexpr auto invalid_handle = nullptr;
 
-        handle_type handle_ {invalid_handle};
+        FILE* handle_ {nullptr};
 
     public:
     
@@ -40,50 +38,58 @@ namespace chronicle::sinks {
         file& operator=(file const&) noexcept = delete;
 
         file(file&& other) noexcept: handle_ {other.handle_} {
-            other.handle_ = invalid_handle;
+            other.handle_ = nullptr;
         }
 
 
         file& operator=(file&& other) noexcept {
-            if(handle_ != invalid_handle)
+            if(handle_ != nullptr)
                 std::fclose(handle_);
             handle_ = other.handle_;
-            other.handle_ = invalid_handle;
+            other.handle_ = nullptr;
             return *this;
         }
 
 
         bool ready() const noexcept override {
-            return handle_ != invalid_handle;
+            return handle_ != nullptr;
         }
 
 
         void write(time_point const&,
                    char const* data,
                    size_t size) noexcept override {
+            if(!handle_)
+                return;
             std::fwrite(data, sizeof(char), size, handle_);
         }
 
 
         void flush() noexcept override {
+            if(!handle_)
+                return;
             std::fflush(handle_);
         }
 
 
         void close() noexcept override {
-            if(handle_ == invalid_handle)
+            if(!handle_)
                 return;
             std::fclose(handle_);
-            handle_ = invalid_handle;
+            handle_ = nullptr;
         }
 
 
         void prologue(const char* data, size_t size) noexcept override {
+            if(!handle_)
+                return;
             std::fwrite(data, sizeof(char), size, handle_);
         }
 
 
         void epilogue(const char* data, size_t size) noexcept override {
+            if(!handle_)
+                return;
             std::fwrite(data, sizeof(char), size, handle_);
         }
 
