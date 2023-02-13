@@ -33,10 +33,10 @@ namespace ufmt {
 
 
         template<typename... Args>
-        static basic_text of(Args&&... args) {
+        static S of(Args&&... args) {
             basic_text t;
             t.format(std::forward<Args>(args)...);
-            return t;
+            return t.string_;
         }
 
 
@@ -46,14 +46,20 @@ namespace ufmt {
         basic_text(basic_text&&) noexcept = default;
         basic_text& operator=(basic_text&&) noexcept = default;
 
-        S const& string() const noexcept { return string_; }
+        S const& string() const & noexcept { return string_; }
+        S&& string() && noexcept { return std::move(string_); }
         value_type const* data() const noexcept { return string_.data(); }
         size_type size() const noexcept { return string_.size(); }
         bool empty() const noexcept { return string_.empty(); }
         void clear() noexcept { string_.clear(); }
-        size_type capacity() const noexcept { return string_.capacity(); }
+        size_type capacity() const noexcept { return string_.capacity(); }        
         value_type operator[](size_type i) const noexcept { return string_[i]; }
         value_type& operator[](size_type i) noexcept { return string_[i]; }
+        
+        
+        std::string_view view() const noexcept {
+            return std::string_view{string_.data(), string_.size()};
+        }
 
 
         void reserve(size_type n) {
@@ -98,6 +104,8 @@ namespace ufmt {
 
 
         void char_n(value_type ch, size_type n) {
+            if(n == 0)
+                return;
             value_type* p = allocate(n);
             if(!p)
                 return;
@@ -137,6 +145,8 @@ namespace ufmt {
 
 
     using text = basic_text<std::string>;
+    using short_text = basic_text<short_string>;
+    using fixed_text = basic_text<string>;
 
 
     template<class String, class Stream>
@@ -420,70 +430,86 @@ namespace ufmt {
         };
         
         
-        template<class S>
-        basic_text<S>& operator << (basic_text<S>& self, boolean arg) {
+        template<class S> S& operator << (S& self, boolean arg) {
             if(arg.value)
                 return self << "true";
             else
                 return self << "false";
         }
         
+        
+        struct char_n {
+            char c;
+            std::size_t n;
+        }; // char_n
+        
+        
+        template<class S>
+        basic_text<S>& operator << (basic_text<S>& self, char_n arg) {
+            self.char_n(arg.c, arg.n);
+            return self;
+        }
     } // formatters
 
 
     template<typename T>
-    formatters::left<T> left(T const& value, std::size_t width) {
+    formatters::left<T> left(T const& value, std::size_t width) noexcept {
         return formatters::left<T>{value, width};
     }
 
 
     template<typename T>
-    formatters::right<T> right(T const& value, std::size_t width) {
+    formatters::right<T> right(T const& value, std::size_t width) noexcept {
         return formatters::right<T>{value, width};
     }
 
 
-    formatters::precised<double> precised(double value, int precision) {
+    formatters::precised<double> precised(double value, int precision) noexcept {
         return formatters::precised<double>{value, precision};
     }
 
-    formatters::fixed<std::int32_t> fixed(std::int32_t value, int width) {
+    formatters::fixed<std::int32_t> fixed(std::int32_t value, int width) noexcept {
         return formatters::fixed<std::int32_t>{value, std::size_t(width)};
     }
 
-    formatters::fixed<std::uint32_t> fixed(std::uint32_t value, int width) {
+    formatters::fixed<std::uint32_t> fixed(std::uint32_t value, int width) noexcept {
         return formatters::fixed<std::uint32_t>{value, std::size_t(width)};
     }
 
-    formatters::fixed<std::int64_t> fixed(std::int64_t value, int width) {
+    formatters::fixed<std::int64_t> fixed(std::int64_t value, int width) noexcept {
         return formatters::fixed<std::int64_t>{value, std::size_t(width)};
     }
 
-    formatters::fixed<std::uint64_t> fixed(std::uint64_t value, int width) {
+    formatters::fixed<std::uint64_t> fixed(std::uint64_t value, int width) noexcept {
         return formatters::fixed<std::uint64_t>{value, std::size_t(width)};
     }
 
 
     template<typename T>
-    formatters::quoted<T> quoted(T const& value) {
+    formatters::quoted<T> quoted(T const& value) noexcept {
         return formatters::quoted<T>{value};
     }
 
 
     template<typename T>
-    formatters::dquoted<T> dquoted(T const& value) {
+    formatters::dquoted<T> dquoted(T const& value) noexcept {
         return formatters::dquoted<T>{value};
     }
 
 
     template<typename T>
-    formatters::textize<T> textize(T const& value) {
+    formatters::textize<T> textize(T const& value) noexcept {
         return formatters::textize<T>{value};
     }
     
     
-    inline formatters::boolean boolean(bool value) {
+    inline formatters::boolean boolean(bool value) noexcept {
         return formatters::boolean{value};
+    }
+    
+    
+    inline formatters::char_n char_n(char c, std::size_t n) {
+        return formatters::char_n{c, n};
     }
 
 } // ufmt

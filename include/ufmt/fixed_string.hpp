@@ -5,6 +5,7 @@
 #pragma once
 
 
+#include <array>
 #include <cstddef>
 #include <stdexcept>
 #include <string_view>
@@ -79,6 +80,12 @@ namespace ufmt {
         constexpr fixed_string& operator=(char const* data) noexcept {
             return assign(data);
         }
+
+
+        constexpr fixed_string& operator=(wchar_t const* data) noexcept {
+            return assign(data);
+        }
+
 
         constexpr fixed_string& operator=(std::string const& rhs) noexcept {
             return assign(rhs.data(), rhs.data() + rhs.size());
@@ -367,6 +374,58 @@ namespace ufmt {
             else
                 return -1;
         }
+        
+        
+        constexpr void copy_to(char* data, size_type m) const noexcept {
+            auto const n = n_ < m - 1 ? n_ : m - 1;
+            char const* c = p_;
+            char* d = data;
+            char const* e = p_ + n;
+            while(c != e)
+                *d++ = *c++;
+            *d = '\0';
+        }
+
+
+        template<std::size_t M>
+        constexpr void copy_to(char (&data)[M]) const noexcept {
+            copy_to(&data[0], M);
+        }
+
+
+        template<std::size_t M>
+        constexpr void copy_to(std::array<char, M>& data) const noexcept {
+            copy_to(data.data(), M);
+        }
+
+
+        constexpr void copy_to(wchar_t* data, size_type m) const noexcept {
+            auto const n = n_ < m - 1 ? n_ : m - 1;
+            char const* c = p_;
+            wchar_t* d = data;
+            char const* e = p_ + n;
+            while(c != e)
+                *d++ = wchar_t(*c++);
+            *d = '\0';
+        }
+
+
+        template<std::size_t M>
+        constexpr void copy_to(wchar_t (&data)[M]) const noexcept {
+            copy_to(&data[0], M);
+        }
+
+
+        template<std::size_t M>
+        constexpr void copy_to(std::array<wchar_t, M>& data) const noexcept {
+            copy_to(data.data(), M);
+        }
+
+
+        constexpr std::string_view view() const noexcept {
+            return std::string_view{p_, n_};
+        }
+        
 
     private:
         size_type n_;
