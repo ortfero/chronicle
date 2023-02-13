@@ -64,6 +64,7 @@ namespace chronicle {
         using format_type = typename Tr::format_type;
         using queue_type = typename Tr::queue_type;
         using clock_type = typename Tr::clock_type;
+        using data_formatter_type = typename Tr::data_formatter_type;
         using duration = typename clock_type::duration;
         using time_point = typename clock_type::time_point;
         using message_type = message<data_type, time_point>;
@@ -142,7 +143,7 @@ namespace chronicle {
                 while(auto sequence = batch.try_fetch()) {
                     message_type& message = batch[sequence];
                     message.time = now;
-                    format_.print(message, buffer_);
+                    format_.template print<data_formatter_type>(message, buffer_);
                     batch.fetched();
                 }
 
