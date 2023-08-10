@@ -9,6 +9,8 @@
 #include <cstdio>
 #include <filesystem>
 #include <memory>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #include <ufmt/text.hpp>
 
@@ -170,7 +172,6 @@ namespace chronicle::sinks {
             namespace chr = std::chrono;
             auto const dp = chr::floor<chr::days>(tp);
             auto const ymd = chr::year_month_day{dp};
-            using ufmt::fixed;
             auto suffix = ufmt::text{};            
             suffix << '-' << int(ymd.year()) << '_';
             if(unsigned(ymd.month()) < 10)
@@ -179,22 +180,52 @@ namespace chronicle::sinks {
             if(unsigned(ymd.day()) < 10)
                 suffix << '0';
             suffix << unsigned(ymd.day());
-            if(part_ != 1) {
-                suffix << '-';
-                if(part_ < 10)
-                    suffix << '0';
-                suffix << part_;
-            }
-            file_path_ = directory_;
-            file_path_ /= base_name_;
-            file_path_ += suffix.string();
-            file_path_ += extension_;
+			auto full_path_without_part = directory_;
+			full_path_without_part /= base_name_;
+			full_path_without_part += suffix.string();
+			
+            while(!fits_to_open(file_path_,
+			                    full_path_without_part,
+								part_,
+								limit_,
+								written_,
+								extension_))
+				++part_;
+			
             handle_ = std::fopen(file_path_.string().data(), "ab+");
             if(!handle_)
                 ec = {errno, std::system_category()};
-            written_ = 0;
         }
-
+		
+		
+		static bool fits_to_open(std::filesystem::path& file_path,
+		                         std::filesystem::path const& full_path_without_part,
+                                 unsigned part,
+								 std::size_t limit,
+								 std::size_t& written,
+								 std::filesystem::path const& extension) {
+			namespace fs = std::filesystem;
+			file_path = full_path_without_part;
+			if(part != 1) {
+				auto part_text = ufmt::text{};
+				part_text << '-';
+				if(part < 10)
+                    part_text << '0';
+				part_text << part;
+                file_path += part_text.string();
+			}
+			file_path += extension;
+			auto ec = std::error_code{};
+			auto const file_size = fs::file_size(file_path, ec);
+			if(ec) {
+				written = 0;
+				return true;
+			}
+			if(file_size + 1024 >= limit)
+				return false;
+			written = file_size;
+			return true;
+		}
 
     };   // daily_rotated_file
 
