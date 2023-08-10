@@ -55,7 +55,7 @@ chronicle = declare_dependency(
     dependencies: [hydra]
 )
 
-#subdir('benchmark')
+subdir('benchmark')
 subdir('test')
 subdir('stand')
 

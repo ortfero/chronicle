@@ -10,9 +10,6 @@
 #include <chronicle/sinks/file.hpp>
 #include <chronicle/text_log.hpp>
 
-#include <reckless/file_writer.hpp>
-#include <reckless/severity_log.hpp>
-
 #include <NanoLog.hpp>
 
 #include <spdlog/async.h>
@@ -30,17 +27,6 @@ struct settings {
 
 
 chronicle::shared_text_log chronicle_logger;
-
-reckless::file_writer reckless_writer("reckless.log");
-using reckless_logger_t =
-    reckless::severity_log<reckless::indent<4>,        // 4 spaces of indent
-                           ' ',                        // Field separator
-                           reckless::severity_field,   // Show severity marker
-                                                       // (D/I/W/E) first
-                           reckless::timestamp_field   // Then timestamp field
-                           >;
-reckless_logger_t reckless_logger(&reckless_writer, 128 * 1024, 128 * 1024);
-
 std::shared_ptr<spdlog::logger> spd_logger;
 
 
@@ -99,15 +85,6 @@ int main() {
                                                                 true);
     spd_logger->set_pattern("[%l] %v");
 
-
-    for(auto threads: {2})
-        run_benchmark("reckless", threads, [] {
-            reckless_logger.info("[benchmark] Logging {} {}{}{}",
-                                 settings::string.data(),
-                                 settings::int_number,
-                                 settings::character,
-                                 settings::int_number);
-        });
 
     for(auto threads: {2})
         run_benchmark("spdlog", threads, [] {
