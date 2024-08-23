@@ -19,13 +19,12 @@ namespace chronicle {
     template<typename D>
     class default_data_formatter {
     public:
-
-        template<typename S> static void format(S& stream,
-                                                D const& data) {
+        template<typename S>
+        static void format(S& stream, D const& data) {
             stream << data;
         }
 
-    }; // default_data_formatter
+    };   // default_data_formatter
 
 
     template<typename D, class Q, class F, class C, class DF>
@@ -54,43 +53,63 @@ namespace chronicle {
                      C,
                      DF>;
 
-    template<typename D, class C = std::chrono::system_clock, class DF = default_data_formatter<D>>
+    template<typename D,
+             class C = std::chrono::system_clock,
+             class DF = default_data_formatter<D>>
     using traits_unique_default =
         traits_unique<D, fields::format_singlethreaded_default, C, DF>;
 
-    template<typename D, class C = std::chrono::system_clock, class DF = default_data_formatter<D>>
+    template<typename D,
+             class C = std::chrono::system_clock,
+             class DF = default_data_formatter<D>>
     using traits_shared_default =
         traits_shared<D, fields::format_multithreaded_default, C, DF>;
 
-    template<typename D, class C = std::chrono::system_clock, class DF = default_data_formatter<D>>
+    template<typename D,
+             class C = std::chrono::system_clock,
+             class DF = default_data_formatter<D>>
     using traits_unique_ms =
         traits_unique<D, fields::format_singlethreaded_ms, C, DF>;
 
-    template<typename D, class C = std::chrono::system_clock, class DF = default_data_formatter<D>>
+    template<typename D,
+             class C = std::chrono::system_clock,
+             class DF = default_data_formatter<D>>
     using traits_shared_ms =
         traits_shared<D, fields::format_multithreaded_ms, C, DF>;
 
-    template<typename D, class C = std::chrono::system_clock, class DF = default_data_formatter<D>>
+    template<typename D,
+             class C = std::chrono::system_clock,
+             class DF = default_data_formatter<D>>
     using traits_unique_us =
         traits_unique<D, fields::format_singlethreaded_us, C, DF>;
 
-    template<typename D, class C = std::chrono::system_clock, class DF = default_data_formatter<D>>
+    template<typename D,
+             class C = std::chrono::system_clock,
+             class DF = default_data_formatter<D>>
     using traits_shared_us =
         traits_shared<D, fields::format_multithreaded_us, C, DF>;
 
-    template<typename D, class C = std::chrono::system_clock, class DF = default_data_formatter<D>>
+    template<typename D,
+             class C = std::chrono::system_clock,
+             class DF = default_data_formatter<D>>
     using traits_unique_time_only_ms =
         traits_unique<D, fields::format_singlethreaded_time_only_ms, C, DF>;
 
-    template<typename D, class C = std::chrono::system_clock, class DF = default_data_formatter<D>>
+    template<typename D,
+             class C = std::chrono::system_clock,
+             class DF = default_data_formatter<D>>
     using traits_shared_time_only_ms =
         traits_unique<D, fields::format_multithreaded_time_only_ms, C, DF>;
 
-    template<typename D, class C = std::chrono::system_clock, class DF = default_data_formatter<D>>
+    template<typename D,
+             class C = std::chrono::system_clock,
+             class DF = default_data_formatter<D>>
     using traits_unique_time_only_us =
         traits_unique<D, fields::format_singlethreaded_time_only_us, C, DF>;
 
-    template<typename D, class C = std::chrono::system_clock, class DF = default_data_formatter<D>>
+    template<typename D,
+             class C = std::chrono::system_clock,
+             class DF = default_data_formatter<D>>
     using traits_shared_time_only_us =
         traits_shared<D, fields::format_multithreaded_time_only_us, C, DF>;
 

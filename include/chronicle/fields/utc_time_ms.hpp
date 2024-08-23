@@ -20,7 +20,7 @@ namespace chronicle::fields {
         void print(message<D, TimePoint> const& m, ufmt::basic_text<S>& text) {
             namespace chr =  std::chrono;
             auto const dp = chr::floor<chr::days>(m.time);
-            auto const ymd = std::chrono::year_month_day {dp};
+            auto const ymd = chr::year_month_day {dp};
             auto const tod = chr::hh_mm_ss<chr::milliseconds> {
                 duration_cast<chr::milliseconds>(m.time - dp)};
 

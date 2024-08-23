@@ -1,5 +1,5 @@
 // This file is part of chronicle library
-// Copyright 2020-2023 Andrei Ilin <ortfero@gmail.com>
+// Copyright 2020-2024 Andrei Ilin <ortfero@gmail.com>
 // SPDX-License-Identifier: MIT
 
 #pragma once
@@ -9,9 +9,10 @@
 #include <cstdio>
 #include <filesystem>
 #include <memory>
-#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 
+#include <ufmt/print.hpp>
 #include <ufmt/text.hpp>
 
 #include <chronicle/sink.hpp>
@@ -21,7 +22,6 @@ namespace chronicle::sinks {
 
 
     class daily_rotated_file: public sink {
-
         FILE* handle_ {nullptr};
         std::filesystem::path directory_;
         std::filesystem::path base_name_;
@@ -36,10 +36,10 @@ namespace chronicle::sinks {
         static expected_sink_ptr open(std::filesystem::path const& path,
                                       std::size_t limit = 0) {
             std::error_code ec;
-            daily_rotated_file drf{path, limit, ec};
+            daily_rotated_file drf {path, limit, ec};
             if(!drf.ready())
                 return etceteras::make_unexpected(ec);
-            return {sink_ptr{new daily_rotated_file{std::move(drf)}}};
+            return {sink_ptr {new daily_rotated_file {std::move(drf)}}};
         }
 
 
@@ -85,9 +85,7 @@ namespace chronicle::sinks {
         }
 
 
-        bool ready() const noexcept override {
-            return handle_ != nullptr;
-        }
+        bool ready() const noexcept override { return handle_ != nullptr; }
 
 
         void write(time_point const& tp,
@@ -144,14 +142,14 @@ namespace chronicle::sinks {
 
 
     private:
-    
         daily_rotated_file(std::filesystem::path const& path,
                            std::size_t limit,
                            std::error_code& ec) noexcept {
             namespace fs = std::filesystem;
             directory_ = path.parent_path();
-            if(!directory_.empty() && !fs::exists(directory_))
+            if(!directory_.empty() && !fs::exists(directory_)) {
                 fs::create_directories(directory_, ec);
+            }
             if(!!ec)
                 return;
             base_name_ = path.stem();
@@ -159,7 +157,8 @@ namespace chronicle::sinks {
             namespace chr = std::chrono;
             auto const now = chr::system_clock::now();
             log_day_ =
-                chr::duration_cast<chr::hours>(now.time_since_epoch()).count() / 24;
+                chr::duration_cast<chr::hours>(now.time_since_epoch()).count()
+                / 24;
             limit_ = limit;
             rotate_file(now, ec);
         }
@@ -171,8 +170,8 @@ namespace chronicle::sinks {
                 std::fclose(handle_);
             namespace chr = std::chrono;
             auto const dp = chr::floor<chr::days>(tp);
-            auto const ymd = chr::year_month_day{dp};
-            auto suffix = ufmt::text{};            
+            auto const ymd = chr::year_month_day {dp};
+            auto suffix = ufmt::text {};
             suffix << '-' << int(ymd.year()) << '_';
             if(unsigned(ymd.month()) < 10)
                 suffix << '0';
@@ -180,52 +179,55 @@ namespace chronicle::sinks {
             if(unsigned(ymd.day()) < 10)
                 suffix << '0';
             suffix << unsigned(ymd.day());
-			auto full_path_without_part = directory_;
-			full_path_without_part /= base_name_;
-			full_path_without_part += suffix.string();
-			
+            auto full_path_without_part = directory_;
+            full_path_without_part /= base_name_;
+            full_path_without_part += suffix.string();
+
             while(!fits_to_open(file_path_,
-			                    full_path_without_part,
-								part_,
-								limit_,
-								written_,
-								extension_))
-				++part_;
-			
-            handle_ = std::fopen(file_path_.string().data(), "ab+");
-            if(!handle_)
+                                full_path_without_part,
+                                part_,
+                                limit_,
+                                written_,
+                                extension_))
+                ++part_;
+
+            handle_ = std::fopen(file_path_.string().data(), "a+b");
+            if(!handle_) {
                 ec = {errno, std::system_category()};
+                return;
+            }
         }
-		
-		
-		static bool fits_to_open(std::filesystem::path& file_path,
-		                         std::filesystem::path const& full_path_without_part,
-                                 unsigned part,
-								 std::size_t limit,
-								 std::size_t& written,
-								 std::filesystem::path const& extension) {
-			namespace fs = std::filesystem;
-			file_path = full_path_without_part;
-			if(part != 1) {
-				auto part_text = ufmt::text{};
-				part_text << '-';
-				if(part < 10)
+
+
+        static bool
+            fits_to_open(std::filesystem::path& file_path,
+                         std::filesystem::path const& full_path_without_part,
+                         unsigned part,
+                         std::size_t limit,
+                         std::size_t& written,
+                         std::filesystem::path const& extension) {
+            namespace fs = std::filesystem;
+            file_path = full_path_without_part;
+            if(part != 1) {
+                auto part_text = ufmt::text {};
+                part_text << '-';
+                if(part < 10)
                     part_text << '0';
-				part_text << part;
+                part_text << part;
                 file_path += part_text.string();
-			}
-			file_path += extension;
-			auto ec = std::error_code{};
-			auto const file_size = fs::file_size(file_path, ec);
-			if(ec) {
-				written = 0;
-				return true;
-			}
-			if(file_size + 1024 >= limit)
-				return false;
-			written = file_size;
-			return true;
-		}
+            }
+            file_path += extension;
+            auto ec = std::error_code {};
+            auto const file_size = fs::file_size(file_path, ec);
+            if(ec) {
+                written = 0;
+                return true;
+            }
+            if(file_size + 1024 >= limit)
+                return false;
+            written = file_size;
+            return true;
+        }
 
     };   // daily_rotated_file
 

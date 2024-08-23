@@ -13,7 +13,7 @@
 namespace chronicle {
 
 
-    enum class severity: char {
+    enum class severity : char {
         failure,
         error,
         warning,
@@ -24,7 +24,8 @@ namespace chronicle {
     };   // severity
 
 
-    inline std::optional<severity> parse_severity(std::string_view const& text) noexcept {
+    inline std::optional<severity>
+        parse_severity(std::string_view const& text) noexcept {
         if(text.empty())
             return std::nullopt;
         switch(text.size()) {
@@ -48,8 +49,7 @@ namespace chronicle {
                 if(text == "debug")
                     return {severity::debug};
                 return std::nullopt;
-	        default:
-	            return std::nullopt;
+            default: return std::nullopt;
             }
         case 7:
             switch(text[0]) {
@@ -61,11 +61,9 @@ namespace chronicle {
                 if(text == "warning")
                     return {severity::warning};
                 return std::nullopt;
-	        default:
-	            return std::nullopt;
+            default: return std::nullopt;
             }
-	    default:
-	        return std::nullopt;
+        default: return std::nullopt;
         }
     }
 

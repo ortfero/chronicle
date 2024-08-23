@@ -64,13 +64,20 @@ namespace chronicle {
         }
 
 
-        template<typename R, size_t N1, size_t N2, typename Arg, typename... Args>
+        template<typename R,
+                 size_t N1,
+                 size_t N2,
+                 typename Arg,
+                 typename... Args>
         R failure_with(R&& r,
                        char const (&tag)[N1],
                        char const (&text)[N2],
                        Arg&& arg,
                        Args&&... args) {
-            failure(tag, text, std::forward<Arg>(arg), std::forward<Args>(args)...);
+            failure(tag,
+                    text,
+                    std::forward<Arg>(arg),
+                    std::forward<Args>(args)...);
             return std::forward<R>(r);
         }
 
@@ -103,7 +110,11 @@ namespace chronicle {
         }
 
 
-        template<typename R, size_t N1, size_t N2, typename Arg, typename... Args>
+        template<typename R,
+                 size_t N1,
+                 size_t N2,
+                 typename Arg,
+                 typename... Args>
         R error_with(R&& r,
                      char const (&tag)[N1],
                      char const (&text)[N2],
@@ -145,7 +156,11 @@ namespace chronicle {
         }
 
 
-        template<typename R, size_t N1, size_t N2, typename Arg, typename... Args>
+        template<typename R,
+                 size_t N1,
+                 size_t N2,
+                 typename Arg,
+                 typename... Args>
         R warning_with(R&& r,
                        char const (&tag)[N1],
                        char const (&text)[N2],
@@ -187,7 +202,11 @@ namespace chronicle {
         }
 
 
-        template<typename R, size_t N1, size_t N2, typename Arg, typename... Args>
+        template<typename R,
+                 size_t N1,
+                 size_t N2,
+                 typename Arg,
+                 typename... Args>
         R info_with(R&& r,
                     char const (&tag)[N1],
                     char const (&text)[N2],
@@ -229,7 +248,11 @@ namespace chronicle {
         }
 
 
-        template<typename R, size_t N1, size_t N2, typename Arg, typename... Args>
+        template<typename R,
+                 size_t N1,
+                 size_t N2,
+                 typename Arg,
+                 typename... Args>
         R extra_with(R&& r,
                      char const (&tag)[N1],
                      char const (&text)[N2],
@@ -271,7 +294,11 @@ namespace chronicle {
         }
 
 
-        template<typename R, size_t N1, size_t N2, typename Arg, typename... Args>
+        template<typename R,
+                 size_t N1,
+                 size_t N2,
+                 typename Arg,
+                 typename... Args>
         R trace_with(R&& r,
                      char const (&tag)[N1],
                      char const (&text)[N2],
@@ -301,8 +328,16 @@ namespace chronicle {
         void debug(char const (&)[N1], char const (&)[N2], Arg&&, Args&&...) {}
 
 
-        template<typename R, size_t N1, size_t N2, typename Arg, typename... Args>
-        R debug_with(R&& r, char const (&)[N1], char const (&)[N2], Arg&&, Args&&...) {
+        template<typename R,
+                 size_t N1,
+                 size_t N2,
+                 typename Arg,
+                 typename... Args>
+        R debug_with(R&& r,
+                     char const (&)[N1],
+                     char const (&)[N2],
+                     Arg&&,
+                     Args&&...) {
             return std::forward<R>(r);
         }
 
@@ -337,7 +372,11 @@ namespace chronicle {
         }
 
 
-        template<typename R, size_t N1, size_t N2, typename Arg, typename... Args>
+        template<typename R,
+                 size_t N1,
+                 size_t N2,
+                 typename Arg,
+                 typename... Args>
         void debug(R&& r,
                    char const (&tag)[N1],
                    char const (&text)[N2],

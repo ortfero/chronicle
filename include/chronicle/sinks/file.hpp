@@ -17,17 +17,16 @@ namespace chronicle::sinks {
 
 
     class file: public sink {
-
         FILE* handle_ {nullptr};
 
     public:
-    
-        static expected_sink_ptr open(std::filesystem::path const& path) noexcept {
+        static expected_sink_ptr
+            open(std::filesystem::path const& path) noexcept {
             std::error_code ec;
-            file f{path, ec};
+            file f {path, ec};
             if(!f.ready())
                 return etceteras::make_unexpected(ec);
-            return {sink_ptr{new file {std::move(f)}}};
+            return {sink_ptr {new file {std::move(f)}}};
         }
 
 
@@ -51,9 +50,7 @@ namespace chronicle::sinks {
         }
 
 
-        bool ready() const noexcept override {
-            return handle_ != nullptr;
-        }
+        bool ready() const noexcept override { return handle_ != nullptr; }
 
 
         void write(time_point const&,
@@ -95,7 +92,6 @@ namespace chronicle::sinks {
 
 
     private:
-
         file(std::filesystem::path const& path,
              std::error_code& error) noexcept {
             auto const directory = path.parent_path();
@@ -104,7 +100,7 @@ namespace chronicle::sinks {
                 fs::create_directories(directory, error);
             if(!!error)
                 return;
-            handle_ = std::fopen(path.string().data(), "ab+");
+            handle_ = std::fopen(path.string().data(), "a+b");
             if(handle_ == nullptr)
                 error = {errno, std::system_category()};
         }

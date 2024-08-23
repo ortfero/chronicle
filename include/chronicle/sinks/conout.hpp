@@ -16,15 +16,12 @@ namespace chronicle::sinks {
 
     class conout: public sink {
     public:
-    
         static expected_sink_ptr open() noexcept {
-            return {sink_ptr{new conout {}}};
+            return {sink_ptr {new conout {}}};
         }
 
 
-        bool ready() const noexcept override {
-            return true;
-        }
+        bool ready() const noexcept override { return true; }
 
 
         void write(time_point const&,

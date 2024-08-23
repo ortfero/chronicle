@@ -96,18 +96,18 @@ namespace chronicle {
         bool opened() const noexcept { return activity_.active(); }
         enum severity severity() const noexcept { return severity_; }
         void severity(enum severity s) noexcept { severity_ = s; }
-        
-        
+
+
         size_type blocks_count() const noexcept {
             return activity_.blocks_count();
         }
-        
-        
+
+
         void prologue(std::string text) noexcept {
             prologue_ = std::move(text);
         }
-        
-        
+
+
         void epilogue(std::string text) noexcept {
             epilogue_ = std::move(text);
         }
@@ -121,7 +121,8 @@ namespace chronicle {
 
 
         etceteras::expected<void, std::error_code>
-        open(expected_sink_ptr&& esp, size_type queue_size = default_queue_size) {
+            open(expected_sink_ptr&& esp,
+                 size_type queue_size = default_queue_size) {
             if(!esp)
                 return etceteras::make_unexpected(esp.error());
             if(!(*esp)->ready())
@@ -143,7 +144,8 @@ namespace chronicle {
                 while(auto sequence = batch.try_fetch()) {
                     message_type& message = batch[sequence];
                     message.time = now;
-                    format_.template print<data_formatter_type>(message, buffer_);
+                    format_.template print<data_formatter_type>(message,
+                                                                buffer_);
                     batch.fetched();
                 }
 
@@ -342,7 +344,6 @@ namespace chronicle {
 
 
     protected:
-
         template<chronicle::severity S>
         void print(std::string_view const& tag, std::string_view const& text) {
             if(severity_ < S)
@@ -369,9 +370,7 @@ namespace chronicle {
         }
 
 
-        void publish(message_type const& m) {
-            activity_.publish(m.sequence);
-        }
+        void publish(message_type const& m) { activity_.publish(m.sequence); }
 
 
         template<chronicle::severity S>

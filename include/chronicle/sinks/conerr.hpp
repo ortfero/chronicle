@@ -18,12 +18,10 @@ namespace chronicle::sinks {
     class conerr: public sink {
     public:
         static expected_sink_ptr open() noexcept {
-            return {sink_ptr{new conerr{}}};
+            return {sink_ptr {new conerr {}}};
         }
 
-        bool ready() const noexcept override {
-            return true;
-        }
+        bool ready() const noexcept override { return true; }
 
 
         void write(time_point const&,
@@ -33,10 +31,10 @@ namespace chronicle::sinks {
         }
 
 
-        void flush() noexcept override { }
-        void close() noexcept override { }
-        void prologue(const char*, size_t) noexcept override { }
-        void epilogue(const char*, size_t) noexcept override { }
+        void flush() noexcept override {}
+        void close() noexcept override {}
+        void prologue(const char*, size_t) noexcept override {}
+        void epilogue(const char*, size_t) noexcept override {}
 
     };   // conerr
 

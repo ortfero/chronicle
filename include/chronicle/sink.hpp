@@ -40,7 +40,7 @@ namespace chronicle {
         virtual ~sink() {}
 
     };   // sink
-    
+
     using sink_ptr = std::unique_ptr<sink>;
     using expected_sink_ptr = etceteras::expected<sink_ptr, std::error_code>;
 
