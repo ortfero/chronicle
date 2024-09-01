@@ -35,6 +35,10 @@
 
 #    include <unistd.h>
 
+#elif defined(__APPLE__)
+
+#include <pthread.h>
+
 #else
 
 #    error Unsupported system
@@ -386,6 +390,10 @@ namespace chronicle {
             m.thread_id = unsigned(GetCurrentThreadId());
 #elif defined(__linux__)
             m.thread_id = unsigned(gettid());
+#elif defined(__APPLE__)
+            uint64_t tid64;
+            pthread_threadid_np(NULL, &tid64);            
+            m.thread_id = unsigned(tid64);
 #endif
             m.source = source;
             m.text = text;
