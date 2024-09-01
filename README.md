@@ -3,7 +3,7 @@
 C++20 header-only library for low-latency asynchronous logging
 
 
-## Usage
+## Installation
 
 Just place contents of `include` directory at your include path
 
@@ -14,26 +14,25 @@ To build tests and benchmark:
 
 ```shell
 cd chronicle
-mkdir build
-cd build
-meson ..
-ninja
+just test
+just bench
 ```
 
 
 ## Benchmark
 
-Logging string, integer number and float number `100000` times.
+Logging string, integer number and float number `100000` times with two threads.
 
 | Logger                                                | Version | Date       | Latency (ns) | Ratio |
 |-------------------------------------------------------|--------:|-----------:|-------------:|------:|
-| chronicle                                             |         | 03.05.2022 | 1467         | x1.26 |
-| [NanoLog](https://github.com/Iyengar111/NanoLog)      |         | 08.03.2017 | 2583         | x2.22 |
-| [reckless](https://github.com/mattiasflodin/reckless) | 3.0.3   | 10.04.2021 | 1164         | x1    |
-| [spdlog](https://github.com/gabime/spdlog)            | 1.10.0  | 04.04.2022 | 8345         | x7.17 |
+| chronicle                                             |         | 01.09.2024 | 311          | x1.0  |
+| [NanoLog](https://github.com/Iyengar111/NanoLog)      |         | 08.03.2017 | 375          | x1.2  |
+| [spdlog](https://github.com/gabime/spdlog)            | 1.14.1  | 30.04.2024 | 1459         | x4.7  |
+
+`m2 pro, clang 15.0.0`
 
 
-## Snippets
+## Usage
 
 ### Opening single-threaded text logger
 
@@ -58,7 +57,7 @@ int main() {
     log.info("main", "Some message", "{ name1: ", 127, ", name2: ", "\"value2\" }");
 
     // Possible output:
-    //         2020-05-09 16:57:02.343402 [main] Some message { name1: 127, name2: "value2" }
+    //    2020-05-09 16:57:02.343402 [main] Some message { name1: 127, name2: "value2" }
 
     return 0;
 }
@@ -87,7 +86,7 @@ int main() {
     log.info("main", "Some message", "name1", 127, "name2", "value2");
 
     // Possible output:
-    //         2020-05-09 16:57:02.343402 [14648] [main] Some message { name1: 127, name2: "value2" }
+    //    2020-05-09 16:57:02.343402 [14648] [main] Some message { name1: 127, name2: "value2" }
 
     return 0;
 }
@@ -134,6 +133,5 @@ operator << (S& stream, point const& p) {
 
 ## Dependencies
 
-* [etceteras](https://github.com/ortfero/etceteras)
 * [hydra](https://github.com/ortfero/hydra)
 * [ufmt](https://github.com/ortfero/ufmt)
