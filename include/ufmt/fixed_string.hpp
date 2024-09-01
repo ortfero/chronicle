@@ -28,6 +28,7 @@ namespace ufmt {
         using const_iterator = char const*;
 
         static constexpr size_type npos = size_type(-1);
+        static constexpr size_type ncap = N;
 
         constexpr fixed_string() noexcept: n_(0) { p_[0] = '\0'; }
 
@@ -185,6 +186,8 @@ namespace ufmt {
         }
 
         constexpr fixed_string& append(char const* cc) noexcept {
+            if(!cc)
+                return *this;
             size_type n = n_;
             if(n == N || !cc)
                 return *this;
@@ -199,6 +202,8 @@ namespace ufmt {
         }
 
         constexpr fixed_string& append(wchar_t const* cc) noexcept {
+            if(!cc)
+                return *this;
             size_type n = n_;
             if(n == N || !cc)
                 return *this;
@@ -428,9 +433,9 @@ namespace ufmt {
         
 
     private:
+
         size_type n_;
         char p_[N + 1];
-
     };   //  fixed_string
 
 
@@ -443,7 +448,7 @@ namespace ufmt {
     using long_string = fixed_string<1024 - sizeof(std::size_t) - 1>;
     static_assert(sizeof(long_string) == 1024);
     
-    using page_string = fixed_string<4092 - sizeof(std::size_t) - 1>;
+    using page_string = fixed_string<4096 - sizeof(std::size_t) - 1>;
     static_assert(sizeof(page_string) == 4096);
     
     using double_page_string = fixed_string<8192 - sizeof(std::size_t) - 1>;

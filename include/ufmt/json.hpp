@@ -8,6 +8,7 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <optional>
 #include <span>
 #include <string_view>
 #include <tuple>
@@ -36,7 +37,8 @@ namespace ufmt {
     
     template<std::size_t N, typename Arg, typename... Args> auto constexpr
     object(char const (&name)[N], Arg&& arg, Args&&... args) noexcept {
-        return tuple_cat(std::tuple<field<Arg>>{field<Arg>{name, std::forward<Arg>(arg)}}, object(std::forward<Args>(args)...));
+        return tuple_cat(std::tuple<field<Arg>>{field<Arg>{name, std::forward<Arg>(arg)}},
+                         object(std::forward<Args>(args)...));
     }
      
     
@@ -48,15 +50,28 @@ namespace ufmt {
     
         using size_type = typename basic_text<S>::size_type;
         using value_type = typename S::value_type;
-    
-        template<typename... Args>
-        static S of(Args&&... args) {
+
+        static S of() {
+            return S{"{}"};
+        }
+
+
+        template<std::size_t N, typename Arg, typename... Args>
+        static S of(char const (&name)[N], Arg&& arg, Args&&... args) {
             basic_json j;
-            j << ufmt::object(std::forward<Args>(args)...);
+            j << ufmt::object(name, std::forward<Arg>(arg), std::forward<Args>(args)...);
             return j.string();
         }
-        
-        
+
+
+        template<typename T>
+        static S of(T const& object) {
+            basic_json j;
+            j << object;
+            return j.string();
+        }
+
+    
         S const& string() const & noexcept { return text_.string(); }
         S&& string() && noexcept { return std::move(text_).string(); }
         value_type const* data() const noexcept { return text_.data(); }
@@ -96,9 +111,18 @@ namespace ufmt {
             return *this;
         }
 
+
+        basic_json& operator << (formatters::precised<double> arg) {
+            text_ << arg;
+            return *this;
+        }
+
         
         basic_json& operator << (bool arg) {
-            text_ << arg ? "true" : "false";
+            if(arg)
+                text_ << "true";
+            else
+                text_ << "false";
             return *this;
         }
 
@@ -145,6 +169,11 @@ namespace ufmt {
         
         
         template<typename T> basic_json& operator << (std::vector<T> const& arg) {
+            return format_array(arg);
+        }
+
+
+        template<typename T> basic_json& operator << (std::span<T> const& arg) {
             return format_array(arg);
         }
         
@@ -203,10 +232,32 @@ namespace ufmt {
 
         template<typename Arg, typename... Args>
         void format_object(std::tuple<field<Arg> const&, field<Args> const&...> const& arg) {
-            text_ << ",\"" << std::get<0>(arg).name  << "\":";
-            (*this) << std::get<0>(arg).value;
+            format_field(std::get<0>(arg));
             format_object(std::apply([](auto&&, auto&&... args) { return std::tie(args...); }, arg));
         }
+        
+
+        template<typename Arg>
+        void format_field(field<Arg> f) {
+            text_ << ',' << '\"' << f.name << '\"' << ':';
+            (*this) << f.value; 
+        }
+
+        template<typename Arg>
+        void format_field(field<std::optional<Arg> const&> f) {
+            if(!f.value.has_value())
+                return;
+            text_ << ',' << '\"' << f.name << '\"' << ':';
+            (*this) << *f.value;
+        }
+
+        template<typename Arg>
+        void format_field(field<std::optional<Arg>&> f) {
+            if(!f.value.has_value())
+                return;
+            text_ << ',' << '\"' << f.name << '\"' << ':';
+            (*this) << *f.value;
+        }        
     }; // basic_json
     
     

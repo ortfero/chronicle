@@ -6,8 +6,12 @@
 
 
 #include <charconv>
+#include <cstdint>
+#include <cmath>
+#include <span>
 #include <string>
 #include <string_view>
+#include <system_error>
 #include <vector>
 
 #if defined(_MSC_VER)
@@ -194,7 +198,11 @@ namespace ufmt {
             if(!p)
                 return self;
             auto const r = std::to_chars(p, p + N, value);
-            self.free(r.ptr);
+			if(r.ec == std::errc{}) {
+				self.free(r.ptr);
+			} else {
+				self.free(p);
+			}
 
             return self;
         }
@@ -205,14 +213,12 @@ namespace ufmt {
             typename S::value_type* p = self.allocate(N);
             if(!p)
                 return self;
-#if defined(_MSC_VER)
             auto const r = std::to_chars(p, p + N, value);
-            self.free(r.ptr);
-#else
-            auto const n = std::snprintf(p, N, "%g", value);
-            if(n < 0) self.free(p); else self.free(p + n);
-#endif
-
+			if(r.ec == std::errc{}) {
+				self.free(r.ptr);
+			} else {
+				self.free(p);
+			}
             return self;
         }
 
@@ -271,12 +277,28 @@ namespace ufmt {
     }
 
 
+    template<class S, typename T>
+    basic_text<S>& operator << (basic_text<S>& self,
+                                std::span<T> const& value) {
+        self << '[';
+        if(!value.empty()) {
+            auto it = value.begin();
+            self << ' ' << *it;
+            ++it;
+            for(; it != value.end(); ++it)
+                self << ',' << ' ' << *it;
+        }
+        self << ' ' << ']';
+        return self;
+    }
+
+
     namespace formatters {
 
         template<typename T>
         struct left {
             T const& value;
-            std::size_t width;
+            unsigned width;
         };
 
 
@@ -297,7 +319,7 @@ namespace ufmt {
         template<typename T>
         struct right {
             T const& value;
-            std::size_t width;
+            unsigned width;
         };
 
 
@@ -335,7 +357,11 @@ namespace ufmt {
         #if defined(_MSC_VER)
             auto const r = std::to_chars(p, p + float_digits, f.value,
                                          std::chars_format::fixed, f.precision);
-            self.free(r.ptr);
+            if(r.ec == std::errc{}) {
+				self.free(r.ptr);
+			} else {
+				self.free(p);
+			}
         #else
             auto const n = std::snprintf(p, float_digits, "%.*f", f.precision, f.value);
             if(n <= 0) self.free(p); else self.free(p + n);
@@ -347,7 +373,7 @@ namespace ufmt {
         template<typename T>
         struct fixed {
             T value;
-            std::size_t width;
+            unsigned width;
         };
 
 
@@ -449,39 +475,40 @@ namespace ufmt {
             self.char_n(arg.c, arg.n);
             return self;
         }
+			
     } // formatters
 
 
     template<typename T>
-    formatters::left<T> left(T const& value, std::size_t width) noexcept {
+    formatters::left<T> left(T const& value, unsigned width) noexcept {
         return formatters::left<T>{value, width};
     }
 
 
     template<typename T>
-    formatters::right<T> right(T const& value, std::size_t width) noexcept {
+    formatters::right<T> right(T const& value, unsigned width) noexcept {
         return formatters::right<T>{value, width};
     }
 
 
-    formatters::precised<double> precised(double value, int precision) noexcept {
+    inline formatters::precised<double> precised(double value, int precision) noexcept {
         return formatters::precised<double>{value, precision};
     }
 
-    formatters::fixed<std::int32_t> fixed(std::int32_t value, int width) noexcept {
-        return formatters::fixed<std::int32_t>{value, std::size_t(width)};
+    inline formatters::fixed<std::int32_t> fixed(std::int32_t value, unsigned width) noexcept {
+        return formatters::fixed<std::int32_t>{value, unsigned(width)};
     }
 
-    formatters::fixed<std::uint32_t> fixed(std::uint32_t value, int width) noexcept {
-        return formatters::fixed<std::uint32_t>{value, std::size_t(width)};
+    inline formatters::fixed<std::uint32_t> fixed(std::uint32_t value, unsigned width) noexcept {
+        return formatters::fixed<std::uint32_t>{value, unsigned(width)};
     }
 
-    formatters::fixed<std::int64_t> fixed(std::int64_t value, int width) noexcept {
-        return formatters::fixed<std::int64_t>{value, std::size_t(width)};
+    inline formatters::fixed<std::int64_t> fixed(std::int64_t value, unsigned width) noexcept {
+        return formatters::fixed<std::int64_t>{value, unsigned(width)};
     }
 
-    formatters::fixed<std::uint64_t> fixed(std::uint64_t value, int width) noexcept {
-        return formatters::fixed<std::uint64_t>{value, std::size_t(width)};
+    inline formatters::fixed<std::uint64_t> fixed(std::uint64_t value, unsigned width) noexcept {
+        return formatters::fixed<std::uint64_t>{value, unsigned(width)};
     }
 
 
@@ -511,5 +538,5 @@ namespace ufmt {
     inline formatters::char_n char_n(char c, std::size_t n) {
         return formatters::char_n{c, n};
     }
-
+	
 } // ufmt
