@@ -47,10 +47,6 @@ void run_benchmark(char const* name, int thread_count, F&& f) {
             duration_cast<nanoseconds>((end - begin) / iterations);
         std::cout << "Average " << name << " latency - " << latency.count()
                   << " nanoseconds" << std::endl;
-        std::cout << name << " to save " << settings::total_messages
-                  << " messages - "
-                  << duration_cast<milliseconds>(end - begin).count() << " ms"
-                  << std::endl;
     };
 
     for(int i = 0; i != thread_count; ++i)
@@ -74,8 +70,8 @@ int main() {
     for(auto threads: {2})
         run_benchmark("nanolog", threads, [] {
             LOG_INFO << "Logging " << settings::string.data()
-                     << settings::int_number << settings::character
-                     << settings::int_number;
+                     <<' ' << settings::int_number
+                     << ' ' << settings::float_number;
         });
 
 
@@ -88,22 +84,19 @@ int main() {
 
     for(auto threads: {2})
         run_benchmark("spdlog", threads, [] {
-            spd_logger->info("Logging {} {}{}{}",
+            spd_logger->info("Logging {} {} {}",
                              settings::string,
                              settings::int_number,
-                             settings::character,
-                             settings::int_number);
+                             settings::float_number);
         });
 
 
     for(auto threads: {2})
         run_benchmark("chronicle", threads, [] {
             chronicle_logger.info("benchmark",
-                                  "Logging ",
-                                  settings::string,
-                                  settings::int_number,
-                                  settings::character,
-                                  settings::int_number);
+                "Logging ", settings::string,
+                ' ', settings::int_number,
+                ' ', settings::float_number);
         });
 
     std::cout << "chronicle blocks: " << chronicle_logger.blocks_count()
