@@ -36,20 +36,20 @@ namespace chronicle::fields {
 
             if(tod.hours().count() < 10)
                 text << '0';
-            text << tod.hours().count();
+            text << int(tod.hours().count());
             text << ':';
 
             if(tod.minutes().count() < 10)
                 text << '0';
-            text << tod.minutes().count();
+            text << int(tod.minutes().count());
             text << ':';
 
             if(tod.seconds().count() < 10)
                 text << '0';
-            text << tod.seconds().count();
+            text << int(tod.seconds().count());
             text << '.';
 
-            auto const millis = tod.subseconds().count();
+            auto const millis = int(tod.subseconds().count());
             if(millis < 100) {
                 if(millis < 10)
                     text << '0' << '0';
@@ -57,7 +57,7 @@ namespace chronicle::fields {
                     text << '0';
             }
 
-            text << millis;
+            text << int(millis);
         }
 
     };   // utc_time_ms

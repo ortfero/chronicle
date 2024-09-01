@@ -35,20 +35,20 @@ namespace chronicle::fields {
 
             if(tod.hours().count() < 10)
                 text << '0';
-            text << tod.hours().count();
+            text << int(tod.hours().count());
             text << ':';
 
             if(tod.minutes().count() < 10)
                 text << '0';
-            text << tod.minutes().count();
+            text << int(tod.minutes().count());
             text << ':';
 
             if(tod.seconds().count() < 10)
                 text << '0';
-            text << tod.seconds().count();
+            text << int(tod.seconds().count());
             text << '.';
 
-            auto const micros = tod.subseconds().count();
+            auto const micros = int(tod.subseconds().count());
             text << ufmt::fixed(micros, 6);
         }
 
